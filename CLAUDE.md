@@ -56,6 +56,7 @@ This is a **production-ready e-commerce template** designed to be the foundation
   /utils         - Utility functions
   /hooks         - Custom React hooks
   /validators    - Zod schemas and validation
+  /actions       - Server actions for data operations
 /config          - App configuration
 /types           - TypeScript type definitions
 /public          - Static assets
@@ -156,14 +157,11 @@ This is a **production-ready e-commerce template** designed to be the foundation
 - **Database**: 
   - Prisma 6.15.0 (ORM)
   - @prisma/client 6.15.0
-  - @neondatabase/serverless 1.0.1 (Serverless driver)
-  - @prisma/adapter-neon 6.15.0 (Prisma adapter for Neon)
-  - PostgreSQL (Neon cloud database)
-- **WebSocket**:
-  - ws 8.18.3 (WebSocket client)
-  - bufferutil 4.0.9 (Binary WebSocket support)
+  - PostgreSQL (via DATABASE_URL)
 - **Authentication**:
-  - bcryptjs 3.0.2 (password hashing)
+  - bcryptjs 3.0.2 (password hashing for seed data)
+- **Utilities**: 
+  - query-string 9.3.0
 - **State Management**: Zustand 5.0.8
 - **Forms**: React Hook Form 7.62.0 + Zod 4.1.5
 - **Theme Management**: next-themes 0.4.6
@@ -277,6 +275,8 @@ pnpm db:seed        # Seed the database
   /page.tsx
   /products
     /page.tsx
+    /[slug]
+      /page.tsx
   /loading.tsx
   /not-found.tsx
   /error.tsx
@@ -294,6 +294,8 @@ pnpm db:seed        # Seed the database
     /product-card.tsx
     /product-list.tsx
     /product-price.tsx
+    /product-image-gallery.tsx
+    /add-to-cart.tsx
   /ui (shadcn components)
     /sheet.tsx
   /theme-provider.tsx
@@ -303,11 +305,13 @@ pnpm db:seed        # Seed the database
 /db
   /sample-data.ts
   /seed.ts
+  /prisma.ts
 /lib
   /constants.ts
   /utils.ts
-  /prisma.ts
   /validators.ts
+  /actions
+    /product-actions.ts
 /public
   /images
     /banner-1.jpg
@@ -336,7 +340,7 @@ package.json
 - `lib/constants.ts` - Centralized app configuration and constants
 - `config/store.config.ts` - Store configuration for industry-agnostic customization
 - `prisma/schema.prisma` - Prisma schema configuration for PostgreSQL
-- `lib/prisma.ts` - Prisma client singleton for Next.js
+- `db/prisma.ts` - Prisma client singleton with decimal-to-string transformers
 - `lib/validators.ts` - Zod schemas for all data models
 - `db/seed.ts` - Database seed script with sample data
 - `db/sample-data.ts` - Sample products and users data
@@ -415,26 +419,40 @@ package.json
   - Featured products and banners
   - InsertProduct and UpdateProduct types for mutations
 - ✅ Product Components
-  - ProductCard with interactive hover effects
+  - ProductCard with interactive hover effects and product links
   - ProductList with responsive grid layout
-  - ProductPrice with discount display
+  - ProductPrice with discount display (supports string/number)
+  - ProductImageGallery with thumbnails and navigation
+  - AddToCart component with quantity selector
   - Wishlist toggle functionality
   - Stock status indicators
 - ✅ Product Pages
   - Products listing page (/products) - **Now fetching from database**
+  - **Product detail page (/products/[slug])** - Dynamic routing with full product info
   - Category sections with product counts - **Dynamic from database**
+  - Breadcrumb navigation on detail pages
+- ✅ **Server Actions Implementation**
+  - Created `/lib/actions/product-actions.ts` with all product operations
+  - Product CRUD operations (create, update, delete)
+  - Get products with filtering and pagination support
+  - Get featured products and new arrivals
+  - Get product by slug or ID
+  - Get categories with product count aggregation
+  - All pages use server actions instead of direct Prisma calls
 - ✅ **Database Integration**
   - Homepage fetches featured products from database
   - Products page loads all products from database
+  - Product detail page fetches by slug
   - Categories dynamically generated from database
   - Parallel data fetching with Promise.all
   - Decimal type conversion for price and rating
   - Server-side data fetching in async components
+  - Fixed Prisma client to work without Neon adapter issues
 - [ ] **Remaining Product Features**
-  - Product details page
   - Product variants (size, color, etc.)
   - Product search functionality
-  - Filters and sorting
+  - Advanced filters and sorting UI
+  - Product reviews display and submission
 
 ## Core Features (Template Foundation)
 ### Essential E-Commerce Components
@@ -587,7 +605,7 @@ NEXT_PUBLIC_CHAT_WIDGET_ID=""
       - Cart model with session-based shopping cart
       - Review model for product reviews
       - NextAuth.js compatible Account, Session, and VerificationToken models
-      - Enabled driverAdapters preview feature
+      - ~~Enabled driverAdapters preview feature~~ (Removed)
       - Successfully pushed schema to Neon database
       - ✅ Verified: Build passes with complete schema
     - **Database Seeding:**
@@ -612,13 +630,13 @@ NEXT_PUBLIC_CHAT_WIDGET_ID=""
       - Added InsertProduct and UpdateProduct types
       - Set up validation rules for all fields
       - ✅ Verified: Build passes with Zod validators
-    - **Neon Serverless Adapter Setup:**
-      - Installed @neondatabase/serverless for serverless database connections
-      - Added @prisma/adapter-neon for Prisma integration
-      - Installed ws (WebSocket) library for real-time connections
-      - Added bufferutil for binary WebSocket performance
-      - Configured development types with @types/ws
-      - Ready for edge runtime deployment
+    - **~~Neon Serverless Adapter Setup~~** (Removed due to connection issues):
+      - ~~Installed @neondatabase/serverless for serverless database connections~~
+      - ~~Added @prisma/adapter-neon for Prisma integration~~
+      - ~~Installed ws (WebSocket) library for real-time connections~~
+      - ~~Added bufferutil for binary WebSocket performance~~
+      - ~~Configured development types with @types/ws~~
+      - ~~Ready for edge runtime deployment~~
     - **Validators & Constants Updates:**
       - Updated validators.ts with currency type for decimal values stored as strings
       - Added comprehensive validation schemas for all models
@@ -629,3 +647,22 @@ NEXT_PUBLIC_CHAT_WIDGET_ID=""
       - Fixed rating display to convert strings to numbers
       - Made pages dynamic to prevent static generation errors
       - ✅ Verified: Build successful with all type fixes
+    - **Server Actions & Product Detail Page:**
+      - Created `/lib/actions/product-actions.ts` with all product operations
+      - Implemented server actions for data fetching (replacing direct Prisma calls)
+      - Created product detail page with dynamic routing (/products/[slug])
+      - Built ProductImageGallery component with thumbnail navigation
+      - Created AddToCart component with quantity selector and stock status
+      - Added breadcrumb navigation to product detail pages
+      - Fixed Prisma client to work without Neon adapter WebSocket issues
+      - Updated all pages to use server actions for better code organization
+      - ✅ Verified: Build successful with product detail page
+    - **Dependency Cleanup:**
+      - Removed Neon adapter dependencies (@neondatabase/serverless, @prisma/adapter-neon)
+      - Removed WebSocket dependencies (ws, bufferutil, @types/ws)
+      - Removed unused @types/bcryptjs
+      - Simplified Prisma client to use standard PostgreSQL connection
+      - Removed driverAdapters preview feature from schema
+      - Moved prisma.ts to db folder for better organization
+      - Cleaned up all references to removed dependencies
+      - ✅ Verified: Build and lint pass after cleanup

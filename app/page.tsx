@@ -8,8 +8,6 @@ import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 import * as Icons from 'lucide-react';
 
-export const dynamic = 'force-dynamic';
-
 export default async function Home() {
   const [featuredProducts, newArrivals] = await Promise.all([
     getFeaturedProducts(),

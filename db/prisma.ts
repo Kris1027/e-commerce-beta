@@ -1,8 +1,8 @@
 import { PrismaClient } from '@prisma/client';
 
 const prismaClientSingleton = () => {
-  // Use standard Prisma client - it will connect to Neon using DATABASE_URL
-  // The Neon adapter is causing WebSocket issues in development
+  // Create Prisma client with standard configuration
+  // Connects to database using DATABASE_URL environment variable
   return new PrismaClient({
     log: process.env.NODE_ENV === 'development' ? ['error', 'warn'] : ['error'],
   }).$extends({
