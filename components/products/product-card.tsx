@@ -102,7 +102,7 @@ export function ProductCard({ product, className }: ProductCardProps) {
               key={i}
               className={cn(
                 'h-3 w-3',
-                i < Math.floor(product.rating)
+                i < Math.floor(Number(product.rating))
                   ? 'fill-yellow-400 text-yellow-400'
                   : 'fill-muted text-muted'
               )}

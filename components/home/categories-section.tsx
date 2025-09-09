@@ -1,23 +1,18 @@
 import Link from 'next/link';
 import { Grid3x3, Package, Tag, TrendingUp } from 'lucide-react';
-import prisma from '@/lib/prisma';
+import { getAllCategories } from '@/lib/actions/product-actions';
 
 async function getCategories() {
-  const products = await prisma.product.groupBy({
-    by: ['category'],
-    _count: {
-      category: true,
-    },
-  });
+  const categories = await getAllCategories();
 
   const icons = [Grid3x3, Package, Tag, TrendingUp];
   const colors = ['bg-blue-500', 'bg-purple-500', 'bg-green-500', 'bg-orange-500'];
   
-  return products.map((item, index) => ({
+  return categories.map((item, index) => ({
     name: item.category,
     icon: icons[index % icons.length],
     description: `Browse our selection of ${item.category.toLowerCase()}`,
-    productCount: item._count.category,
+    productCount: item._count,
     href: `/products?category=${encodeURIComponent(item.category.toLowerCase().replace(/\s+/g, '-'))}`,
     color: colors[index % colors.length],
   }));

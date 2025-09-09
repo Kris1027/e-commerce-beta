@@ -35,3 +35,28 @@ export const SEO_CONFIG = {
     description: APP_DESCRIPTION,
   },
 } as const
+
+// Payment Methods
+export const PAYMENT_METHODS = {
+  stripe: 'Stripe',
+  paypal: 'PayPal',
+  cashOnDelivery: 'Cash on Delivery',
+} as const
+
+// Order Status
+export const ORDER_STATUS = {
+  pending: 'Pending',
+  processing: 'Processing',
+  shipped: 'Shipped',
+  delivered: 'Delivered',
+  cancelled: 'Cancelled',
+} as const
+
+// Shipping and Tax
+export const FREE_SHIPPING_MIN_AMOUNT = 50
+export const SHIPPING_RATE = 10
+export const TAX_RATE = 0.1 // 10%
+
+// Pagination
+export const PAGE_SIZE = 12
+export const LATEST_PRODUCTS_LIMIT = 8

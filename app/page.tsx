@@ -2,35 +2,19 @@ import { HeroBanner } from '@/components/home/hero-banner';
 import { FeaturedProducts } from '@/components/home/featured-products';
 import { CategoriesSection } from '@/components/home/categories-section';
 import { ProductList } from '@/components/products/product-list';
-import prisma from '@/lib/prisma';
+import { getFeaturedProducts, getNewArrivals } from '@/lib/actions/product-actions';
 import { storeConfig } from '@/config/store.config';
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 import * as Icons from 'lucide-react';
 
+export const dynamic = 'force-dynamic';
+
 export default async function Home() {
   const [featuredProducts, newArrivals] = await Promise.all([
-    prisma.product.findMany({
-      where: { isFeatured: true },
-      orderBy: { createdAt: 'desc' },
-    }),
-    prisma.product.findMany({
-      orderBy: { createdAt: 'desc' },
-      take: 4,
-    }),
+    getFeaturedProducts(),
+    getNewArrivals(),
   ]);
-
-  const formattedFeaturedProducts = featuredProducts.map((product) => ({
-    ...product,
-    price: product.price.toNumber(),
-    rating: product.rating.toNumber(),
-  }));
-
-  const formattedNewArrivals = newArrivals.map((product) => ({
-    ...product,
-    price: product.price.toNumber(),
-    rating: product.rating.toNumber(),
-  }));
 
   const { homepage } = storeConfig;
 
@@ -40,7 +24,7 @@ export default async function Home() {
       
       {homepage.sections.featuredProducts && (
         <FeaturedProducts 
-          products={formattedFeaturedProducts}
+          products={featuredProducts}
           title={homepage.sectionTitles.featured}
         />
       )}
@@ -90,7 +74,7 @@ export default async function Home() {
                 <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
               </Link>
             </div>
-            <ProductList products={formattedNewArrivals} />
+            <ProductList products={newArrivals} />
           </div>
         </section>
       )}

@@ -1,18 +1,10 @@
 import { ProductList } from '@/components/products/product-list';
-import prisma from '@/lib/prisma';
+import { getAllProducts } from '@/lib/actions/product-actions';
+
+export const dynamic = 'force-dynamic';
 
 export default async function ProductsPage() {
-  const products = await prisma.product.findMany({
-    orderBy: {
-      createdAt: 'desc',
-    },
-  });
-
-  const formattedProducts = products.map((product) => ({
-    ...product,
-    price: product.price.toNumber(),
-    rating: product.rating.toNumber(),
-  }));
+  const { data: products } = await getAllProducts({ page: 1 });
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
@@ -22,7 +14,7 @@ export default async function ProductsPage() {
           Browse our collection of high-quality products
         </p>
       </div>
-      <ProductList products={formattedProducts} />
+      <ProductList products={products} />
     </div>
   );
 }

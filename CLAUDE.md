@@ -156,7 +156,12 @@ This is a **production-ready e-commerce template** designed to be the foundation
 - **Database**: 
   - Prisma 6.15.0 (ORM)
   - @prisma/client 6.15.0
+  - @neondatabase/serverless 1.0.1 (Serverless driver)
+  - @prisma/adapter-neon 6.15.0 (Prisma adapter for Neon)
   - PostgreSQL (Neon cloud database)
+- **WebSocket**:
+  - ws 8.18.3 (WebSocket client)
+  - bufferutil 4.0.9 (Binary WebSocket support)
 - **Authentication**:
   - bcryptjs 3.0.2 (password hashing)
 - **State Management**: Zustand 5.0.8
@@ -607,3 +612,20 @@ NEXT_PUBLIC_CHAT_WIDGET_ID=""
       - Added InsertProduct and UpdateProduct types
       - Set up validation rules for all fields
       - ✅ Verified: Build passes with Zod validators
+    - **Neon Serverless Adapter Setup:**
+      - Installed @neondatabase/serverless for serverless database connections
+      - Added @prisma/adapter-neon for Prisma integration
+      - Installed ws (WebSocket) library for real-time connections
+      - Added bufferutil for binary WebSocket performance
+      - Configured development types with @types/ws
+      - Ready for edge runtime deployment
+    - **Validators & Constants Updates:**
+      - Updated validators.ts with currency type for decimal values stored as strings
+      - Added comprehensive validation schemas for all models
+      - Created sign-in and sign-up form validation schemas
+      - Added PAYMENT_METHODS constant with stripe, paypal, cashOnDelivery
+      - Added ORDER_STATUS constant with order lifecycle states
+      - Updated ProductPrice component to handle string/number prices
+      - Fixed rating display to convert strings to numbers
+      - Made pages dynamic to prevent static generation errors
+      - ✅ Verified: Build successful with all type fixes
