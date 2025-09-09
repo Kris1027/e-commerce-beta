@@ -10,8 +10,10 @@ export default function Error({
   reset: () => void
 }) {
   useEffect(() => {
-    // Log the error to an error reporting service
-    console.error(error)
+    // Log error to monitoring service in production
+    if (process.env.NODE_ENV === 'production') {
+      // TODO: Send to error monitoring service (e.g., Sentry)
+    }
   }, [error])
 
   return (

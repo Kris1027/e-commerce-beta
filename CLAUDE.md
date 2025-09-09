@@ -16,19 +16,116 @@ This is a **production-ready e-commerce template** designed to be the foundation
 4. **Plugin Architecture**: Easy to add/remove features without breaking core functionality
 5. **API-First**: Decoupled backend for flexibility in data sources
 6. **Multi-tenant Ready**: Single codebase serving multiple stores
+7. **Industry-Agnostic**: Components and features must work for ANY type of e-commerce store (electronics, clothing, food, services, digital products, etc.). Avoid industry-specific terminology or UI elements
 
-## Development Standards
-⚠️ **MANDATORY**: This template MUST always use:
-- **Best Practices**: Industry-standard patterns and conventions
-- **Modern Code**: Latest stable features and syntax
-- **Latest Tools**: Current versions of all dependencies
-- **Performance First**: Optimized for Core Web Vitals
-- **Type Safety**: Full TypeScript coverage with strict mode
-- **Accessibility**: WCAG 2.1 AA compliance
-- **Security**: OWASP best practices
-- **SEO Ready**: Structured data and meta tags
-- **Mobile First**: Responsive design patterns
-- **Clean Architecture**: SOLID principles and clean code
+## Development Standards & Best Practices
+
+### ⚠️ **MANDATORY CODE QUALITY RULES**
+
+#### 1. **TypeScript Standards**
+- ✅ ALWAYS use strict TypeScript mode
+- ✅ Define explicit types for all props, state, and functions
+- ✅ Avoid `any` type - use `unknown` if type is truly unknown
+- ✅ Use interfaces for objects, types for unions/primitives
+- ✅ Export types separately from components
+
+#### 2. **React/Next.js Best Practices**
+- ✅ Use `'use client'` directive only when necessary (client interactivity)
+- ✅ Implement proper loading and error boundaries
+- ✅ Use Next.js Image component for all images
+- ✅ Implement proper SEO with metadata
+- ✅ Use server components by default for better performance
+- ✅ Implement proper suspense boundaries for async operations
+
+#### 3. **Component Architecture**
+- ✅ Single Responsibility: One component, one purpose
+- ✅ Keep components under 200 lines
+- ✅ Extract reusable logic into custom hooks
+- ✅ Use composition over inheritance
+- ✅ Implement proper prop validation
+
+#### 4. **Folder Structure**
+```
+/app              - Next.js app router pages
+/components       
+  /ui            - Reusable UI primitives (buttons, inputs)
+  /layout        - Layout components (header, footer)
+  /features      - Feature-specific components
+  /home          - Page-specific components
+/lib             
+  /utils         - Utility functions
+  /hooks         - Custom React hooks
+  /validations   - Zod schemas
+/config          - App configuration
+/types           - TypeScript type definitions
+/public          - Static assets
+/db              - Database/sample data
+```
+
+#### 5. **Error Handling**
+- ✅ Implement error boundaries for all pages
+- ✅ Use try-catch for async operations
+- ✅ Provide user-friendly error messages
+- ✅ Log errors to monitoring service in production
+- ✅ Never expose sensitive error details to users
+- ✅ Implement proper 404 and error pages
+
+#### 6. **Performance Optimization**
+- ✅ Use dynamic imports for heavy components
+- ✅ Implement proper image optimization
+- ✅ Use React.memo for expensive components
+- ✅ Implement virtual scrolling for long lists
+- ✅ Minimize bundle size - check with `next build`
+- ✅ Use proper caching strategies
+
+#### 7. **Accessibility (a11y)**
+- ✅ Semantic HTML elements
+- ✅ Proper ARIA labels for interactive elements
+- ✅ Keyboard navigation support
+- ✅ Focus management
+- ✅ Color contrast ratios (WCAG AA)
+- ✅ Alt text for all images
+
+#### 8. **Code Style**
+- ✅ Use Prettier for formatting
+- ✅ ESLint for code quality
+- ✅ No console.log in production code
+- ✅ Comments only for complex logic
+- ✅ Self-documenting code with clear naming
+- ✅ TODO comments must include ticket/issue reference
+
+#### 9. **State Management**
+- ✅ Use React state for component-level state
+- ✅ Use Zustand for global state (already installed)
+- ✅ Keep state as close to usage as possible
+- ✅ Avoid prop drilling - use context or state management
+
+#### 10. **Security**
+- ✅ Sanitize all user inputs
+- ✅ Never expose API keys or secrets
+- ✅ Use environment variables for configuration
+- ✅ Implement proper CORS policies
+- ✅ Use HTTPS in production
+- ✅ Validate all data on both client and server
+
+#### 11. **Testing Requirements** (When Implemented)
+- Unit tests for utilities
+- Integration tests for API routes
+- Component testing for critical UI
+- E2E tests for critical user flows
+
+#### 12. **Git Commit Standards**
+- Use conventional commits: `feat:`, `fix:`, `docs:`, `style:`, `refactor:`
+- Keep commits atomic and focused
+- Write clear, descriptive commit messages
+
+### **Before Every Commit Checklist**
+- [ ] Run `pnpm lint` - must pass with no errors
+- [ ] Run `pnpm build` - must build successfully
+- [ ] Check for console.log statements
+- [ ] Verify TypeScript types are properly defined
+- [ ] Ensure no commented-out code
+- [ ] Update CLAUDE.md if adding new patterns
 
 ## Customization Points
 ### Quick Customization (No Code Changes)
@@ -160,23 +257,43 @@ pnpm lint
 /app
   /layout.tsx
   /page.tsx
+  /products
+    /page.tsx
   /loading.tsx
   /not-found.tsx
   /error.tsx
   /globals.css
 /components
+  /home
+    /hero-banner.tsx
+    /featured-products.tsx
+    /categories-section.tsx
   /layout
     /header.tsx
     /footer.tsx
     /mobile-menu.tsx
+  /products
+    /product-card.tsx
+    /product-list.tsx
+    /product-price.tsx
   /ui (shadcn components)
     /sheet.tsx
   /theme-provider.tsx
   /theme-toggle.tsx
+/config
+  /store.config.ts
+/db
+  /sample-data.ts
 /lib
   /constants.ts
   /utils.ts
 /public
+  /images
+    /banner-1.jpg
+    /banner-2.jpg
+    /sample-products (product images)
+/types
+  /product.ts
 .env.local
 .env.example
 .eslintrc.json
@@ -194,16 +311,30 @@ package.json
 - `.env.local` - Local environment variables
 - `.env.example` - Example environment variables template
 - `lib/constants.ts` - Centralized app configuration and constants
+- `config/store.config.ts` - Store configuration for industry-agnostic customization
+
+### Product System
+- ✅ Product Types
+  - Product interface with all essential fields
+  - Support for images, pricing, stock, ratings
+  - Featured products and banners
+- ✅ Product Components
+  - ProductCard with interactive hover effects
+  - ProductList with responsive grid layout
+  - ProductPrice with discount display
+  - Wishlist toggle functionality
+  - Stock status indicators
+- ✅ Product Pages
+  - Products listing page (/products)
+  - Category sections with product counts
+- [ ] **Remaining Product Features**
+  - Product details page
+  - Product variants (size, color, etc.)
+  - Product search functionality
+  - Filters and sorting
 
 ## Core Features (Template Foundation)
 ### Essential E-Commerce Components
-- [ ] **Product System**
-  - Product listing with filters
-  - Product details page
-  - Product variants (size, color, etc.)
-  - Inventory management
-  - Product search
-  - Categories and collections
 
 - [ ] **Shopping Cart**
   - Persistent cart (localStorage + database)
@@ -275,6 +406,40 @@ NEXT_PUBLIC_CHAT_WIDGET_ID=""
 2. **Multiple Stores**: Use different deployments with shared codebase
 3. **Multi-tenant SaaS**: Single deployment with domain-based routing
 
+### Store Configuration System
+- ✅ Industry-agnostic configuration file (`config/store.config.ts`)
+  - Customizable product terminology (products/services/courses/etc.)
+  - Feature toggles for different store types
+  - Configurable trust badges
+  - Homepage section controls
+  - SEO and locale settings
+- ✅ Dynamic category generation from product data
+- ✅ Configurable homepage sections
+- ✅ Generic trust badges suitable for any industry
+
+### Homepage Components
+- ✅ Hero Banner with auto-sliding carousel
+  - Responsive image display using banner-1.jpg and banner-2.jpg
+  - Auto-play with manual controls
+  - Call-to-action buttons
+  - Smooth transitions and animations
+- ✅ Featured Products Section
+  - Displays products marked as featured
+  - "View All" navigation link
+- ✅ Categories Section
+  - Interactive category cards
+  - Product count per category
+  - Icon-based visual design
+- ✅ New Arrivals Section
+  - Latest products display
+  - Limited to 4 products on homepage
+- ✅ Features Section
+  - Free shipping, secure payment, easy returns, 24/7 support
+  - Icon-based layout
+- ✅ Newsletter Subscription
+  - Email capture form
+  - Prominent CTA section
+
 ## Progress Log
 - **2025-09-09**: 
   - Established project as reusable e-commerce template
@@ -290,3 +455,9 @@ NEXT_PUBLIC_CHAT_WIDGET_ID=""
   - ✅ Verified: ESLint passes with no errors
   - ✅ Verified: Build completes successfully
   - Implemented theme system with dark/light mode toggle
+  - Created Product types matching sample data structure
+  - Implemented ProductCard, ProductList, and ProductPrice components
+  - Created products listing page
+  - Implemented homepage with hero banner using public images
+  - Added featured products and categories sections
+  - Created responsive product grid with interactive features
