@@ -15,6 +15,7 @@ Building a modern e-commerce application using Next.js with best practices and m
 - **UI Components**: shadcn/ui (initialized)
 - **State Management**: Zustand 5.0.8
 - **Forms**: React Hook Form 7.62.0 + Zod 4.1.5
+- **Theme Management**: next-themes 0.4.6
 - **Code Quality**: 
   - ESLint 9.35.0 with Next.js config
   - Prettier 3.6.2 with Tailwind plugin
@@ -78,6 +79,15 @@ pnpm lint
   - Responsive padding (px-4 sm:px-6 lg:px-8)
   - Main content area wrapped in centered container
 
+### Theme System
+- ✅ Implemented dark/light theme toggle
+  - next-themes for theme management
+  - System theme detection support
+  - Theme toggle button in header
+  - Sun/moon icons for visual feedback
+  - Prevents flash of unstyled content (FOUC)
+  - Class-based theme switching
+
 ## Current Project Structure
 ```
 /app
@@ -89,6 +99,8 @@ pnpm lint
     /header.tsx
     /footer.tsx
   /ui (shadcn components)
+  /theme-provider.tsx
+  /theme-toggle.tsx
 /lib
   /constants.ts
   /utils.ts

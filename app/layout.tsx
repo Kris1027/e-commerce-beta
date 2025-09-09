@@ -3,6 +3,7 @@ import { Inter } from 'next/font/google'
 import { APP_CONFIG, SEO_CONFIG } from '@/lib/constants'
 import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
+import { ThemeProvider } from '@/components/theme-provider'
 import './globals.css'
 
 const inter = Inter({
@@ -68,15 +69,22 @@ export default function RootLayout({
         className={`${inter.variable} font-sans antialiased`}
         suppressHydrationWarning
       >
-        <div className="relative flex min-h-screen flex-col">
-          <Header />
-          <main className="flex-1">
-            <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
-              {children}
-            </div>
-          </main>
-          <Footer />
-        </div>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <div className="relative flex min-h-screen flex-col">
+            <Header />
+            <main className="flex-1">
+              <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
+                {children}
+              </div>
+            </main>
+            <Footer />
+          </div>
+        </ThemeProvider>
       </body>
     </html>
   )

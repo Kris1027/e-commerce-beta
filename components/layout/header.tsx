@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { APP_NAME } from '@/lib/constants'
+import { ThemeToggle } from '@/components/theme-toggle'
 
 export function Header() {
   return (
@@ -99,6 +100,7 @@ export function Header() {
               </svg>
               <span className="sr-only">Account</span>
             </Link>
+            <ThemeToggle />
           </nav>
         </div>
       </div>
