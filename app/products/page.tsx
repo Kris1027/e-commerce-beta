@@ -1,7 +1,19 @@
 import { ProductList } from '@/components/products/product-list';
-import sampleData from '@/db/sample-data';
+import prisma from '@/lib/prisma';
 
-export default function ProductsPage() {
+export default async function ProductsPage() {
+  const products = await prisma.product.findMany({
+    orderBy: {
+      createdAt: 'desc',
+    },
+  });
+
+  const formattedProducts = products.map((product) => ({
+    ...product,
+    price: product.price.toNumber(),
+    rating: product.rating.toNumber(),
+  }));
+
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
       <div className="mb-8">
@@ -10,7 +22,7 @@ export default function ProductsPage() {
           Browse our collection of high-quality products
         </p>
       </div>
-      <ProductList products={sampleData.products} />
+      <ProductList products={formattedProducts} />
     </div>
   );
 }
