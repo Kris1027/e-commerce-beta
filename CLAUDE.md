@@ -153,6 +153,10 @@ This is a **production-ready e-commerce template** designed to be the foundation
 - **TypeScript**: 5.9.2 (with strict configuration)
 - **Styling**: Tailwind CSS v4.1.13
 - **UI Components**: shadcn/ui (initialized)
+- **Database**: 
+  - Prisma 6.15.0 (ORM)
+  - @prisma/client 6.15.0
+  - PostgreSQL (configured)
 - **State Management**: Zustand 5.0.8
 - **Forms**: React Hook Form 7.62.0 + Zod 4.1.5
 - **Theme Management**: next-themes 0.4.6
@@ -178,6 +182,13 @@ pnpm start
 
 # Linting
 pnpm lint
+
+# Database commands
+pnpm db:generate    # Generate Prisma client
+pnpm db:migrate     # Run migrations in development
+pnpm db:push        # Push schema changes without migrations
+pnpm db:studio      # Open Prisma Studio GUI
+pnpm db:seed        # Seed the database
 ```
 
 ## Implemented Features
@@ -287,11 +298,14 @@ pnpm lint
 /lib
   /constants.ts
   /utils.ts
+  /prisma.ts
 /public
   /images
     /banner-1.jpg
     /banner-2.jpg
     /sample-products (product images)
+/prisma
+  /schema.prisma
 /types
   /product.ts
 .env.local
@@ -308,10 +322,34 @@ package.json
 - `.eslintrc.json` - ESLint configuration with TypeScript rules
 - `.prettierrc.json` - Prettier configuration with Tailwind plugin
 - `components.json` - shadcn/ui configuration
-- `.env.local` - Local environment variables
+- `.env.local` - Local environment variables (includes DATABASE_URL)
 - `.env.example` - Example environment variables template
 - `lib/constants.ts` - Centralized app configuration and constants
 - `config/store.config.ts` - Store configuration for industry-agnostic customization
+- `prisma/schema.prisma` - Prisma schema configuration for PostgreSQL
+- `lib/prisma.ts` - Prisma client singleton for Next.js
+
+### Database System
+- ✅ **Prisma ORM Setup**
+  - Initialized with PostgreSQL provider
+  - Client singleton pattern for Next.js
+  - Database connection configured in environment variables
+  - Scripts added for migrations, studio, and generation
+  - Postinstall hook for automatic client generation
+- ✅ **Database Configuration**
+  - **Neon PostgreSQL** cloud database configured
+  - Connection pooling enabled with separate pooled/unpooled URLs
+  - SSL mode required for secure connections
+  - DATABASE_URL for pooled connections (application queries)
+  - DATABASE_URL_UNPOOLED for direct connections (migrations)
+  - Environment variables properly configured in `.env.local`
+  - Example configuration in `.env.example`
+  - Gitignore updated for migration files
+- [ ] **Pending Database Tasks**
+  - Create database models (User, Product, Order, etc.)
+  - Set up relationships and constraints
+  - Create initial migration
+  - Implement seed data script
 
 ### Product System
 - ✅ Product Types
@@ -461,3 +499,18 @@ NEXT_PUBLIC_CHAT_WIDGET_ID=""
   - Implemented homepage with hero banner using public images
   - Added featured products and categories sections
   - Created responsive product grid with interactive features
+  - **Prisma & PostgreSQL Setup:**
+    - Installed Prisma 6.15.0 and @prisma/client
+    - Initialized Prisma with PostgreSQL provider
+    - Created Prisma client singleton for Next.js (`lib/prisma.ts`)
+    - Configured DATABASE_URL in environment files
+    - Added database scripts to package.json (generate, migrate, push, studio, seed)
+    - Set up postinstall hook for automatic Prisma client generation
+    - Updated .gitignore for Prisma migration files
+    - ✅ Verified: Build and lint pass with Prisma configured
+    - **Neon Database Integration:**
+      - Configured Neon PostgreSQL cloud database
+      - Set up connection pooling with separate pooled/unpooled URLs
+      - Added SSL mode for secure connections
+      - Configured DATABASE_URL_UNPOOLED for migrations
+      - ✅ Verified: Successfully connected to Neon database
