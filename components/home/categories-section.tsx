@@ -1,32 +1,26 @@
 import Link from 'next/link';
 import { Grid3x3, Package, Tag, TrendingUp } from 'lucide-react';
-import sampleData from '@/db/sample-data';
+import { getAllCategories } from '@/lib/actions/product-actions';
 
-// Dynamically generate categories from actual product data
-const getCategories = () => {
-  const categoryMap = new Map<string, number>();
-  
-  sampleData.products.forEach(product => {
-    const count = categoryMap.get(product.category) || 0;
-    categoryMap.set(product.category, count + 1);
-  });
+async function getCategories() {
+  const categories = await getAllCategories();
 
   const icons = [Grid3x3, Package, Tag, TrendingUp];
   const colors = ['bg-blue-500', 'bg-purple-500', 'bg-green-500', 'bg-orange-500'];
   
-  return Array.from(categoryMap.entries()).map(([name, count], index) => ({
-    name,
+  return categories.map((item, index) => ({
+    name: item.category,
     icon: icons[index % icons.length],
-    description: `Browse our selection of ${name.toLowerCase()}`,
-    productCount: count,
-    href: `/products?category=${encodeURIComponent(name.toLowerCase().replace(/\s+/g, '-'))}`,
+    description: `Browse our selection of ${item.category.toLowerCase()}`,
+    productCount: item._count,
+    href: `/products?category=${encodeURIComponent(item.category.toLowerCase().replace(/\s+/g, '-'))}`,
     color: colors[index % colors.length],
   }));
-};
+}
 
-const categories = getCategories();
-
-export function CategoriesSection() {
+export async function CategoriesSection() {
+  const categories = await getCategories();
+  
   if (categories.length === 0) return null;
   
   return (

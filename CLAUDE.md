@@ -55,7 +55,8 @@ This is a **production-ready e-commerce template** designed to be the foundation
 /lib             
   /utils         - Utility functions
   /hooks         - Custom React hooks
-  /validations   - Zod schemas
+  /validators    - Zod schemas and validation
+  /actions       - Server actions for data operations
 /config          - App configuration
 /types           - TypeScript type definitions
 /public          - Static assets
@@ -153,6 +154,14 @@ This is a **production-ready e-commerce template** designed to be the foundation
 - **TypeScript**: 5.9.2 (with strict configuration)
 - **Styling**: Tailwind CSS v4.1.13
 - **UI Components**: shadcn/ui (initialized)
+- **Database**: 
+  - Prisma 6.15.0 (ORM)
+  - @prisma/client 6.15.0
+  - PostgreSQL (via DATABASE_URL)
+- **Authentication**:
+  - bcryptjs 3.0.2 (password hashing for seed data)
+- **Utilities**: 
+  - query-string 9.3.0
 - **State Management**: Zustand 5.0.8
 - **Forms**: React Hook Form 7.62.0 + Zod 4.1.5
 - **Theme Management**: next-themes 0.4.6
@@ -178,6 +187,13 @@ pnpm start
 
 # Linting
 pnpm lint
+
+# Database commands
+pnpm db:generate    # Generate Prisma client
+pnpm db:migrate     # Run migrations in development
+pnpm db:push        # Push schema changes without migrations
+pnpm db:studio      # Open Prisma Studio GUI
+pnpm db:seed        # Seed the database
 ```
 
 ## Implemented Features
@@ -259,6 +275,8 @@ pnpm lint
   /page.tsx
   /products
     /page.tsx
+    /[slug]
+      /page.tsx
   /loading.tsx
   /not-found.tsx
   /error.tsx
@@ -276,6 +294,8 @@ pnpm lint
     /product-card.tsx
     /product-list.tsx
     /product-price.tsx
+    /product-image-gallery.tsx
+    /add-to-cart.tsx
   /ui (shadcn components)
     /sheet.tsx
   /theme-provider.tsx
@@ -284,14 +304,21 @@ pnpm lint
   /store.config.ts
 /db
   /sample-data.ts
+  /seed.ts
+  /prisma.ts
 /lib
   /constants.ts
   /utils.ts
+  /validators.ts
+  /actions
+    /product-actions.ts
 /public
   /images
     /banner-1.jpg
     /banner-2.jpg
     /sample-products (product images)
+/prisma
+  /schema.prisma
 /types
   /product.ts
 .env.local
@@ -308,30 +335,124 @@ package.json
 - `.eslintrc.json` - ESLint configuration with TypeScript rules
 - `.prettierrc.json` - Prettier configuration with Tailwind plugin
 - `components.json` - shadcn/ui configuration
-- `.env.local` - Local environment variables
+- `.env.local` - Local environment variables (includes DATABASE_URL)
 - `.env.example` - Example environment variables template
 - `lib/constants.ts` - Centralized app configuration and constants
 - `config/store.config.ts` - Store configuration for industry-agnostic customization
+- `prisma/schema.prisma` - Prisma schema configuration for PostgreSQL
+- `db/prisma.ts` - Prisma client singleton with decimal-to-string transformers
+- `lib/validators.ts` - Zod schemas for all data models
+- `db/seed.ts` - Database seed script with sample data
+- `db/sample-data.ts` - Sample products and users data
+
+### Database System
+- ✅ **Prisma ORM Setup**
+  - Initialized with PostgreSQL provider
+  - Client singleton pattern for Next.js
+  - Database connection configured in environment variables
+  - Scripts added for migrations, studio, and generation
+  - Postinstall hook for automatic client generation
+- ✅ **Database Configuration**
+  - **Neon PostgreSQL** cloud database configured
+  - Connection pooling enabled with separate pooled/unpooled URLs
+  - SSL mode required for secure connections
+  - DATABASE_URL for pooled connections (application queries)
+  - DATABASE_URL_UNPOOLED for direct connections (migrations)
+  - Environment variables properly configured in `.env.local`
+  - Example configuration in `.env.example`
+  - Gitignore updated for migration files
+- ✅ **Database Models Created**
+  - **Product Model**: Complete e-commerce product with images, pricing, stock, ratings
+  - **User Model**: Authentication-ready with roles, addresses, payment methods
+  - **Order & OrderItem Models**: Full order management with status tracking
+  - **Cart Model**: Shopping cart with session support
+  - **Review Model**: Product reviews with verified purchase tracking
+  - **Account & Session Models**: NextAuth.js compatible authentication
+  - **VerificationToken Model**: Email verification support
+  - All models use UUID primary keys for better scalability
+  - Proper relationships and cascade deletes configured
+  - Decimal types for precise financial calculations
+  - JSON fields for flexible data storage (addresses, payment results)
+  - Timestamps on all relevant models
+  - Schema successfully pushed to Neon database
+- ✅ **Database Seed Implementation**
+  - Created seed.ts in /db folder
+  - Seeds products from sample-data.ts
+  - Seeds users with bcrypt hashed passwords
+  - Configured Prisma seed in package.json
+  - Successfully seeded database with sample data
+  - Admin user: admin@example.com / 123456
+  - Regular user: user@example.com / 123456
+- [ ] **Pending Database Tasks**
+  - Create data access layer/repositories
+  - Add database utilities and helpers
+  - Implement database queries for API routes
+
+### Validation System
+- ✅ **Zod Schema Validators**
+  - Created comprehensive validators.ts with Zod schemas
+  - Product schemas: insertProductSchema, updateProductSchema, productSchema
+  - User schemas with role-based validation
+  - Cart and CartItem schemas
+  - Order and OrderItem schemas
+  - Review schemas with rating validation
+  - Shipping address and payment result schemas
+- ✅ **Type Inference**
+  - All TypeScript types now inferred from Zod schemas using z.infer
+  - Product type migrated from interface to Zod-inferred type
+  - InsertProduct and UpdateProduct types for mutations
+  - Ensures runtime validation matches TypeScript types
+- ✅ **Validation Features**
+  - Min/max length validations for strings
+  - Email format validation
+  - URL validation for images
+  - Number range validations (ratings 1-5, positive prices)
+  - Transform functions for date and number conversions
+  - Nullable and optional field handling
+  - Default values for optional fields
 
 ### Product System
 - ✅ Product Types
-  - Product interface with all essential fields
+  - **Now using Zod-inferred types from validators**
+  - Product type with full validation rules
   - Support for images, pricing, stock, ratings
   - Featured products and banners
+  - InsertProduct and UpdateProduct types for mutations
 - ✅ Product Components
-  - ProductCard with interactive hover effects
+  - ProductCard with interactive hover effects and product links
   - ProductList with responsive grid layout
-  - ProductPrice with discount display
+  - ProductPrice with discount display (supports string/number)
+  - ProductImageGallery with thumbnails and navigation
+  - AddToCart component with quantity selector
   - Wishlist toggle functionality
   - Stock status indicators
 - ✅ Product Pages
-  - Products listing page (/products)
-  - Category sections with product counts
+  - Products listing page (/products) - **Now fetching from database**
+  - **Product detail page (/products/[slug])** - Dynamic routing with full product info
+  - Category sections with product counts - **Dynamic from database**
+  - Breadcrumb navigation on detail pages
+- ✅ **Server Actions Implementation**
+  - Created `/lib/actions/product-actions.ts` with all product operations
+  - Product CRUD operations (create, update, delete)
+  - Get products with filtering and pagination support
+  - Get featured products and new arrivals
+  - Get product by slug or ID
+  - Get categories with product count aggregation
+  - All pages use server actions instead of direct Prisma calls
+- ✅ **Database Integration**
+  - Homepage fetches featured products from database
+  - Products page loads all products from database
+  - Product detail page fetches by slug
+  - Categories dynamically generated from database
+  - Parallel data fetching with Promise.all
+  - Decimal type conversion for price and rating
+  - Server-side data fetching in async components
+  - Fixed Prisma client to work without Neon adapter issues
 - [ ] **Remaining Product Features**
-  - Product details page
   - Product variants (size, color, etc.)
   - Product search functionality
-  - Filters and sorting
+  - Advanced filters and sorting UI
+  - Product reviews display and submission
 
 ## Core Features (Template Foundation)
 ### Essential E-Commerce Components
@@ -461,3 +582,87 @@ NEXT_PUBLIC_CHAT_WIDGET_ID=""
   - Implemented homepage with hero banner using public images
   - Added featured products and categories sections
   - Created responsive product grid with interactive features
+  - **Prisma & PostgreSQL Setup:**
+    - Installed Prisma 6.15.0 and @prisma/client
+    - Initialized Prisma with PostgreSQL provider
+    - Created Prisma client singleton for Next.js (`lib/prisma.ts`)
+    - Configured DATABASE_URL in environment files
+    - Added database scripts to package.json (generate, migrate, push, studio, seed)
+    - Set up postinstall hook for automatic Prisma client generation
+    - Updated .gitignore for Prisma migration files
+    - ✅ Verified: Build and lint pass with Prisma configured
+    - **Neon Database Integration:**
+      - Configured Neon PostgreSQL cloud database
+      - Set up connection pooling with separate pooled/unpooled URLs
+      - Added SSL mode for secure connections
+      - Configured DATABASE_URL_UNPOOLED for migrations
+      - ✅ Verified: Successfully connected to Neon database
+    - **Database Schema Implementation:**
+      - Created comprehensive Prisma schema with 9 models
+      - Product model with full e-commerce features
+      - User model with authentication and profile support
+      - Order and OrderItem models for order management
+      - Cart model with session-based shopping cart
+      - Review model for product reviews
+      - NextAuth.js compatible Account, Session, and VerificationToken models
+      - ~~Enabled driverAdapters preview feature~~ (Removed)
+      - Successfully pushed schema to Neon database
+      - ✅ Verified: Build passes with complete schema
+    - **Database Seeding:**
+      - Created seed.ts script in /db folder
+      - Installed bcryptjs for password hashing
+      - Configured Prisma seed in package.json
+      - Seeded database with sample products and users
+      - Sample users with hashed passwords created
+      - ✅ Verified: Database successfully seeded with sample data
+    - **Database-Driven UI Implementation:**
+      - Updated products page to fetch from database using Prisma
+      - Homepage now fetches featured products and new arrivals from database
+      - Categories section dynamically generated from database
+      - Implemented async Server Components for data fetching
+      - Used Promise.all for parallel data fetching
+      - Converted Decimal types to numbers for UI compatibility
+      - ✅ Verified: Build passes with database integration
+    - **Zod Validation Implementation:**
+      - Created comprehensive validators.ts with Zod schemas
+      - Implemented schemas for all database models
+      - Migrated Product type to use z.infer from Zod schema
+      - Added InsertProduct and UpdateProduct types
+      - Set up validation rules for all fields
+      - ✅ Verified: Build passes with Zod validators
+    - **~~Neon Serverless Adapter Setup~~** (Removed due to connection issues):
+      - ~~Installed @neondatabase/serverless for serverless database connections~~
+      - ~~Added @prisma/adapter-neon for Prisma integration~~
+      - ~~Installed ws (WebSocket) library for real-time connections~~
+      - ~~Added bufferutil for binary WebSocket performance~~
+      - ~~Configured development types with @types/ws~~
+      - ~~Ready for edge runtime deployment~~
+    - **Validators & Constants Updates:**
+      - Updated validators.ts with currency type for decimal values stored as strings
+      - Added comprehensive validation schemas for all models
+      - Created sign-in and sign-up form validation schemas
+      - Added PAYMENT_METHODS constant with stripe, paypal, cashOnDelivery
+      - Added ORDER_STATUS constant with order lifecycle states
+      - Updated ProductPrice component to handle string/number prices
+      - Fixed rating display to convert strings to numbers
+      - Made pages dynamic to prevent static generation errors
+      - ✅ Verified: Build successful with all type fixes
+    - **Server Actions & Product Detail Page:**
+      - Created `/lib/actions/product-actions.ts` with all product operations
+      - Implemented server actions for data fetching (replacing direct Prisma calls)
+      - Created product detail page with dynamic routing (/products/[slug])
+      - Built ProductImageGallery component with thumbnail navigation
+      - Created AddToCart component with quantity selector and stock status
+      - Added breadcrumb navigation to product detail pages
+      - Fixed Prisma client to work without Neon adapter WebSocket issues
+      - Updated all pages to use server actions for better code organization
+      - ✅ Verified: Build successful with product detail page
+    - **Dependency Cleanup:**
+      - Removed Neon adapter dependencies (@neondatabase/serverless, @prisma/adapter-neon)
+      - Removed WebSocket dependencies (ws, bufferutil, @types/ws)
+      - Removed unused @types/bcryptjs
+      - Simplified Prisma client to use standard PostgreSQL connection
+      - Removed driverAdapters preview feature from schema
+      - Moved prisma.ts to db folder for better organization
+      - Cleaned up all references to removed dependencies
+      - ✅ Verified: Build and lint pass after cleanup

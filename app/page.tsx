@@ -2,14 +2,18 @@ import { HeroBanner } from '@/components/home/hero-banner';
 import { FeaturedProducts } from '@/components/home/featured-products';
 import { CategoriesSection } from '@/components/home/categories-section';
 import { ProductList } from '@/components/products/product-list';
-import sampleData from '@/db/sample-data';
+import { getFeaturedProducts, getNewArrivals } from '@/lib/actions/product-actions';
 import { storeConfig } from '@/config/store.config';
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 import * as Icons from 'lucide-react';
 
-export default function Home() {
-  const newArrivals = sampleData.products.slice(0, 4);
+export default async function Home() {
+  const [featuredProducts, newArrivals] = await Promise.all([
+    getFeaturedProducts(),
+    getNewArrivals(),
+  ]);
+
   const { homepage } = storeConfig;
 
   return (
@@ -18,7 +22,7 @@ export default function Home() {
       
       {homepage.sections.featuredProducts && (
         <FeaturedProducts 
-          products={sampleData.products}
+          products={featuredProducts}
           title={homepage.sectionTitles.featured}
         />
       )}
