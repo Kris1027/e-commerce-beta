@@ -110,6 +110,13 @@ pnpm lint
   - Search, cart, and account icons
   - Responsive design with Tailwind
   - Centered container with max-width constraint (max-w-7xl)
+- ✅ Mobile Menu (Sheet-based)
+  - Hamburger menu for mobile devices
+  - Slide-out navigation drawer
+  - Organized sections (Main Menu, Account, Support)
+  - Active route highlighting
+  - Sign in/Sign up buttons
+  - Smooth animations and transitions
 - ✅ Created Footer component
   - Multi-column layout with links
   - Shop, Customer Service, and Company sections
@@ -161,7 +168,9 @@ pnpm lint
   /layout
     /header.tsx
     /footer.tsx
+    /mobile-menu.tsx
   /ui (shadcn components)
+    /sheet.tsx
   /theme-provider.tsx
   /theme-toggle.tsx
 /lib

@@ -1,16 +1,18 @@
 import Link from 'next/link'
 import { APP_NAME } from '@/lib/constants'
 import { ThemeToggle } from '@/components/theme-toggle'
+import { MobileMenu } from '@/components/layout/mobile-menu'
 
 export function Header() {
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container mx-auto max-w-7xl flex h-16 items-center px-4 sm:px-6 lg:px-8">
-        <div className="mr-4 flex">
+        <MobileMenu />
+        <div className="mr-4 flex flex-1 md:flex-none">
           <Link href="/" className="mr-6 flex items-center space-x-2">
             <span className="text-xl font-bold">{APP_NAME}</span>
           </Link>
-          <nav className="flex items-center space-x-6 text-sm font-medium">
+          <nav className="hidden md:flex items-center space-x-6 text-sm font-medium">
             <Link
               href="/products"
               className="transition-colors hover:text-foreground/80 text-foreground"
@@ -41,7 +43,7 @@ export function Header() {
           <nav className="flex items-center space-x-2">
             <Link
               href="/search"
-              className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground h-9 w-9"
+              className="hidden sm:inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground h-9 w-9"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -82,7 +84,7 @@ export function Header() {
             </Link>
             <Link
               href="/account"
-              className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground h-9 w-9"
+              className="hidden sm:inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground h-9 w-9"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
