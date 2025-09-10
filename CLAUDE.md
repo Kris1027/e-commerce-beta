@@ -279,12 +279,21 @@ pnpm db:seed        # Seed the database
     /auth
       /[...nextauth]
         /route.ts
-  /layout.tsx
+  /auth
+    /signin
+      /page.tsx
+    /signup
+      /page.tsx
+    /error
+      /page.tsx
+  /layout.tsx               # Main app layout (shared by all pages)
   /page.tsx
   /products
     /page.tsx
     /[slug]
       /page.tsx
+  /dashboard
+    /page.tsx
   /loading.tsx
   /not-found.tsx
   /error.tsx
@@ -490,10 +499,13 @@ package.json
   - Admin routes with role-based access control
   - Automatic redirect after successful authentication
 - ✅ **Authentication Pages**
+  - Custom auth layout with background pattern and branding
   - Sign-in page with form validation and error handling
   - Sign-up page with password confirmation
+  - Auth error page with user-friendly error messages
   - User navigation dropdown with role-based menu
   - Dashboard page for authenticated users
+  - Card-based form design with shadow effects
   - Updated to use React.useActionState (React 19)
 - ✅ **Server Actions**
   - signInAction with credentials validation
@@ -642,6 +654,13 @@ NEXT_PUBLIC_CHAT_WIDGET_ID=""
       - Added success toasts for sign-in, sign-up, and sign-out actions
       - Added error toasts for failed authentication attempts
       - Removed inline error divs for cleaner form UX
+    - **Auth Pages Design:**
+      - Auth pages use main app layout with header/footer for consistency
+      - Clean card-based form design with shadows
+      - Sign-in and sign-up pages with form validation
+      - Auth error page with user-friendly error messages
+      - Responsive design that works on all devices
+      - Integrated with toast notifications for feedback
     - ✅ Verified: ESLint passes with no errors
     - ✅ Verified: Build completes successfully with Turbopack
     - ✅ Authentication system fully functional with toast notifications

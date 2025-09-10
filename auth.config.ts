@@ -29,7 +29,7 @@ export default {
   },
   pages: {
     signIn: '/auth/signin',
-    signOut: '/auth/signout',
+    signOut: '/auth/signout', 
     error: '/auth/error',
     newUser: '/dashboard',
   },

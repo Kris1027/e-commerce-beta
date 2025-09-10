@@ -37,8 +37,8 @@ export default function SignInPage() {
   }, [state, router]);
 
   return (
-    <div className="flex min-h-[calc(100vh-4rem)] items-center justify-center px-4 py-12 sm:px-6 lg:px-8">
-      <div className="w-full max-w-md space-y-8">
+    <div className="w-full max-w-md mx-auto">
+      <div className="bg-card rounded-lg shadow-lg p-8 space-y-6">
         <div>
           <h2 className="mt-6 text-center text-3xl font-bold tracking-tight">
             Sign in to your account
