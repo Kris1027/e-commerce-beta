@@ -1,47 +1,9 @@
-import { auth } from '@/auth';
-import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
+import NextAuth from 'next-auth';
+import authConfig from './auth.config';
 
-const authRoutes = ['/auth/signin', '/auth/signup'];
-const protectedRoutes = ['/dashboard', '/profile', '/orders', '/checkout'];
-const adminRoutes = ['/admin'];
+const { auth } = NextAuth(authConfig);
 
-export default async function middleware(request: NextRequest) {
-  const { pathname } = request.nextUrl;
-  const session = await auth();
-  
-  const isAuthRoute = authRoutes.includes(pathname);
-  const isProtectedRoute = protectedRoutes.some(route => 
-    pathname.startsWith(route)
-  );
-  const isAdminRoute = adminRoutes.some(route => 
-    pathname.startsWith(route)
-  );
-
-  if (isAuthRoute && session) {
-    return NextResponse.redirect(new URL('/dashboard', request.url));
-  }
-
-  if (isProtectedRoute && !session) {
-    const redirectUrl = new URL('/auth/signin', request.url);
-    redirectUrl.searchParams.set('callbackUrl', pathname);
-    return NextResponse.redirect(redirectUrl);
-  }
-
-  if (isAdminRoute) {
-    if (!session) {
-      const redirectUrl = new URL('/auth/signin', request.url);
-      redirectUrl.searchParams.set('callbackUrl', pathname);
-      return NextResponse.redirect(redirectUrl);
-    }
-    
-    if (session.user.role !== 'admin') {
-      return NextResponse.redirect(new URL('/', request.url));
-    }
-  }
-
-  return NextResponse.next();
-}
+export default auth;
 
 export const config = {
   matcher: [
