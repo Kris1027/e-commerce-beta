@@ -2,8 +2,11 @@ import Link from 'next/link'
 import { APP_NAME } from '@/lib/constants'
 import { ThemeToggle } from '@/components/theme-toggle'
 import { MobileMenu } from '@/components/layout/mobile-menu'
+import { auth } from '@/auth'
+import { UserNav } from '@/components/layout/user-nav'
 
-export function Header() {
+export async function Header() {
+  const session = await auth();
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container mx-auto max-w-7xl flex h-16 items-center px-4 sm:px-6 lg:px-8">
@@ -82,26 +85,24 @@ export function Header() {
               </svg>
               <span className="sr-only">Cart</span>
             </Link>
-            <Link
-              href="/account"
-              className="hidden sm:inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground h-9 w-9"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
-                <circle cx="12" cy="7" r="4" />
-              </svg>
-              <span className="sr-only">Account</span>
-            </Link>
+            {session ? (
+              <UserNav user={session.user} />
+            ) : (
+              <div className="hidden sm:flex items-center gap-2">
+                <Link
+                  href="/auth/signin"
+                  className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground h-9 px-3"
+                >
+                  Sign In
+                </Link>
+                <Link
+                  href="/auth/signup"
+                  className="inline-flex items-center justify-center rounded-md bg-primary text-primary-foreground hover:bg-primary/90 h-9 px-3 text-sm font-medium transition-colors"
+                >
+                  Sign Up
+                </Link>
+              </div>
+            )}
             <ThemeToggle />
           </nav>
         </div>

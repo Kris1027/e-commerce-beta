@@ -153,13 +153,17 @@ This is a **production-ready e-commerce template** designed to be the foundation
 - **React**: 19.1.0
 - **TypeScript**: 5.9.2 (with strict configuration)
 - **Styling**: Tailwind CSS v4.1.13
-- **UI Components**: shadcn/ui (initialized)
+- **UI Components**: 
+  - shadcn/ui (initialized)
+  - sonner (toast notifications from shadcn/ui)
 - **Database**: 
   - Prisma 6.15.0 (ORM)
   - @prisma/client 6.15.0
   - PostgreSQL (via DATABASE_URL)
 - **Authentication**:
-  - bcryptjs 3.0.2 (password hashing for seed data)
+  - next-auth 5.0.0-beta.29 (NextAuth v5 for authentication)
+  - @auth/prisma-adapter 2.10.0 (Prisma adapter for NextAuth)
+  - bcryptjs 3.0.2 (password hashing)
 - **Utilities**: 
   - query-string 9.3.0
 - **State Management**: Zustand 5.0.8
@@ -271,12 +275,25 @@ pnpm db:seed        # Seed the database
 ## Current Project Structure
 ```
 /app
-  /layout.tsx
+  /api
+    /auth
+      /[...nextauth]
+        /route.ts
+  /auth
+    /signin
+      /page.tsx
+    /signup
+      /page.tsx
+    /error
+      /page.tsx
+  /layout.tsx               # Main app layout (shared by all pages)
   /page.tsx
   /products
     /page.tsx
     /[slug]
       /page.tsx
+  /dashboard
+    /page.tsx
   /loading.tsx
   /not-found.tsx
   /error.tsx
@@ -298,6 +315,7 @@ pnpm db:seed        # Seed the database
     /add-to-cart.tsx
   /ui (shadcn components)
     /sheet.tsx
+    /sonner.tsx
   /theme-provider.tsx
   /theme-toggle.tsx
 /config
@@ -311,6 +329,7 @@ pnpm db:seed        # Seed the database
   /utils.ts
   /validators.ts
   /actions
+    /auth-actions.ts
     /product-actions.ts
 /public
   /images
@@ -321,6 +340,9 @@ pnpm db:seed        # Seed the database
   /schema.prisma
 /types
   /product.ts
+auth.config.ts
+auth.ts
+middleware.ts
 .env.local
 .env.example
 .eslintrc.json
@@ -335,15 +357,18 @@ package.json
 - `.eslintrc.json` - ESLint configuration with TypeScript rules
 - `.prettierrc.json` - Prettier configuration with Tailwind plugin
 - `components.json` - shadcn/ui configuration
-- `.env.local` - Local environment variables (includes DATABASE_URL)
+- `.env.local` - Local environment variables (includes DATABASE_URL, NEXTAUTH_SECRET)
 - `.env.example` - Example environment variables template
 - `lib/constants.ts` - Centralized app configuration and constants
 - `config/store.config.ts` - Store configuration for industry-agnostic customization
 - `prisma/schema.prisma` - Prisma schema configuration for PostgreSQL
 - `db/prisma.ts` - Prisma client singleton with decimal-to-string transformers
-- `lib/validators.ts` - Zod schemas for all data models
+- `lib/validators.ts` - Zod schemas for all data models with auth schemas
 - `db/seed.ts` - Database seed script with sample data
 - `db/sample-data.ts` - Sample products and users data
+- `auth.config.ts` - NextAuth v5 configuration with credentials provider
+- `auth.ts` - NextAuth exports (handlers, auth, signIn, signOut)
+- `middleware.ts` - Route protection middleware with role-based access
 
 ### Database System
 - ✅ **Prisma ORM Setup**
@@ -454,6 +479,52 @@ package.json
   - Advanced filters and sorting UI
   - Product reviews display and submission
 
+### Authentication System
+- ✅ **NextAuth v5 Setup**
+  - Installed next-auth@beta (v5.0.0-beta.29) with Prisma adapter
+  - Created auth.config.ts with credentials provider configuration
+  - JWT session strategy with 30-day expiration
+  - User role support (admin/customer)
+  - Type-safe session with custom user properties
+  - Proper environment variables (AUTH_URL, AUTH_SECRET)
+- ✅ **Authentication Configuration**
+  - Created auth.ts exporting handlers, auth, signIn, signOut
+  - Set up API route handler at /api/auth/[...nextauth]/route.ts
+  - Configured authentication pages (signIn, signOut, error, newUser)
+  - Development mode debugging enabled
+- ✅ **Middleware Protection**
+  - Created middleware.ts with route protection
+  - Public routes accessible without authentication
+  - Protected routes redirect to sign-in
+  - Admin routes with role-based access control
+  - Automatic redirect after successful authentication
+- ✅ **Authentication Pages**
+  - Custom auth layout with background pattern and branding
+  - Sign-in page with form validation and error handling
+  - Sign-up page with password confirmation
+  - Auth error page with user-friendly error messages
+  - User navigation dropdown with role-based menu
+  - Dashboard page for authenticated users
+  - Card-based form design with shadow effects
+  - Updated to use React.useActionState (React 19)
+- ✅ **Server Actions**
+  - signInAction with credentials validation
+  - signUpAction with user registration and password hashing
+  - signOutAction with proper session cleanup
+  - Fixed NEXT_REDIRECT handling with redirect: false
+  - Zod validation for all forms
+- ✅ **Toast Notifications**
+  - Integrated sonner from shadcn/ui
+  - Success toasts for sign-in, sign-up, and sign-out
+  - Error toasts for failed authentication attempts
+  - Removed inline error displays for cleaner UX
+  - Toast provider added to root layout
+- [ ] **Pending Authentication Features**
+  - Password reset functionality
+  - Email verification
+  - Remember me functionality
+  - Social login providers (optional)
+
 ## Core Features (Template Foundation)
 ### Essential E-Commerce Components
 
@@ -561,7 +632,101 @@ NEXT_PUBLIC_CHAT_WIDGET_ID=""
   - Email capture form
   - Prominent CTA section
 
+### Authentication System (NextAuth v5)
+- ✅ **NextAuth v5 Setup**
+  - Installed next-auth@beta and @auth/prisma-adapter
+  - Created auth.config.ts with credentials-only provider
+  - JWT session strategy with 30-day expiration
+  - Prisma adapter integration
+  - Type augmentation for custom session properties (id, role)
+- ✅ **Authentication Components**
+  - Sign-in page (/auth/signin) with React.useActionState
+  - Sign-up page (/auth/signup) with password confirmation
+  - Server actions for authentication (signInAction, signUpAction, signOutAction)
+  - Form validation with Zod schemas
+  - Toast notifications with sonner (from shadcn/ui)
+- ✅ **Security Implementation**
+  - Password hashing with bcrypt (12 rounds)
+  - Enhanced password requirements:
+    - Minimum 8 characters
+    - Must contain uppercase, lowercase, and number
+  - Session management with secure cookies
+  - CSRF protection built-in
+- ✅ **Route Protection**
+  - Middleware for route protection
+  - Protected routes: /dashboard, /profile, /orders, /checkout
+  - Admin-only routes: /admin/*
+  - Auth redirect with callback URL
+  - Role-based access control
+- ✅ **Helper Functions**
+  - Created lib/auth-helpers.ts
+  - getCurrentUser() - Get current session user
+  - requireAuth() - Enforce authentication
+  - requireAdmin() - Enforce admin role
+  - getSessionId() - Session ID management
+- ✅ **Environment Configuration**
+  - AUTH_URL for authentication URL
+  - AUTH_SECRET generated with openssl
+  - Updated .env.example with auth variables
+  - Production-ready configuration notes
+- ✅ **Security Documentation**
+  - Created docs/AUTH-SECURITY.md
+  - Security review and recommendations
+  - Production deployment checklist
+  - Security score: 8/10
+  - Enhancement recommendations
+
 ## Progress Log
+- **2025-09-11**:
+  - **NextAuth v5 Implementation (Completed):**
+    - Successfully installed next-auth@beta (v5.0.0-beta.29) and @auth/prisma-adapter (2.15.0)
+    - Created auth.config.ts with credentials-only provider as requested
+    - Implemented JWT session strategy with 30-day expiration
+    - Created sign-in and sign-up pages with server actions
+    - Fixed React 19 deprecation: updated useFormState to useActionState
+    - Fixed NEXT_REDIRECT error by using redirect: false in signIn calls
+    - Added toast notifications using sonner from shadcn/ui
+    - Implemented middleware for route protection with role-based access
+    - Enhanced password security: 8+ chars, uppercase, lowercase, number required
+    - Created auth-helpers.ts with utility functions
+    - Generated secure AUTH_SECRET with openssl
+    - Created comprehensive security documentation (docs/AUTH-SECURITY.md)
+    - Security score: 8/10 - production-ready with minor enhancements recommended
+    - ✅ Verified: ESLint passes with no errors
+    - ✅ Verified: Build completes successfully
+  - **Edge Function Optimization:**
+    - Fixed Vercel Edge Function size limit issue (was 1.12 MB, limit 1 MB)
+    - Refactored to NextAuth v5 recommended pattern:
+      - auth.config.ts - Edge-compatible config (no heavy dependencies)
+      - auth.ts - Full auth with Prisma adapter and bcrypt
+      - middleware.ts - Uses lightweight config
+    - Middleware now 90.8 KB (well under limit)
+    - Removed temporary auth.edge.ts workaround
+  - **Security & UX Improvements:**
+    - Fixed password placeholder text to show "min 8 characters" (was showing 6)
+    - Removed hardcoded test credentials display entirely (documented in seed data)
+    - Removed redundant getSessionId() function (NextAuth handles sessions)
+    - Fixed toast timing in sign-out (now shows after successful action)
+    - Added proper error handling with try-catch blocks
+  - **Environment Configuration:**
+    - Cleaned up redundant .env file (kept .env.local only)
+    - Updated .env.example with production notes
+    - **Toast Notifications Implementation:**
+      - Added sonner component from shadcn/ui
+      - Integrated Toaster provider in root layout
+      - Added success toasts for sign-in, sign-up, and sign-out actions
+      - Added error toasts for failed authentication attempts
+      - Removed inline error divs for cleaner form UX
+    - **Auth Pages Design:**
+      - Auth pages use main app layout with header/footer for consistency
+      - Clean card-based form design with shadows
+      - Sign-in and sign-up pages with form validation
+      - Auth error page with user-friendly error messages
+      - Responsive design that works on all devices
+      - Integrated with toast notifications for feedback
+    - ✅ Verified: ESLint passes with no errors
+    - ✅ Verified: Build completes successfully with Turbopack
+    - ✅ Authentication system fully functional with toast notifications
 - **2025-09-10**:
   - **Neon Serverless Driver Implementation (Completed):**
     - Successfully implemented Neon serverless driver with Prisma adapter
