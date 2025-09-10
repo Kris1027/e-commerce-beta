@@ -159,7 +159,9 @@ This is a **production-ready e-commerce template** designed to be the foundation
   - @prisma/client 6.15.0
   - PostgreSQL (via DATABASE_URL)
 - **Authentication**:
-  - bcryptjs 3.0.2 (password hashing for seed data)
+  - next-auth 5.0.0-beta.29 (NextAuth v5 for authentication)
+  - @auth/prisma-adapter 2.10.0 (Prisma adapter for NextAuth)
+  - bcryptjs 3.0.2 (password hashing)
 - **Utilities**: 
   - query-string 9.3.0
 - **State Management**: Zustand 5.0.8
@@ -271,6 +273,10 @@ pnpm db:seed        # Seed the database
 ## Current Project Structure
 ```
 /app
+  /api
+    /auth
+      /[...nextauth]
+        /route.ts
   /layout.tsx
   /page.tsx
   /products
@@ -311,6 +317,7 @@ pnpm db:seed        # Seed the database
   /utils.ts
   /validators.ts
   /actions
+    /auth-actions.ts
     /product-actions.ts
 /public
   /images
@@ -321,6 +328,9 @@ pnpm db:seed        # Seed the database
   /schema.prisma
 /types
   /product.ts
+auth.config.ts
+auth.ts
+middleware.ts
 .env.local
 .env.example
 .eslintrc.json
@@ -335,15 +345,18 @@ package.json
 - `.eslintrc.json` - ESLint configuration with TypeScript rules
 - `.prettierrc.json` - Prettier configuration with Tailwind plugin
 - `components.json` - shadcn/ui configuration
-- `.env.local` - Local environment variables (includes DATABASE_URL)
+- `.env.local` - Local environment variables (includes DATABASE_URL, NEXTAUTH_SECRET)
 - `.env.example` - Example environment variables template
 - `lib/constants.ts` - Centralized app configuration and constants
 - `config/store.config.ts` - Store configuration for industry-agnostic customization
 - `prisma/schema.prisma` - Prisma schema configuration for PostgreSQL
 - `db/prisma.ts` - Prisma client singleton with decimal-to-string transformers
-- `lib/validators.ts` - Zod schemas for all data models
+- `lib/validators.ts` - Zod schemas for all data models with auth schemas
 - `db/seed.ts` - Database seed script with sample data
 - `db/sample-data.ts` - Sample products and users data
+- `auth.config.ts` - NextAuth v5 configuration with credentials provider
+- `auth.ts` - NextAuth exports (handlers, auth, signIn, signOut)
+- `middleware.ts` - Route protection middleware with role-based access
 
 ### Database System
 - ✅ **Prisma ORM Setup**
@@ -454,6 +467,37 @@ package.json
   - Advanced filters and sorting UI
   - Product reviews display and submission
 
+### Authentication System
+- ✅ **NextAuth v5 Setup**
+  - Installed next-auth@beta (v5.0.0-beta.29) with Prisma adapter
+  - Created auth.config.ts with credentials provider configuration
+  - JWT session strategy with 30-day expiration
+  - User role support (admin/customer)
+  - Type-safe session with custom user properties
+- ✅ **Authentication Configuration**
+  - Created auth.ts exporting handlers, auth, signIn, signOut
+  - Set up API route handler at /api/auth/[...nextauth]/route.ts
+  - Configured authentication pages (signIn, signOut, error, newUser)
+  - Development mode debugging enabled
+- ✅ **Middleware Protection**
+  - Created middleware.ts with route protection
+  - Public routes accessible without authentication
+  - Protected routes redirect to sign-in
+  - Admin routes with role-based access control
+  - Automatic redirect after successful authentication
+- ✅ **Server Actions**
+  - Created auth-actions.ts with signInWithCredentials and signOutAction
+  - Credentials validation with Zod schemas
+  - Error handling for invalid credentials
+  - Redirect to dashboard after successful sign-in
+- [ ] **Pending Authentication Features**
+  - Sign-in and sign-up pages UI
+  - User registration flow
+  - Password reset functionality
+  - Email verification
+  - Remember me functionality
+  - Social login providers (optional)
+
 ## Core Features (Template Foundation)
 ### Essential E-Commerce Components
 
@@ -562,6 +606,19 @@ NEXT_PUBLIC_CHAT_WIDGET_ID=""
   - Prominent CTA section
 
 ## Progress Log
+- **2025-09-11**:
+  - **NextAuth v5 Implementation:**
+    - Installed next-auth@beta (v5.0.0-beta.29) and @auth/prisma-adapter (2.10.0)
+    - Created comprehensive authentication configuration with credentials provider
+    - Implemented JWT session strategy with role-based access control
+    - Set up API route handlers for NextAuth in App Router
+    - Created middleware for route protection (public, protected, admin routes)
+    - Implemented server actions for sign-in and sign-out functionality
+    - Added type-safe session with TypeScript module augmentation
+    - Configured automatic redirects and authentication pages
+    - ✅ Verified: ESLint passes with no errors (2 warnings fixed)
+    - ✅ Verified: Build completes successfully with Turbopack
+    - Ready for UI implementation of sign-in/sign-up pages
 - **2025-09-10**:
   - **Neon Serverless Driver Implementation (Completed):**
     - Successfully implemented Neon serverless driver with Prisma adapter

@@ -47,6 +47,9 @@ export const signUpFormSchema = z
     path: ['confirmPassword'],
   });
 
+export const signInSchema = signInFormSchema;
+export const signUpSchema = signUpFormSchema;
+
 export const insertUserSchema = signUpFormSchema
   .omit({ confirmPassword: true })
   .extend({
