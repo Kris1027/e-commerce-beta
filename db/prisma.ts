@@ -1,21 +1,30 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from '@prisma/client'
+import { PrismaNeon } from '@prisma/adapter-neon'
+import { neonConfig } from '@neondatabase/serverless'
+import ws from 'ws'
+
+// Configure WebSocket for Node.js environment
+neonConfig.webSocketConstructor = ws
 
 const prismaClientSingleton = () => {
-  // Create Prisma client with standard configuration
-  // Connects to database using DATABASE_URL environment variable
-  return new PrismaClient({
-    log: process.env.NODE_ENV === 'development' ? ['error', 'warn'] : ['error'],
-  }).$extends({
+  const connectionString = process.env['DATABASE_URL']!
+
+  // Create adapter with connection string directly
+  const adapter = new PrismaNeon({ connectionString })
+
+  // Type assertion needed due to preview feature types not being fully recognized
+  const prismaOptions = { adapter } as ConstructorParameters<typeof PrismaClient>[0]
+  return new PrismaClient(prismaOptions).$extends({
     result: {
       product: {
         price: {
           compute(product) {
-            return product.price.toString();
+            return product.price.toString()
           },
         },
         rating: {
           compute(product) {
-            return product.rating.toString();
+            return product.rating.toString()
           },
         },
       },
@@ -23,25 +32,25 @@ const prismaClientSingleton = () => {
         itemsPrice: {
           needs: { itemsPrice: true },
           compute(cart) {
-            return cart.itemsPrice.toString();
+            return cart.itemsPrice.toString()
           },
         },
         shippingPrice: {
           needs: { shippingPrice: true },
           compute(cart) {
-            return cart.shippingPrice.toString();
+            return cart.shippingPrice.toString()
           },
         },
         taxPrice: {
           needs: { taxPrice: true },
           compute(cart) {
-            return cart.taxPrice.toString();
+            return cart.taxPrice.toString()
           },
         },
         totalPrice: {
           needs: { totalPrice: true },
           compute(cart) {
-            return cart.totalPrice.toString();
+            return cart.totalPrice.toString()
           },
         },
       },
@@ -49,48 +58,47 @@ const prismaClientSingleton = () => {
         itemsPrice: {
           needs: { itemsPrice: true },
           compute(order) {
-            return order.itemsPrice.toString();
+            return order.itemsPrice.toString()
           },
         },
         shippingPrice: {
           needs: { shippingPrice: true },
           compute(order) {
-            return order.shippingPrice.toString();
+            return order.shippingPrice.toString()
           },
         },
         taxPrice: {
           needs: { taxPrice: true },
           compute(order) {
-            return order.taxPrice.toString();
+            return order.taxPrice.toString()
           },
         },
         totalPrice: {
           needs: { totalPrice: true },
           compute(order) {
-            return order.totalPrice.toString();
+            return order.totalPrice.toString()
           },
         },
       },
       orderItem: {
         price: {
           compute(orderItem) {
-            return orderItem.price.toString();
+            return orderItem.price.toString()
           },
         },
       },
     },
-  });
-};
-
-// Singleton pattern for development to prevent multiple instances
-declare global {
-  var prismaGlobal: ReturnType<typeof prismaClientSingleton> | undefined;
+  })
 }
 
-export const prisma = globalThis.prismaGlobal ?? prismaClientSingleton();
+declare global {
+  var prismaGlobal: ReturnType<typeof prismaClientSingleton> | undefined
+}
+
+export const prisma = globalThis.prismaGlobal ?? prismaClientSingleton()
 
 if (process.env.NODE_ENV !== 'production') {
-  globalThis.prismaGlobal = prisma;
+  globalThis.prismaGlobal = prisma
 }
 
-export default prisma;
+export default prisma
