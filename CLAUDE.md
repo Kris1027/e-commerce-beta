@@ -575,6 +575,12 @@ NEXT_PUBLIC_CHAT_WIDGET_ID=""
     - ✅ Verified: Project builds successfully
     - ✅ Verified: Development server runs and pages load correctly
     - Note: Minor WebSocket warnings may appear during static generation (SSG); consider marking database-heavy pages as dynamic for production
+  - **Next.js 15 Dynamic Route Parameters Fix:**
+    - Fixed product detail page (/products/[slug]/page.tsx) to comply with Next.js 15 async params requirement
+    - Changed params type from `{ slug: string }` to `Promise<{ slug: string }>`
+    - Added proper await for params before accessing slug property
+    - Resolves error: "Route '/products/[slug]' used params.slug. params should be awaited before using its properties"
+    - ✅ Verified: Dynamic routes now work correctly without sync API errors
 - **2025-09-09**: 
   - Established project as reusable e-commerce template
   - Project initialized with Next.js 15.5.2 using pnpm
