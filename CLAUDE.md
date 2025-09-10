@@ -704,7 +704,7 @@ NEXT_PUBLIC_CHAT_WIDGET_ID=""
     - Removed temporary auth.edge.ts workaround
   - **Security & UX Improvements:**
     - Fixed password placeholder text to show "min 8 characters" (was showing 6)
-    - Made test credentials development-only (hidden in production)
+    - Removed hardcoded test credentials display entirely (documented in seed data)
     - Removed redundant getSessionId() function (NextAuth handles sessions)
     - Fixed toast timing in sign-out (now shows after successful action)
     - Added proper error handling with try-catch blocks

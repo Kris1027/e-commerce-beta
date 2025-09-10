@@ -47,7 +47,9 @@ export async function signInAction(
           return { error: 'Something went wrong' };
       }
     }
-    console.error('Sign in error:', error);
+    if (process.env.NODE_ENV === 'development') {
+      console.error('Sign in error:', error);
+    }
     return { error: 'Failed to sign in' };
   }
 }
@@ -109,7 +111,9 @@ export async function signUpAction(
           return { error: 'Something went wrong' };
       }
     }
-    console.error('Signup error:', error);
+    if (process.env.NODE_ENV === 'development') {
+      console.error('Signup error:', error);
+    }
     return { error: 'Failed to create account' };
   }
 }

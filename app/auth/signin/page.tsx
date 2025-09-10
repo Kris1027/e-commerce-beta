@@ -113,13 +113,6 @@ export default function SignInPage() {
           <SubmitButton />
         </form>
 
-        {process.env.NODE_ENV === 'development' && (
-          <div className="text-center text-sm">
-            <p className="text-muted-foreground">
-              Test credentials: admin@example.com / 123456
-            </p>
-          </div>
-        )}
       </div>
     </div>
   );

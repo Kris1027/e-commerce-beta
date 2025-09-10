@@ -56,7 +56,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             role: user.role,
           };
         } catch (error) {
-          console.error('Auth error:', error);
+          if (process.env.NODE_ENV === 'development') {
+            console.error('Auth error:', error);
+          }
           return null;
         }
       },
