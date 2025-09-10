@@ -1,4 +1,3 @@
-import { cookies } from 'next/headers';
 import { auth } from '@/auth';
 
 export async function getCurrentUser() {
@@ -20,22 +19,4 @@ export async function requireAdmin() {
     throw new Error('Forbidden');
   }
   return user;
-}
-
-export async function getSessionId() {
-  const cookieStore = await cookies();
-  const sessionId = cookieStore.get('sessionId')?.value;
-  
-  if (!sessionId) {
-    const newSessionId = crypto.randomUUID();
-    cookieStore.set('sessionId', newSessionId, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      maxAge: 60 * 60 * 24 * 30, // 30 days
-    });
-    return newSessionId;
-  }
-  
-  return sessionId;
 }

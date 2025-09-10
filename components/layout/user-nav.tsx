@@ -96,8 +96,12 @@ export function UserNav({ user }: UserNavProps) {
             
             <form 
               action={async () => {
-                toast.success('Signed out successfully');
-                await signOutAction();
+                try {
+                  await signOutAction();
+                  toast.success('Signed out successfully');
+                } catch (error) {
+                  toast.error('Sign out failed');
+                }
               }}
             >
               <button
