@@ -1,10 +1,12 @@
 'use client';
 
-import { useFormState, useFormStatus } from 'react-dom';
+import { useActionState } from 'react';
+import { useFormStatus } from 'react-dom';
 import { signInAction } from '@/lib/actions/auth-actions';
 import Link from 'next/link';
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { toast } from 'sonner';
 
 function SubmitButton() {
   const { pending } = useFormStatus();
@@ -21,15 +23,18 @@ function SubmitButton() {
 }
 
 export default function SignInPage() {
-  const [state, formAction] = useFormState(signInAction, null);
+  const [state, formAction] = useActionState(signInAction, null);
   const router = useRouter();
 
   useEffect(() => {
     if (state?.success) {
+      toast.success('Signed in successfully!');
       router.push('/dashboard');
       router.refresh();
+    } else if (state?.error) {
+      toast.error(state.error);
     }
-  }, [state?.success, router]);
+  }, [state, router]);
 
   return (
     <div className="flex min-h-[calc(100vh-4rem)] items-center justify-center px-4 py-12 sm:px-6 lg:px-8">
@@ -50,12 +55,6 @@ export default function SignInPage() {
         </div>
         
         <form className="mt-8 space-y-6" action={formAction}>
-          {state?.error && (
-            <div className="rounded-md bg-destructive/10 p-3">
-              <p className="text-sm text-destructive">{state.error}</p>
-            </div>
-          )}
-          
           <div className="space-y-4">
             <div>
               <label htmlFor="email" className="block text-sm font-medium">

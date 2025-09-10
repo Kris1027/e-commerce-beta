@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useState } from 'react';
 import { signOutAction } from '@/lib/actions/auth-actions';
+import { toast } from 'sonner';
 
 interface UserNavProps {
   user: {
@@ -93,7 +94,12 @@ export function UserNav({ user }: UserNavProps) {
             
             <div className="h-px bg-border" />
             
-            <form action={signOutAction}>
+            <form 
+              action={async () => {
+                toast.success('Signed out successfully');
+                await signOutAction();
+              }}
+            >
               <button
                 type="submit"
                 className="flex w-full items-center rounded-sm px-2 py-1.5 text-sm hover:bg-accent hover:text-accent-foreground"

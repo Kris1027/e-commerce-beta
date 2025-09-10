@@ -34,7 +34,7 @@ export async function signInAction(
     await signIn('credentials', {
       email,
       password,
-      redirectTo: '/dashboard',
+      redirect: false,
     });
     
     return { success: true };
@@ -47,7 +47,8 @@ export async function signInAction(
           return { error: 'Something went wrong' };
       }
     }
-    throw error;
+    console.error('Sign in error:', error);
+    return { error: 'Failed to sign in' };
   }
 }
 
@@ -95,7 +96,7 @@ export async function signUpAction(
     await signIn('credentials', {
       email,
       password,
-      redirectTo: '/dashboard',
+      redirect: false,
     });
 
     return { success: true };
