@@ -97,7 +97,7 @@ export default function SignUpPage() {
                 autoComplete="new-password"
                 required
                 className="mt-1 block w-full rounded-md border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
-                placeholder="Create a password (min 6 characters)"
+                placeholder="Create a password (min 8 characters)"
               />
             </div>
 
