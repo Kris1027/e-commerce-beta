@@ -97,6 +97,7 @@ This is a **production-ready e-commerce template** designed to be the foundation
 - ✅ TODO comments must include ticket/issue reference
 - ✅ Use Lucide React icons instead of creating custom SVGs
 - ✅ Always format prices with 2 decimal places using `formatNumberWithDecimal` utility
+- ✅ Extract magic numbers to constants for maintainability
 
 #### 9. **State Management**
 - ✅ Use React state for component-level state
@@ -542,6 +543,7 @@ package.json
 - [x] **Shopping Cart (Implemented)**
   - ✅ Persistent cart (cookie-based sessionCartId + database)
   - ✅ Add to cart functionality with quantity selector
+  - ✅ Quick add to cart from product cards
   - ✅ Server actions for cart operations (add, update, remove, clear)
   - ✅ Guest cart support with session cookies
   - ✅ Cart merging when user signs in
@@ -549,18 +551,25 @@ package.json
   - ✅ Cart count badge in header
   - ✅ Price calculations (items, shipping, tax, total)
   - ✅ Cart page with full item management
-  - ✅ Quantity updates and item removal
+  - ✅ Quantity updates and item removal with validation (1-99 items)
   - ✅ Order summary with shipping and tax
-  - ✅ Free shipping threshold ($100)
+  - ✅ Free shipping threshold (configurable, default $100)
+  - ✅ Dialog confirmation for item removal (shadcn/ui)
+  - ✅ Loading skeletons for cart page
+  - ✅ Business logic constants extracted to `/lib/constants/cart.ts`
   - [ ] Discount/coupon system
 
 - [x] **Checkout Process (Partially Implemented)**
   - ✅ Multi-step checkout with progress indicator
   - ✅ Checkout steps component with visual progress
-  - ✅ Shipping address form with validation
+  - ✅ Shipping address form with Zod validation
   - ✅ Session-based checkout data persistence (24 hours)
   - ✅ Guest checkout support with session cookies
   - ✅ Save shipping address to user profile (if logged in)
+  - ✅ Loading skeleton for checkout page
+  - ✅ Cart validation (redirects if empty)
+  - ✅ Autofocus on first form field
+  - ✅ Success toast with navigation delay
   - [ ] Payment method selection
   - [ ] Order review page
   - [ ] Payment integration (Stripe, PayPal)
@@ -700,6 +709,33 @@ NEXT_PUBLIC_CHAT_WIDGET_ID=""
   - Enhancement recommendations
 
 ## Progress Log
+- **2025-09-11 (Session 7 - Latest)**:
+  - **Code Quality & UX Improvements:**
+    - **Business Logic Constants Refactoring:**
+      - Created `/lib/constants/cart.ts` with configurable business values
+      - Extracted magic numbers: FREE_SHIPPING_THRESHOLD, SHIPPING_PRICE, TAX_RATE, MAX_QUANTITY_PER_ITEM
+      - Created `calculateCartPrices` helper function for consistent calculations
+      - Applied to cart store, cart actions, and cart UI components
+      - Benefits: Easier maintenance, consistent business rules, configurable for different markets
+    - **Dialog Component for Cart Item Removal:**
+      - Replaced browser's native `confirm()` with shadcn Dialog component
+      - Better UI/UX with styled confirmation dialog
+      - Shows item name being removed
+      - Loading state during deletion
+      - Responsive design for mobile/desktop
+    - **Validation Improvements:**
+      - Added NaN validation to currency transformer in validators
+      - Prevents invalid price values from breaking calculations
+      - Throws error for invalid currency values instead of returning "NaN"
+    - **Price Formatting Consistency:**
+      - Updated ProductPrice component to use `formatNumberWithDecimal`
+      - Updated cart-client to use utility for all price displays
+      - Ensures consistent 2-decimal formatting everywhere
+    - **Cursor Pointer Fixes:**
+      - Added cursor-pointer to ProductImageGallery navigation buttons
+      - Fixed missing cursor-pointer on thumbnail buttons
+    - ✅ Verified: ESLint passes with no errors
+    - ✅ Verified: Build completes successfully
 - **2025-09-11 (Session 6)**:
   - **Checkout Process Implementation (Part 1):**
     - Created checkout steps component with visual progress indicator
@@ -920,6 +956,8 @@ NEXT_PUBLIC_CHAT_WIDGET_ID=""
       - Configured Prisma seed in package.json
       - Seeded database with sample products and users
       - Sample users with hashed passwords created
+      - Admin user: admin@example.com / 123456
+      - Regular user: user@example.com / 123456
       - ✅ Verified: Database successfully seeded with sample data
     - **Database-Driven UI Implementation:**
       - Updated products page to fetch from database using Prisma

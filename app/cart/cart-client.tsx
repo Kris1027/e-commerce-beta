@@ -11,6 +11,7 @@ import { updateCartItem, removeFromCart } from '@/lib/actions/cart-actions';
 import { cn, formatNumberWithDecimal } from '@/lib/utils';
 import { z } from 'zod';
 import { cartItemSchema } from '@/lib/validators';
+import { CART_CONSTANTS } from '@/lib/constants/cart';
 import {
   Dialog,
   DialogContent,
@@ -58,8 +59,8 @@ export default function CartClient({ initialCart }: CartClientProps) {
 
   const handleUpdateQuantity = (productId: string, newQty: number) => {
     // Validate quantity
-    if (newQty < 1 || newQty > 99) {
-      toast.error('Quantity must be between 1 and 99');
+    if (newQty < 1 || newQty > CART_CONSTANTS.MAX_QUANTITY_PER_ITEM) {
+      toast.error(`Quantity must be between 1 and ${CART_CONSTANTS.MAX_QUANTITY_PER_ITEM}`);
       return;
     }
     
@@ -181,11 +182,11 @@ export default function CartClient({ initialCart }: CartClientProps) {
                       <input
                         type="number"
                         min="1"
-                        max="99"
+                        max={CART_CONSTANTS.MAX_QUANTITY_PER_ITEM}
                         value={item.qty}
                         onChange={(e) => {
                           const newQty = parseInt(e.target.value) || 1;
-                          if (newQty > 0 && newQty <= 99) {
+                          if (newQty > 0 && newQty <= CART_CONSTANTS.MAX_QUANTITY_PER_ITEM) {
                             handleUpdateQuantity(item.productId, newQty);
                           }
                         }}
@@ -194,8 +195,8 @@ export default function CartClient({ initialCart }: CartClientProps) {
                           const value = parseInt(e.target.value);
                           if (isNaN(value) || value < 1) {
                             handleUpdateQuantity(item.productId, 1);
-                          } else if (value > 99) {
-                            handleUpdateQuantity(item.productId, 99);
+                          } else if (value > CART_CONSTANTS.MAX_QUANTITY_PER_ITEM) {
+                            handleUpdateQuantity(item.productId, CART_CONSTANTS.MAX_QUANTITY_PER_ITEM);
                           }
                         }}
                         disabled={isPending}
@@ -278,9 +279,9 @@ export default function CartClient({ initialCart }: CartClientProps) {
             </Link>
           </div>
           
-          {parseFloat(itemsPrice) < 100 && (
+          {parseFloat(itemsPrice) < CART_CONSTANTS.FREE_SHIPPING_THRESHOLD && (
             <p className="mt-4 text-xs text-muted-foreground">
-              Add ${formatNumberWithDecimal(100 - parseFloat(itemsPrice))} more for free shipping
+              Add ${formatNumberWithDecimal(CART_CONSTANTS.FREE_SHIPPING_THRESHOLD - parseFloat(itemsPrice))} more for free shipping
             </p>
           )}
         </div>

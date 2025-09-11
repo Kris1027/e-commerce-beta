@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { z } from 'zod';
 import { cartItemSchema } from '@/lib/validators';
+import { calculateCartPrices } from '@/lib/constants/cart';
 
 type CartItem = z.infer<typeof cartItemSchema>;
 
@@ -33,15 +34,14 @@ const calculatePrices = (items: CartItem[]) => {
     (sum, item) => sum + parseFloat(item.price) * item.qty,
     0
   );
-  const shippingPrice = itemsPrice > 100 ? 0 : 10;
-  const taxPrice = itemsPrice * 0.1;
-  const totalPrice = itemsPrice + shippingPrice + taxPrice;
+  
+  const prices = calculateCartPrices(itemsPrice);
   
   return {
-    itemsPrice: itemsPrice.toFixed(2),
-    shippingPrice: shippingPrice.toFixed(2),
-    taxPrice: taxPrice.toFixed(2),
-    totalPrice: totalPrice.toFixed(2),
+    itemsPrice: prices.itemsPrice.toFixed(2),
+    shippingPrice: prices.shippingPrice.toFixed(2),
+    taxPrice: prices.taxPrice.toFixed(2),
+    totalPrice: prices.totalPrice.toFixed(2),
   };
 };
 

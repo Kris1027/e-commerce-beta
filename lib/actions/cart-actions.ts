@@ -6,6 +6,7 @@ import prisma from '@/db/prisma';
 import { cartItemSchema } from '@/lib/validators';
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
+import { CART_CONSTANTS, calculateCartPrices } from '@/lib/constants/cart';
 
 async function getSessionCartId() {
   const cookieStore = await cookies();
@@ -17,7 +18,7 @@ async function getSessionCartId() {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
-      maxAge: 60 * 60 * 24 * 30, // 30 days
+      maxAge: CART_CONSTANTS.CART_SESSION_DURATION,
     });
   }
   
@@ -90,8 +91,8 @@ export async function addToCart(item: z.infer<typeof cartItemSchema>) {
       if (existingItemIndex > -1) {
         const existingItem = items[existingItemIndex];
         if (existingItem) {
-          // Limit maximum quantity to 99 per item
-          existingItem.qty = Math.min(existingItem.qty + validatedItem.qty, 99);
+          // Limit maximum quantity per item
+          existingItem.qty = Math.min(existingItem.qty + validatedItem.qty, CART_CONSTANTS.MAX_QUANTITY_PER_ITEM);
         }
       } else {
         items.push(validatedItem);
@@ -104,18 +105,16 @@ export async function addToCart(item: z.infer<typeof cartItemSchema>) {
       (sum, item) => sum + parseFloat(item.price) * item.qty,
       0
     );
-    const shippingPrice = itemsPrice > 100 ? 0 : 10;
-    const taxPrice = itemsPrice * 0.1;
-    const totalPrice = itemsPrice + shippingPrice + taxPrice;
+    const prices = calculateCartPrices(itemsPrice);
 
     const cartData = {
       userId: session?.user?.id || null,
       sessionCartId,
       items,
-      itemsPrice,
-      shippingPrice,
-      taxPrice,
-      totalPrice,
+      itemsPrice: prices.itemsPrice,
+      shippingPrice: prices.shippingPrice,
+      taxPrice: prices.taxPrice,
+      totalPrice: prices.totalPrice,
     };
 
     if (existingCart) {
@@ -171,18 +170,16 @@ export async function updateCartItem(productId: string, qty: number) {
       (sum, item) => sum + parseFloat(item.price) * item.qty,
       0
     );
-    const shippingPrice = itemsPrice > 100 ? 0 : 10;
-    const taxPrice = itemsPrice * 0.1;
-    const totalPrice = itemsPrice + shippingPrice + taxPrice;
+    const prices = calculateCartPrices(itemsPrice);
 
     await prisma.cart.update({
       where: { id: cart.id },
       data: {
         items,
-        itemsPrice,
-        shippingPrice,
-        taxPrice,
-        totalPrice,
+        itemsPrice: prices.itemsPrice,
+        shippingPrice: prices.shippingPrice,
+        taxPrice: prices.taxPrice,
+        totalPrice: prices.totalPrice,
       },
     });
 
@@ -266,18 +263,16 @@ export async function mergeAnonymousCart() {
         (sum, item) => sum + parseFloat(item.price) * item.qty,
         0
       );
-      const shippingPrice = itemsPrice > 100 ? 0 : 10;
-      const taxPrice = itemsPrice * 0.1;
-      const totalPrice = itemsPrice + shippingPrice + taxPrice;
+      const prices = calculateCartPrices(itemsPrice);
 
       await prisma.cart.update({
         where: { id: userCart.id },
         data: {
           items: mergedItems,
-          itemsPrice,
-          shippingPrice,
-          taxPrice,
-          totalPrice,
+          itemsPrice: prices.itemsPrice,
+          shippingPrice: prices.shippingPrice,
+          taxPrice: prices.taxPrice,
+          totalPrice: prices.totalPrice,
         },
       });
       
