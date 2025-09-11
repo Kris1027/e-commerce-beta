@@ -66,7 +66,8 @@ This is a **production-ready e-commerce template** designed to be the foundation
 #### 5. **Error Handling**
 - ✅ Implement error boundaries for all pages
 - ✅ Use try-catch for async operations
-- ✅ Provide user-friendly error messages
+- ✅ Include error parameter in catch blocks for debugging
+- ✅ Provide user-friendly error messages with helpful context
 - ✅ Log errors to monitoring service in production
 - ✅ Never expose sensitive error details to users
 - ✅ Implement proper 404 and error pages
@@ -78,6 +79,10 @@ This is a **production-ready e-commerce template** designed to be the foundation
 - ✅ Implement virtual scrolling for long lists
 - ✅ Minimize bundle size - check with `next build`
 - ✅ Use proper caching strategies
+- ✅ Avoid unnecessary navigation delays (no setTimeout for routing)
+- ✅ Use state updates instead of page refreshes for data sync
+- ✅ Use onBlur instead of onChange for input fields that trigger API calls
+- ✅ Implement local state for form inputs to reduce server calls
 
 #### 7. **Accessibility (a11y)**
 - ✅ Semantic HTML elements
@@ -86,6 +91,7 @@ This is a **production-ready e-commerce template** designed to be the foundation
 - ✅ Focus management
 - ✅ Color contrast ratios (WCAG AA)
 - ✅ Alt text for all images
+- ✅ Always add `cursor-pointer` class to interactive elements (buttons, links, clickable icons)
 
 #### 8. **Code Style**
 - ✅ Use Prettier for formatting
@@ -94,12 +100,17 @@ This is a **production-ready e-commerce template** designed to be the foundation
 - ✅ Comments only for complex logic
 - ✅ Self-documenting code with clear naming
 - ✅ TODO comments must include ticket/issue reference
+- ✅ Use Lucide React icons instead of creating custom SVGs
+- ✅ Always format prices with 2 decimal places using `formatNumberWithDecimal` utility
+- ✅ Extract magic numbers to constants for maintainability
 
 #### 9. **State Management**
 - ✅ Use React state for component-level state
 - ✅ Use Zustand for global state (already installed)
 - ✅ Keep state as close to usage as possible
 - ✅ Avoid prop drilling - use context or state management
+- ✅ Implement proper optimistic updates with rollback on error
+- ✅ Avoid using `router.refresh()` for state synchronization
 
 #### 10. **Security**
 - ✅ Sanitize all user inputs
@@ -108,6 +119,10 @@ This is a **production-ready e-commerce template** designed to be the foundation
 - ✅ Implement proper CORS policies
 - ✅ Use HTTPS in production
 - ✅ Validate all data on both client and server
+- ✅ Set proper cookie configurations (httpOnly, secure, sameSite, path)
+- ✅ Validate JSON data from cookies before parsing
+- ✅ Enforce quantity limits consistently for all cart operations
+- ✅ Clear invalid/malformed cookies automatically
 
 #### 11. **Testing Requirements** (When Implemented)
 - Unit tests for utilities
@@ -294,6 +309,9 @@ pnpm db:seed        # Seed the database
       /page.tsx
   /dashboard
     /page.tsx
+  /cart
+    /page.tsx
+    /cart-client.tsx
   /loading.tsx
   /not-found.tsx
   /error.tsx
@@ -307,6 +325,8 @@ pnpm db:seed        # Seed the database
     /header.tsx
     /footer.tsx
     /mobile-menu.tsx
+    /cart-button.tsx
+    /user-nav.tsx
   /products
     /product-card.tsx
     /product-list.tsx
@@ -331,6 +351,9 @@ pnpm db:seed        # Seed the database
   /actions
     /auth-actions.ts
     /product-actions.ts
+    /cart-actions.ts
+  /store
+    /cart-store.ts
 /public
   /images
     /banner-1.jpg
@@ -528,20 +551,44 @@ package.json
 ## Core Features (Template Foundation)
 ### Essential E-Commerce Components
 
-- [ ] **Shopping Cart**
-  - Persistent cart (localStorage + database)
-  - Cart drawer/modal
-  - Quantity management
-  - Price calculations
-  - Discount/coupon system
+- [x] **Shopping Cart (Fully Implemented - Session 11)**
+  - ✅ Persistent cart (localStorage via Zustand persist + database)
+  - ✅ Cart drawer/modal with shadcn Sheet component
+  - ✅ Add to cart functionality with quantity selector
+  - ✅ Quick add to cart from product cards
+  - ✅ Server actions for cart operations (add, update, remove, clear)
+  - ✅ Guest cart support with session cookies
+  - ✅ Cart merging when user signs in
+  - ✅ Zustand store for client-side state management
+  - ✅ Cart count badge in header (now opens drawer)
+  - ✅ Price calculations (items, shipping, tax, total, discounts)
+  - ✅ Cart page with full item management
+  - ✅ Quantity updates and item removal with validation (1-99 items)
+  - ✅ Order summary with shipping and tax
+  - ✅ Free shipping threshold (configurable, default $100)
+  - ✅ Dialog confirmation for item removal (shadcn/ui)
+  - ✅ Loading skeletons for cart page
+  - ✅ Business logic constants extracted to `/lib/constants/cart.ts`
+  - ✅ Discount/coupon system with validation and UI
+  - ✅ Sample coupons: WELCOME10, SAVE20, SHIP5
+  - ✅ Cart drawer opens automatically when item added
+  - ✅ Optimistic updates with rollback on error
 
-- [ ] **Checkout Process**
-  - Multi-step checkout
-  - Guest checkout option
-  - Address management
-  - Shipping methods
-  - Payment integration
-  - Order confirmation
+- [x] **Checkout Process (Partially Implemented)**
+  - ✅ Multi-step checkout with progress indicator
+  - ✅ Checkout steps component with visual progress
+  - ✅ Shipping address form with Zod validation
+  - ✅ Session-based checkout data persistence (24 hours)
+  - ✅ Guest checkout support with session cookies
+  - ✅ Save shipping address to user profile (if logged in)
+  - ✅ Loading skeleton for checkout page
+  - ✅ Cart validation (redirects if empty)
+  - ✅ Autofocus on first form field
+  - ✅ Success toast with navigation delay
+  - [ ] Payment method selection
+  - [ ] Order review page
+  - [ ] Payment integration (Stripe, PayPal)
+  - [ ] Order confirmation page
 
 - [ ] **User System**
   - Authentication (login/register)
@@ -677,7 +724,278 @@ NEXT_PUBLIC_CHAT_WIDGET_ID=""
   - Enhancement recommendations
 
 ## Progress Log
-- **2025-09-11**:
+- **2025-09-11 (Session 13 - Latest)**:
+  - **Code Quality & Robustness Improvements:**
+    - **Fixed crypto.randomUUID Check:**
+      - Corrected condition in server actions (cart-actions, checkout-actions)
+      - Now properly checks `crypto.randomUUID` directly instead of `typeof crypto`
+      - crypto object is always defined in Node.js, but randomUUID may not be
+    - **Added Price Validation:**
+      - Added parseFloat validation in cart-store calculatePrices
+      - Logs error and skips invalid items instead of breaking calculations
+      - Prevents NaN values from corrupting cart totals
+    - **Removed Artificial Delay:**
+      - Removed 500ms setTimeout in coupon-form
+      - Improves user experience with instant coupon validation
+    - **Created validateQuantity Utility:**
+      - New reusable function in lib/utils.ts
+      - Centralizes quantity validation logic
+      - Ensures quantities are integers between 1 and MAX_QUANTITY_PER_ITEM
+      - Applied to cart-client.tsx input blur handler
+    - ✅ Verified: Build completes successfully
+    - ✅ All improvements enhance reliability without breaking changes
+- **2025-09-11 (Session 12)**:
+  - **Code Quality Improvements:**
+    - **Cart Store Coupon Fix:**
+      - Fixed missing coupon parameter in calculatePrices calls
+      - updateItem function now preserves coupon discounts when qty=0
+      - Ensures coupon discounts aren't lost when removing items
+    - **Error Logging Enhancement:**
+      - Added console.error for sign-out failures in user-nav
+      - Properly logs error for debugging and monitoring
+      - Maintains user-facing error toast notification
+    - **UUID Generation Fallback:**
+      - Added fallback for crypto.randomUUID in server actions
+      - Uses randomBytes(16).toString('hex') when randomUUID unavailable
+      - Improves compatibility across different Node.js environments
+      - Applied to both cart-actions and checkout-actions
+    - ✅ Verified: Build completes successfully
+    - ✅ All fixes maintain backwards compatibility
+- **2025-09-11 (Session 11)**:
+  - **Shopping Cart Enhancements (Completed):**
+    - **Cart Drawer Implementation:**
+      - Created cart drawer using shadcn Sheet component
+      - Slide-out panel from right side with smooth animations
+      - Full cart management functionality in drawer
+      - Responsive design for mobile and desktop
+    - **Cart Button Updates:**
+      - Changed from link to button that opens drawer
+      - Cart count badge shows items in cart
+      - Click to open drawer instead of navigating to cart page
+    - **Coupon/Discount System:**
+      - Created coupon validation system with sample coupons
+      - WELCOME10: 10% off any order
+      - SAVE20: 20% off orders over $100 (max $50 discount)
+      - SHIP5: $5 off shipping for orders over $25
+      - Coupon form component with validation
+      - Visual feedback for applied coupons
+      - Discount calculations integrated into cart pricing
+    - **Cart Store Enhancements:**
+      - Added coupon support to Zustand store
+      - applyCoupon and removeCoupon methods
+      - Discount amount tracking in state
+      - Persistent coupon application across sessions
+    - **Reusable AddToCartButton Component:**
+      - Created centralized AddToCartButton component
+      - Prevents inconsistent behavior across different locations
+      - Always opens cart drawer when item is added
+      - Supports multiple variants: default, icon, compact
+      - Icon variant shows shopping cart icon (not plus)
+      - Handles Buy Now functionality with navigation
+      - Prevents event propagation and default behavior
+      - Optimistic updates with loading states
+      - Stock validation and disabled states
+    - **UI/UX Improvements:**
+      - Cart drawer opens automatically when item added from ANY location
+      - ProductCard now uses reusable AddToCartButton
+      - Product detail page uses same component for consistency
+      - Empty cart state with call-to-action
+      - Free shipping progress indicator
+      - Optimistic updates with rollback on error
+      - Smooth animations and transitions
+    - **Component Organization:**
+      - Created /components/cart folder for cart-specific components
+      - Created /components/products/add-to-cart-button.tsx
+      - CouponForm component for promo code input
+      - CartDrawer integrated into root layout
+      - Refactored AddToCart component to use reusable button
+    - ✅ Verified: Build completes successfully
+    - ✅ All add-to-cart buttons now consistently open drawer
+    - ✅ All features working with Zustand persist middleware
+- **2025-09-11 (Session 10)**:
+  - **Security & Performance Improvements:**
+    - **Quantity Limit Bypass Fix:**
+      - Fixed security issue where max quantity limit only applied to existing items
+      - Now enforces MAX_QUANTITY_PER_ITEM (99) for all new items added to cart
+      - Prevents users from bypassing limits by adding items multiple times
+    - **Cart Sync Reliability:**
+      - Fixed issue where client cart wasn't cleared when server cart was empty
+      - Always syncs with server state, even for empty carts
+      - Ensures accurate cart state across sessions and devices
+    - **Cookie Security - JSON Validation:**
+      - Added Zod validation for all parsed cookie data
+      - Prevents runtime errors from malformed or tampered cookies
+      - Automatically clears invalid cookies
+      - Validates both session cookies and user profile data
+    - **Performance - Optimized Quantity Input:**
+      - Changed from onChange (every keystroke) to onBlur updates
+      - Uses local state for input, only updates server when focus lost
+      - Reduces server load and improves typing experience
+      - Prevents excessive API calls during user input
+    - **Code Documentation:**
+      - Added explanatory comments for parseFloat usage in price calculations
+      - Clarified that prices are strings for decimal precision
+      - Documented that calculations only run on cart changes
+    - ✅ All fixes maintain backwards compatibility
+    - ✅ Build passes with all improvements
+- **2025-09-11 (Session 9)**:
+  - **Code Improvements & Best Practices:**
+    - **Error Handling Improvements:**
+      - Added error parameter to catch blocks for better debugging capabilities
+      - Maintains consistency with error handling patterns throughout codebase
+      - Prepared for future error logging/monitoring services
+    - **Validation Error Messages:**
+      - Improved currency validator error message with helpful examples
+      - Changed from generic "Invalid currency value" to descriptive message with examples
+      - Now shows: "Currency value must be a valid number (e.g., "12.34", "100", or 99.99)"
+    - **Cookie Configuration Fix:**
+      - Added missing `path: '/'` property to sessionCartId cookie
+      - Ensures cart session cookie is accessible across all routes
+      - Maintains consistency with checkout cookie configurations
+    - ✅ Verified: Build completes successfully
+    - ✅ All improvements maintain backwards compatibility
+- **2025-09-11 (Session 8)**:
+  - **Performance & Code Quality Improvements:**
+    - **Optimistic Update Reversal Fix:**
+      - Removed inefficient `router.refresh()` calls that caused full page reloads
+      - Implemented proper state-based rollback for failed operations
+      - Quantity updates now store previous value and revert on error
+      - Item removal now stores removed item and re-adds on error
+      - Benefits: Better performance, smoother UX, no unnecessary network requests
+    - **Navigation Timing Fix:**
+      - Removed `setTimeout` delay in shipping address form submission
+      - Direct navigation after success - toast persists across routes
+      - Prevents potential memory leaks from uncleared timeouts
+      - Cleaner, more predictable navigation behavior
+    - ✅ Verified: Build completes successfully
+    - ✅ Verified: No TypeScript errors or warnings
+- **2025-09-11 (Session 7)**:
+  - **Code Quality & UX Improvements:**
+    - **Business Logic Constants Refactoring:**
+      - Created `/lib/constants/cart.ts` with configurable business values
+      - Extracted magic numbers: FREE_SHIPPING_THRESHOLD, SHIPPING_PRICE, TAX_RATE, MAX_QUANTITY_PER_ITEM
+      - Created `calculateCartPrices` helper function for consistent calculations
+      - Applied to cart store, cart actions, and cart UI components
+      - Benefits: Easier maintenance, consistent business rules, configurable for different markets
+    - **Dialog Component for Cart Item Removal:**
+      - Replaced browser's native `confirm()` with shadcn Dialog component
+      - Better UI/UX with styled confirmation dialog
+      - Shows item name being removed
+      - Loading state during deletion
+      - Responsive design for mobile/desktop
+    - **Validation Improvements:**
+      - Added NaN validation to currency transformer in validators
+      - Prevents invalid price values from breaking calculations
+      - Throws error for invalid currency values instead of returning "NaN"
+    - **Price Formatting Consistency:**
+      - Updated ProductPrice component to use `formatNumberWithDecimal`
+      - Updated cart-client to use utility for all price displays
+      - Ensures consistent 2-decimal formatting everywhere
+    - **Cursor Pointer Fixes:**
+      - Added cursor-pointer to ProductImageGallery navigation buttons
+      - Fixed missing cursor-pointer on thumbnail buttons
+    - ✅ Verified: ESLint passes with no errors
+    - ✅ Verified: Build completes successfully
+- **2025-09-11 (Session 6)**:
+  - **Checkout Process Implementation (Part 1):**
+    - Created checkout steps component with visual progress indicator
+    - Implemented shipping address page (`/checkout/shipping`)
+    - Built shipping address form with validation using existing schema
+    - Created checkout server actions (`/lib/actions/checkout-actions.ts`)
+      - `saveShippingAddress` - Saves to session cookie and user profile
+      - `getShippingAddress` - Retrieves from session or user profile
+      - `savePaymentMethod` / `getPaymentMethod` - For payment step
+      - `clearCheckoutSession` - Cleanup after order completion
+    - Session-based checkout persistence:
+      - 24-hour cookie expiration for checkout data
+      - Support for guest checkout (no login required)
+      - Automatic address save to user profile if logged in
+    - Added checkout redirect page (`/checkout` → `/checkout/shipping`)
+    - Cart validation - redirects to cart if empty
+    - ✅ Verified: Build completes successfully
+- **2025-09-11 (Session 5)**:
+  - **UX Enhancement - Cursor Pointer for Interactive Elements:**
+    - Added `cursor-pointer` class to all interactive elements throughout the app
+    - Updated components:
+      - Header: Search icon link
+      - ThemeToggle: Both mounted and unmounted states
+      - ProductCard: Wishlist button and cart button
+      - AddToCart: Quantity buttons (+/-) and main buttons
+      - CartButton: Cart link in header
+      - Cart page: Remove button and quantity controls
+    - Added to development standards in CLAUDE.md
+    - Improves user experience by providing visual feedback for clickable elements
+    - ✅ Verified: Build completes successfully
+- **2025-09-11 (Session 4)**:
+  - **Quick Add to Cart from Product Cards:**
+    - Connected the existing cart icon button in ProductCard component
+    - Implemented add to cart functionality directly from product grid
+    - Added loading state with disabled styling during cart operations
+    - Integrated with cart store for optimistic UI updates
+    - Shows success/error toast notifications
+    - Automatically adds 1 quantity of the item to cart
+    - ✅ Verified: Build completes successfully
+    - ✅ Users can now add items to cart from both product cards and detail pages
+- **2025-09-11 (Session 3)**:
+  - **Price Formatting Standardization:**
+    - Fixed price validation error in cart operations
+    - Updated currency validator to accept both string and number inputs
+    - Transforms all prices to strings with exactly 2 decimal places (e.g., "10.50" not "10.5")
+    - Updated Prisma extensions to use `formatNumberWithDecimal` utility function
+    - All prices now consistently display with 2 decimal places throughout the app:
+      - Product prices: "59.99" instead of "59.99" or "60"
+      - Cart totals: "100.00" instead of "100"
+      - Shipping/tax: "10.00" instead of "10"
+    - ✅ Verified: Build completes successfully
+    - ✅ Verified: Add to cart now works with proper price formatting
+  - **Image URL Validation Fix:**
+    - Fixed Zod validation error for cart item images
+    - Updated validators to accept relative paths (not just full URLs)
+    - Changed `z.string().url()` to `z.string().min(1)` for image fields
+    - Now supports Next.js static image paths like `/images/sample-products/`
+    - Fixed deprecated `.url()` warnings in validators
+- **2025-09-11 (Session 2)**:
+  - **Shopping Cart Implementation (Complete):**
+    - Created cart page (`/app/cart/page.tsx` and `/app/cart/cart-client.tsx`)
+      - Full cart item display with product images and details
+      - Quantity management with +/- buttons and direct input
+      - Item removal with confirmation toast
+      - Order summary showing subtotal, shipping, tax, and total
+      - Free shipping indicator for orders over $100
+      - Empty cart state with call-to-action
+      - Responsive grid layout (2/3 for items, 1/3 for summary)
+      - Links to continue shopping and proceed to checkout
+      - Optimistic UI updates with error rollback
+    - Created cart server actions in `/lib/actions/cart-actions.ts`
+      - addToCart: Adds items to cart with quantity management
+      - getCart: Retrieves cart from database
+      - updateCartItem: Updates quantity of items in cart
+      - removeFromCart: Removes items from cart
+      - clearCart: Clears entire cart
+      - mergeAnonymousCart: Merges guest cart when user signs in
+    - Implemented session-based guest cart support
+      - Uses httpOnly cookies to store sessionCartId
+      - 30-day cookie expiration for persistent guest carts
+      - Automatic cart merging on authentication
+    - Created Zustand cart store (`/lib/store/cart-store.ts`)
+      - Client-side state management with localStorage persistence
+      - Optimistic UI updates for better UX
+      - Cart count calculation and display
+    - Updated AddToCart component
+      - Integration with server actions
+      - Toast notifications for success/error states
+      - Buy Now button with redirect to cart
+      - Real-time stock status display
+    - Created CartButton component
+      - Shows cart item count badge
+      - Syncs with server on mount
+      - Responsive design with icon/text display
+    - Updated header to use CartButton component
+    - Fixed TypeScript strict mode issues in cart actions
+    - Added development standard: Use Lucide React icons instead of custom SVGs
+    - ✅ Verified: ESLint passes with no errors
+    - ✅ Verified: Build completes successfully
+- **2025-09-11 (Session 1)**:
   - **NextAuth v5 Implementation (Completed):**
     - Successfully installed next-auth@beta (v5.0.0-beta.29) and @auth/prisma-adapter (2.15.0)
     - Created auth.config.ts with credentials-only provider as requested
@@ -798,6 +1116,8 @@ NEXT_PUBLIC_CHAT_WIDGET_ID=""
       - Configured Prisma seed in package.json
       - Seeded database with sample products and users
       - Sample users with hashed passwords created
+      - Admin user: admin@example.com / 123456
+      - Regular user: user@example.com / 123456
       - ✅ Verified: Database successfully seeded with sample data
     - **Database-Driven UI Implementation:**
       - Updated products page to fetch from database using Prisma

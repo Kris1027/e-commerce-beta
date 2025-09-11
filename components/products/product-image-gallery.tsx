@@ -47,14 +47,14 @@ export function ProductImageGallery({ images, productName }: ProductImageGallery
           <>
             <button
               onClick={handlePrevious}
-              className="absolute left-2 top-1/2 -translate-y-1/2 bg-background/80 backdrop-blur-sm rounded-full p-2 hover:bg-background transition-colors"
+              className="absolute left-2 top-1/2 -translate-y-1/2 bg-background/80 backdrop-blur-sm rounded-full p-2 hover:bg-background transition-colors cursor-pointer"
               aria-label="Previous image"
             >
               <ChevronLeft className="h-5 w-5" />
             </button>
             <button
               onClick={handleNext}
-              className="absolute right-2 top-1/2 -translate-y-1/2 bg-background/80 backdrop-blur-sm rounded-full p-2 hover:bg-background transition-colors"
+              className="absolute right-2 top-1/2 -translate-y-1/2 bg-background/80 backdrop-blur-sm rounded-full p-2 hover:bg-background transition-colors cursor-pointer"
               aria-label="Next image"
             >
               <ChevronRight className="h-5 w-5" />
@@ -71,7 +71,7 @@ export function ProductImageGallery({ images, productName }: ProductImageGallery
               key={index}
               onClick={() => setSelectedImage(index)}
               className={cn(
-                'relative aspect-square overflow-hidden rounded-md bg-muted border-2 transition-all',
+                'relative aspect-square overflow-hidden rounded-md bg-muted border-2 transition-all cursor-pointer',
                 selectedImage === index
                   ? 'border-primary ring-2 ring-primary/20'
                   : 'border-transparent hover:border-muted-foreground/50'

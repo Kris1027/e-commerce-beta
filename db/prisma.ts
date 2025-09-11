@@ -2,6 +2,7 @@ import { PrismaClient } from '@prisma/client'
 import { PrismaNeon } from '@prisma/adapter-neon'
 import { neonConfig } from '@neondatabase/serverless'
 import ws from 'ws'
+import { formatNumberWithDecimal } from '@/lib/utils'
 
 // Configure WebSocket for Node.js environment
 neonConfig.webSocketConstructor = ws
@@ -19,12 +20,12 @@ const prismaClientSingleton = () => {
       product: {
         price: {
           compute(product) {
-            return product.price.toString()
+            return formatNumberWithDecimal(Number(product.price))
           },
         },
         rating: {
           compute(product) {
-            return product.rating.toString()
+            return formatNumberWithDecimal(Number(product.rating))
           },
         },
       },
@@ -32,25 +33,25 @@ const prismaClientSingleton = () => {
         itemsPrice: {
           needs: { itemsPrice: true },
           compute(cart) {
-            return cart.itemsPrice.toString()
+            return formatNumberWithDecimal(Number(cart.itemsPrice))
           },
         },
         shippingPrice: {
           needs: { shippingPrice: true },
           compute(cart) {
-            return cart.shippingPrice.toString()
+            return formatNumberWithDecimal(Number(cart.shippingPrice))
           },
         },
         taxPrice: {
           needs: { taxPrice: true },
           compute(cart) {
-            return cart.taxPrice.toString()
+            return formatNumberWithDecimal(Number(cart.taxPrice))
           },
         },
         totalPrice: {
           needs: { totalPrice: true },
           compute(cart) {
-            return cart.totalPrice.toString()
+            return formatNumberWithDecimal(Number(cart.totalPrice))
           },
         },
       },
@@ -58,32 +59,32 @@ const prismaClientSingleton = () => {
         itemsPrice: {
           needs: { itemsPrice: true },
           compute(order) {
-            return order.itemsPrice.toString()
+            return formatNumberWithDecimal(Number(order.itemsPrice))
           },
         },
         shippingPrice: {
           needs: { shippingPrice: true },
           compute(order) {
-            return order.shippingPrice.toString()
+            return formatNumberWithDecimal(Number(order.shippingPrice))
           },
         },
         taxPrice: {
           needs: { taxPrice: true },
           compute(order) {
-            return order.taxPrice.toString()
+            return formatNumberWithDecimal(Number(order.taxPrice))
           },
         },
         totalPrice: {
           needs: { totalPrice: true },
           compute(order) {
-            return order.totalPrice.toString()
+            return formatNumberWithDecimal(Number(order.totalPrice))
           },
         },
       },
       orderItem: {
         price: {
           compute(orderItem) {
-            return orderItem.price.toString()
+            return formatNumberWithDecimal(Number(orderItem.price))
           },
         },
       },

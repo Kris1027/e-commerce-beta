@@ -1,8 +1,10 @@
 'use client';
 
 import { useState } from 'react';
-import { Minus, Plus, ShoppingCart } from 'lucide-react';
+import { Minus, Plus } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useRouter } from 'next/navigation';
+import { AddToCartButton } from './add-to-cart-button';
 
 interface AddToCartProps {
   productId: string;
@@ -22,33 +24,12 @@ export function AddToCart({
   image 
 }: AddToCartProps) {
   const [quantity, setQuantity] = useState(1);
-  const [isAdding, setIsAdding] = useState(false);
+  const router = useRouter();
 
   const handleQuantityChange = (value: number) => {
     if (value >= 1 && value <= stock) {
       setQuantity(value);
     }
-  };
-
-  const handleAddToCart = async () => {
-    setIsAdding(true);
-    
-    // TODO: Implement actual cart functionality
-    console.log('Adding to cart:', {
-      productId,
-      productName,
-      price,
-      quantity,
-      slug,
-      image,
-    });
-    
-    // Simulate API call
-    setTimeout(() => {
-      setIsAdding(false);
-      // You can show a toast notification here
-      alert(`Added ${quantity} ${productName} to cart!`);
-    }, 500);
   };
 
   const isOutOfStock = stock === 0;
@@ -81,7 +62,7 @@ export function AddToCart({
                 'h-8 w-8 rounded-md border flex items-center justify-center transition-colors',
                 quantity <= 1
                   ? 'border-muted text-muted-foreground cursor-not-allowed'
-                  : 'border-input hover:bg-accent hover:text-accent-foreground'
+                  : 'border-input hover:bg-accent hover:text-accent-foreground cursor-pointer'
               )}
               aria-label="Decrease quantity"
             >
@@ -104,7 +85,7 @@ export function AddToCart({
                 'h-8 w-8 rounded-md border flex items-center justify-center transition-colors',
                 quantity >= stock
                   ? 'border-muted text-muted-foreground cursor-not-allowed'
-                  : 'border-input hover:bg-accent hover:text-accent-foreground'
+                  : 'border-input hover:bg-accent hover:text-accent-foreground cursor-pointer'
               )}
               aria-label="Increase quantity"
             >
@@ -115,28 +96,33 @@ export function AddToCart({
       )}
 
       {/* Add to Cart Button */}
-      <button
-        onClick={handleAddToCart}
-        disabled={isOutOfStock || isAdding}
-        className={cn(
-          'w-full flex items-center justify-center gap-2 rounded-md px-6 py-3 text-sm font-medium transition-colors',
-          isOutOfStock
-            ? 'bg-muted text-muted-foreground cursor-not-allowed'
-            : 'bg-primary text-primary-foreground hover:bg-primary/90'
-        )}
-      >
-        <ShoppingCart className="h-4 w-4" />
-        {isOutOfStock ? 'Out of Stock' : isAdding ? 'Adding...' : 'Add to Cart'}
-      </button>
+      <AddToCartButton
+        productId={productId}
+        productName={productName}
+        price={price}
+        slug={slug}
+        image={image}
+        stock={stock}
+        quantity={quantity}
+        variant="default"
+      />
 
       {/* Buy Now Button */}
       {!isOutOfStock && (
-        <button
-          disabled={isOutOfStock}
-          className="w-full rounded-md border border-primary px-6 py-3 text-sm font-medium text-primary transition-colors hover:bg-primary hover:text-primary-foreground"
-        >
-          Buy Now
-        </button>
+        <AddToCartButton
+          productId={productId}
+          productName={productName}
+          price={price}
+          slug={slug}
+          image={image}
+          stock={stock}
+          quantity={quantity}
+          variant="default"
+          buyNow={true}
+          onSuccess={() => router.push('/cart')}
+          className="border border-primary bg-transparent text-primary hover:bg-primary hover:text-primary-foreground"
+          showIcon={false}
+        />
       )}
     </div>
   );

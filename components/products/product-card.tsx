@@ -4,8 +4,9 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Product } from '@/types/product';
 import { ProductPrice } from './product-price';
+import { AddToCartButton } from './add-to-cart-button';
 import { cn } from '@/lib/utils';
-import { Star, ShoppingCart, Heart } from 'lucide-react';
+import { Star, Heart } from 'lucide-react';
 import { useState } from 'react';
 
 interface ProductCardProps {
@@ -43,7 +44,7 @@ export function ProductCard({ product, className }: ProductCardProps) {
           e.preventDefault();
           setIsWishlisted(!isWishlisted);
         }}
-        className="absolute right-2 top-2 z-10 rounded-full bg-background/80 p-2 opacity-0 backdrop-blur transition-opacity group-hover:opacity-100"
+        className="absolute right-2 top-2 z-10 rounded-full bg-background/80 p-2 opacity-0 backdrop-blur transition-opacity group-hover:opacity-100 cursor-pointer"
         aria-label="Add to wishlist"
       >
         <Heart
@@ -116,16 +117,15 @@ export function ProductCard({ product, className }: ProductCardProps) {
         <div className="mt-auto flex items-center justify-between">
           <ProductPrice price={product.price} size="sm" />
           {!isOutOfStock && (
-            <button
-              onClick={(e) => {
-                e.preventDefault();
-                // TODO: Implement add to cart functionality
-              }}
-              className="rounded-full bg-primary p-2 text-primary-foreground transition-colors hover:bg-primary/90"
-              aria-label="Add to cart"
-            >
-              <ShoppingCart className="h-4 w-4" />
-            </button>
+            <AddToCartButton
+              productId={product.id}
+              productName={product.name}
+              price={product.price}
+              slug={product.slug}
+              image={product.images[0] || '/placeholder.svg'}
+              stock={product.stock}
+              variant="icon"
+            />
           )}
         </div>
 
