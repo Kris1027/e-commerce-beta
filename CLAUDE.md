@@ -553,13 +553,17 @@ package.json
   - ✅ Free shipping threshold ($100)
   - [ ] Discount/coupon system
 
-- [ ] **Checkout Process**
-  - Multi-step checkout
-  - Guest checkout option
-  - Address management
-  - Shipping methods
-  - Payment integration
-  - Order confirmation
+- [x] **Checkout Process (Partially Implemented)**
+  - ✅ Multi-step checkout with progress indicator
+  - ✅ Checkout steps component with visual progress
+  - ✅ Shipping address form with validation
+  - ✅ Session-based checkout data persistence (24 hours)
+  - ✅ Guest checkout support with session cookies
+  - ✅ Save shipping address to user profile (if logged in)
+  - [ ] Payment method selection
+  - [ ] Order review page
+  - [ ] Payment integration (Stripe, PayPal)
+  - [ ] Order confirmation page
 
 - [ ] **User System**
   - Authentication (login/register)
@@ -695,6 +699,23 @@ NEXT_PUBLIC_CHAT_WIDGET_ID=""
   - Enhancement recommendations
 
 ## Progress Log
+- **2025-09-11 (Session 6)**:
+  - **Checkout Process Implementation (Part 1):**
+    - Created checkout steps component with visual progress indicator
+    - Implemented shipping address page (`/checkout/shipping`)
+    - Built shipping address form with validation using existing schema
+    - Created checkout server actions (`/lib/actions/checkout-actions.ts`)
+      - `saveShippingAddress` - Saves to session cookie and user profile
+      - `getShippingAddress` - Retrieves from session or user profile
+      - `savePaymentMethod` / `getPaymentMethod` - For payment step
+      - `clearCheckoutSession` - Cleanup after order completion
+    - Session-based checkout persistence:
+      - 24-hour cookie expiration for checkout data
+      - Support for guest checkout (no login required)
+      - Automatic address save to user profile if logged in
+    - Added checkout redirect page (`/checkout` → `/checkout/shipping`)
+    - Cart validation - redirects to cart if empty
+    - ✅ Verified: Build completes successfully
 - **2025-09-11 (Session 5)**:
   - **UX Enhancement - Cursor Pointer for Interactive Elements:**
     - Added `cursor-pointer` class to all interactive elements throughout the app
