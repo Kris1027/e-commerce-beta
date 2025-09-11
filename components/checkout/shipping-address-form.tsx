@@ -47,10 +47,8 @@ export function ShippingAddressForm({
       
       if (result.success) {
         toast.success('Shipping address saved successfully!');
-        // Small delay for user to see success message
-        setTimeout(() => {
-          router.push('/checkout/payment');
-        }, 500);
+        // Navigate immediately - toast will persist after navigation
+        router.push('/checkout/payment');
       } else {
         toast.error(result.message || 'Failed to save address');
       }
