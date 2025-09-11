@@ -81,6 +81,8 @@ This is a **production-ready e-commerce template** designed to be the foundation
 - ✅ Use proper caching strategies
 - ✅ Avoid unnecessary navigation delays (no setTimeout for routing)
 - ✅ Use state updates instead of page refreshes for data sync
+- ✅ Use onBlur instead of onChange for input fields that trigger API calls
+- ✅ Implement local state for form inputs to reduce server calls
 
 #### 7. **Accessibility (a11y)**
 - ✅ Semantic HTML elements
@@ -118,6 +120,9 @@ This is a **production-ready e-commerce template** designed to be the foundation
 - ✅ Use HTTPS in production
 - ✅ Validate all data on both client and server
 - ✅ Set proper cookie configurations (httpOnly, secure, sameSite, path)
+- ✅ Validate JSON data from cookies before parsing
+- ✅ Enforce quantity limits consistently for all cart operations
+- ✅ Clear invalid/malformed cookies automatically
 
 #### 11. **Testing Requirements** (When Implemented)
 - Unit tests for utilities
@@ -546,16 +551,17 @@ package.json
 ## Core Features (Template Foundation)
 ### Essential E-Commerce Components
 
-- [x] **Shopping Cart (Implemented)**
-  - ✅ Persistent cart (cookie-based sessionCartId + database)
+- [x] **Shopping Cart (Fully Implemented - Session 11)**
+  - ✅ Persistent cart (localStorage via Zustand persist + database)
+  - ✅ Cart drawer/modal with shadcn Sheet component
   - ✅ Add to cart functionality with quantity selector
   - ✅ Quick add to cart from product cards
   - ✅ Server actions for cart operations (add, update, remove, clear)
   - ✅ Guest cart support with session cookies
   - ✅ Cart merging when user signs in
   - ✅ Zustand store for client-side state management
-  - ✅ Cart count badge in header
-  - ✅ Price calculations (items, shipping, tax, total)
+  - ✅ Cart count badge in header (now opens drawer)
+  - ✅ Price calculations (items, shipping, tax, total, discounts)
   - ✅ Cart page with full item management
   - ✅ Quantity updates and item removal with validation (1-99 items)
   - ✅ Order summary with shipping and tax
@@ -563,7 +569,10 @@ package.json
   - ✅ Dialog confirmation for item removal (shadcn/ui)
   - ✅ Loading skeletons for cart page
   - ✅ Business logic constants extracted to `/lib/constants/cart.ts`
-  - [ ] Discount/coupon system
+  - ✅ Discount/coupon system with validation and UI
+  - ✅ Sample coupons: WELCOME10, SAVE20, SHIP5
+  - ✅ Cart drawer opens automatically when item added
+  - ✅ Optimistic updates with rollback on error
 
 - [x] **Checkout Process (Partially Implemented)**
   - ✅ Multi-step checkout with progress indicator
@@ -715,7 +724,69 @@ NEXT_PUBLIC_CHAT_WIDGET_ID=""
   - Enhancement recommendations
 
 ## Progress Log
-- **2025-09-11 (Session 9 - Latest)**:
+- **2025-09-11 (Session 11 - Latest)**:
+  - **Shopping Cart Enhancements (Completed):**
+    - **Cart Drawer Implementation:**
+      - Created cart drawer using shadcn Sheet component
+      - Slide-out panel from right side with smooth animations
+      - Full cart management functionality in drawer
+      - Responsive design for mobile and desktop
+    - **Cart Button Updates:**
+      - Changed from link to button that opens drawer
+      - Cart count badge shows items in cart
+      - Click to open drawer instead of navigating to cart page
+    - **Coupon/Discount System:**
+      - Created coupon validation system with sample coupons
+      - WELCOME10: 10% off any order
+      - SAVE20: 20% off orders over $100 (max $50 discount)
+      - SHIP5: $5 off shipping for orders over $25
+      - Coupon form component with validation
+      - Visual feedback for applied coupons
+      - Discount calculations integrated into cart pricing
+    - **Cart Store Enhancements:**
+      - Added coupon support to Zustand store
+      - applyCoupon and removeCoupon methods
+      - Discount amount tracking in state
+      - Persistent coupon application across sessions
+    - **UI/UX Improvements:**
+      - Cart drawer opens automatically when item added
+      - Empty cart state with call-to-action
+      - Free shipping progress indicator
+      - Optimistic updates with rollback on error
+      - Smooth animations and transitions
+    - **Component Organization:**
+      - Created /components/cart folder for cart-specific components
+      - CouponForm component for promo code input
+      - CartDrawer integrated into root layout
+    - ✅ Verified: Build completes successfully
+    - ✅ All features working with Zustand persist middleware
+- **2025-09-11 (Session 10)**:
+  - **Security & Performance Improvements:**
+    - **Quantity Limit Bypass Fix:**
+      - Fixed security issue where max quantity limit only applied to existing items
+      - Now enforces MAX_QUANTITY_PER_ITEM (99) for all new items added to cart
+      - Prevents users from bypassing limits by adding items multiple times
+    - **Cart Sync Reliability:**
+      - Fixed issue where client cart wasn't cleared when server cart was empty
+      - Always syncs with server state, even for empty carts
+      - Ensures accurate cart state across sessions and devices
+    - **Cookie Security - JSON Validation:**
+      - Added Zod validation for all parsed cookie data
+      - Prevents runtime errors from malformed or tampered cookies
+      - Automatically clears invalid cookies
+      - Validates both session cookies and user profile data
+    - **Performance - Optimized Quantity Input:**
+      - Changed from onChange (every keystroke) to onBlur updates
+      - Uses local state for input, only updates server when focus lost
+      - Reduces server load and improves typing experience
+      - Prevents excessive API calls during user input
+    - **Code Documentation:**
+      - Added explanatory comments for parseFloat usage in price calculations
+      - Clarified that prices are strings for decimal precision
+      - Documented that calculations only run on cart changes
+    - ✅ All fixes maintain backwards compatibility
+    - ✅ Build passes with all improvements
+- **2025-09-11 (Session 9)**:
   - **Code Improvements & Best Practices:**
     - **Error Handling Improvements:**
       - Added error parameter to catch blocks for better debugging capabilities

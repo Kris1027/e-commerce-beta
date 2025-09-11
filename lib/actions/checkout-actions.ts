@@ -72,7 +72,24 @@ export async function getShippingAddress(): Promise<ShippingAddress | null> {
     const addressCookie = cookieStore.get(`${CHECKOUT_COOKIE_NAME}-address`)?.value;
     
     if (addressCookie) {
-      return JSON.parse(addressCookie) as ShippingAddress;
+      try {
+        const parsed = JSON.parse(addressCookie);
+        // Validate the parsed data against the schema
+        const result = shippingAddressSchema.safeParse(parsed);
+        if (result.success) {
+          return result.data;
+        } else {
+          console.warn('Invalid shipping address in cookie:', result.error);
+          // Clear invalid cookie
+          cookieStore.delete(`${CHECKOUT_COOKIE_NAME}-address`);
+          return null;
+        }
+      } catch (err) {
+        console.warn('Malformed shipping address cookie:', err);
+        // Clear malformed cookie
+        cookieStore.delete(`${CHECKOUT_COOKIE_NAME}-address`);
+        return null;
+      }
     }
     
     // If no session address, check if user has a saved address
@@ -84,7 +101,14 @@ export async function getShippingAddress(): Promise<ShippingAddress | null> {
       });
       
       if (user?.address) {
-        return user.address as ShippingAddress;
+        // Validate address from database
+        const result = shippingAddressSchema.safeParse(user.address);
+        if (result.success) {
+          return result.data;
+        } else {
+          console.warn('Invalid address in user profile:', result.error);
+          return null;
+        }
       }
     }
     

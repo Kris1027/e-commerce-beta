@@ -28,7 +28,7 @@ export function AddToCart({
   const [quantity, setQuantity] = useState(1);
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
-  const addItemToStore = useCartStore((state) => state.addItem);
+  const { addItem: addItemToStore, setOpen } = useCartStore();
 
   const handleQuantityChange = (value: number) => {
     if (value >= 1 && value <= stock) {
@@ -52,6 +52,7 @@ export function AddToCart({
       if (result.success) {
         addItemToStore(cartItem);
         toast.success(`Added ${quantity} ${productName} to cart!`);
+        setOpen(true); // Open cart drawer after adding item
       } else {
         toast.error(result.message || 'Failed to add to cart');
       }

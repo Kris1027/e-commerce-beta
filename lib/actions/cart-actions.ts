@@ -96,9 +96,13 @@ export async function addToCart(item: z.infer<typeof cartItemSchema>) {
           existingItem.qty = Math.min(existingItem.qty + validatedItem.qty, CART_CONSTANTS.MAX_QUANTITY_PER_ITEM);
         }
       } else {
+        // Ensure new item doesn't exceed max quantity
+        validatedItem.qty = Math.min(validatedItem.qty, CART_CONSTANTS.MAX_QUANTITY_PER_ITEM);
         items.push(validatedItem);
       }
     } else {
+      // Ensure new item doesn't exceed max quantity
+      validatedItem.qty = Math.min(validatedItem.qty, CART_CONSTANTS.MAX_QUANTITY_PER_ITEM);
       items = [validatedItem];
     }
 

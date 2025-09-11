@@ -3,6 +3,7 @@ import { Inter } from 'next/font/google'
 import { APP_CONFIG, SEO_CONFIG } from '@/lib/constants'
 import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
+import { CartDrawer } from '@/components/layout/cart-drawer'
 import { ThemeProvider } from '@/components/theme-provider'
 import { Toaster } from '@/components/ui/sonner'
 import './globals.css'
@@ -85,6 +86,7 @@ export default function RootLayout({
             </main>
             <Footer />
           </div>
+          <CartDrawer />
           <Toaster />
         </ThemeProvider>
       </body>

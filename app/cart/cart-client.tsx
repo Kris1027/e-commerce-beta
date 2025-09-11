@@ -11,6 +11,7 @@ import { cn, formatNumberWithDecimal } from '@/lib/utils';
 import { z } from 'zod';
 import { cartItemSchema } from '@/lib/validators';
 import { CART_CONSTANTS } from '@/lib/constants/cart';
+import { CouponForm } from '@/components/cart/coupon-form';
 import {
   Dialog,
   DialogContent,
@@ -37,12 +38,15 @@ export default function CartClient({ initialCart }: CartClientProps) {
   const [isPending, startTransition] = useTransition();
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [itemToDelete, setItemToDelete] = useState<{ id: string; name: string } | null>(null);
+  const [quantityInputs, setQuantityInputs] = useState<Record<string, string>>({});
   const { 
     items, 
     itemsPrice, 
     shippingPrice, 
     taxPrice, 
     totalPrice,
+    discountAmount,
+    appliedCoupon,
     addItem: addItemToStore,
     updateItem,
     removeItem: removeFromStore,
@@ -192,20 +196,35 @@ export default function CartClient({ initialCart }: CartClientProps) {
                         type="number"
                         min="1"
                         max={CART_CONSTANTS.MAX_QUANTITY_PER_ITEM}
-                        value={item.qty}
+                        value={quantityInputs[item.productId] ?? item.qty}
                         onChange={(e) => {
-                          const newQty = parseInt(e.target.value) || 1;
-                          if (newQty > 0 && newQty <= CART_CONSTANTS.MAX_QUANTITY_PER_ITEM) {
-                            handleUpdateQuantity(item.productId, newQty);
-                          }
+                          // Update local state only
+                          setQuantityInputs(prev => ({
+                            ...prev,
+                            [item.productId]: e.target.value
+                          }));
                         }}
                         onBlur={(e) => {
-                          // Reset to 1 if invalid
                           const value = parseInt(e.target.value);
-                          if (isNaN(value) || value < 1) {
-                            handleUpdateQuantity(item.productId, 1);
+                          let finalQty = item.qty;
+                          
+                          if (!isNaN(value) && value > 0 && value <= CART_CONSTANTS.MAX_QUANTITY_PER_ITEM) {
+                            finalQty = value;
                           } else if (value > CART_CONSTANTS.MAX_QUANTITY_PER_ITEM) {
-                            handleUpdateQuantity(item.productId, CART_CONSTANTS.MAX_QUANTITY_PER_ITEM);
+                            finalQty = CART_CONSTANTS.MAX_QUANTITY_PER_ITEM;
+                          } else {
+                            finalQty = 1;
+                          }
+                          
+                          // Clear local state and update server if changed
+                          setQuantityInputs(prev => {
+                            const newState = { ...prev };
+                            delete newState[item.productId];
+                            return newState;
+                          });
+                          
+                          if (finalQty !== item.qty) {
+                            handleUpdateQuantity(item.productId, finalQty);
                           }
                         }}
                         disabled={isPending}
@@ -242,11 +261,24 @@ export default function CartClient({ initialCart }: CartClientProps) {
         <div className="rounded-lg border bg-card p-6">
           <h2 className="mb-4 text-lg font-semibold">Order Summary</h2>
           
+          {/* Coupon Form */}
+          <div className="mb-4">
+            <p className="mb-2 text-sm font-medium">Promo Code</p>
+            <CouponForm />
+          </div>
+          
           <div className="space-y-2">
             <div className="flex justify-between text-sm">
               <span>Subtotal</span>
               <span>${itemsPrice}</span>
             </div>
+            
+            {appliedCoupon && parseFloat(discountAmount) > 0 && (
+              <div className="flex justify-between text-sm text-green-600">
+                <span>Discount ({appliedCoupon.code})</span>
+                <span>-${discountAmount}</span>
+              </div>
+            )}
             
             <div className="flex justify-between text-sm">
               <span>Shipping</span>
