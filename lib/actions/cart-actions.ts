@@ -18,6 +18,7 @@ async function getSessionCartId() {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
+      path: '/',
       maxAge: CART_CONSTANTS.CART_SESSION_DURATION,
     });
   }
