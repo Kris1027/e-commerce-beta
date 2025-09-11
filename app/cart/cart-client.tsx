@@ -127,7 +127,7 @@ export default function CartClient({ initialCart }: CartClientProps) {
                     <button
                       onClick={() => handleRemoveItem(item.productId, item.name)}
                       disabled={isPending}
-                      className="text-destructive hover:text-destructive/80"
+                      className="text-destructive hover:text-destructive/80 cursor-pointer"
                       aria-label={`Remove ${item.name} from cart`}
                     >
                       <Trash2 className="h-5 w-5" />
@@ -143,7 +143,7 @@ export default function CartClient({ initialCart }: CartClientProps) {
                           "h-8 w-8 rounded-md border flex items-center justify-center transition-colors",
                           item.qty <= 1 || isPending
                             ? "border-muted text-muted-foreground cursor-not-allowed"
-                            : "border-input hover:bg-accent hover:text-accent-foreground"
+                            : "border-input hover:bg-accent hover:text-accent-foreground cursor-pointer"
                         )}
                         aria-label="Decrease quantity"
                       >
@@ -171,7 +171,7 @@ export default function CartClient({ initialCart }: CartClientProps) {
                           "h-8 w-8 rounded-md border flex items-center justify-center transition-colors",
                           isPending
                             ? "border-muted text-muted-foreground cursor-not-allowed"
-                            : "border-input hover:bg-accent hover:text-accent-foreground"
+                            : "border-input hover:bg-accent hover:text-accent-foreground cursor-pointer"
                         )}
                         aria-label="Increase quantity"
                       >

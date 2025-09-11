@@ -88,7 +88,7 @@ export function AddToCart({
                 'h-8 w-8 rounded-md border flex items-center justify-center transition-colors',
                 quantity <= 1
                   ? 'border-muted text-muted-foreground cursor-not-allowed'
-                  : 'border-input hover:bg-accent hover:text-accent-foreground'
+                  : 'border-input hover:bg-accent hover:text-accent-foreground cursor-pointer'
               )}
               aria-label="Decrease quantity"
             >
@@ -111,7 +111,7 @@ export function AddToCart({
                 'h-8 w-8 rounded-md border flex items-center justify-center transition-colors',
                 quantity >= stock
                   ? 'border-muted text-muted-foreground cursor-not-allowed'
-                  : 'border-input hover:bg-accent hover:text-accent-foreground'
+                  : 'border-input hover:bg-accent hover:text-accent-foreground cursor-pointer'
               )}
               aria-label="Increase quantity"
             >
@@ -129,7 +129,7 @@ export function AddToCart({
           'w-full flex items-center justify-center gap-2 rounded-md px-6 py-3 text-sm font-medium transition-colors',
           isOutOfStock
             ? 'bg-muted text-muted-foreground cursor-not-allowed'
-            : 'bg-primary text-primary-foreground hover:bg-primary/90'
+            : 'bg-primary text-primary-foreground hover:bg-primary/90 cursor-pointer'
         )}
       >
         <ShoppingCart className="h-4 w-4" />
@@ -144,7 +144,7 @@ export function AddToCart({
             router.push('/cart');
           }}
           disabled={isOutOfStock || isPending}
-          className="w-full rounded-md border border-primary px-6 py-3 text-sm font-medium text-primary transition-colors hover:bg-primary hover:text-primary-foreground"
+          className="w-full rounded-md border border-primary px-6 py-3 text-sm font-medium text-primary transition-colors hover:bg-primary hover:text-primary-foreground cursor-pointer"
         >
           Buy Now
         </button>

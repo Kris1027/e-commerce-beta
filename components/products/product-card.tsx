@@ -72,7 +72,7 @@ export function ProductCard({ product, className }: ProductCardProps) {
           e.preventDefault();
           setIsWishlisted(!isWishlisted);
         }}
-        className="absolute right-2 top-2 z-10 rounded-full bg-background/80 p-2 opacity-0 backdrop-blur transition-opacity group-hover:opacity-100"
+        className="absolute right-2 top-2 z-10 rounded-full bg-background/80 p-2 opacity-0 backdrop-blur transition-opacity group-hover:opacity-100 cursor-pointer"
         aria-label="Add to wishlist"
       >
         <Heart
@@ -152,7 +152,7 @@ export function ProductCard({ product, className }: ProductCardProps) {
                 "rounded-full p-2 transition-colors",
                 isPending
                   ? "bg-muted text-muted-foreground cursor-not-allowed"
-                  : "bg-primary text-primary-foreground hover:bg-primary/90"
+                  : "bg-primary text-primary-foreground hover:bg-primary/90 cursor-pointer"
               )}
               aria-label="Add to cart"
             >

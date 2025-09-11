@@ -25,7 +25,7 @@ export function CartButton() {
   return (
     <Link
       href="/cart"
-      className="relative flex items-center gap-2 text-sm font-medium transition-colors hover:text-primary"
+      className="relative flex items-center gap-2 text-sm font-medium transition-colors hover:text-primary cursor-pointer"
     >
       <div className="relative">
         <ShoppingCart className="h-5 w-5" />
