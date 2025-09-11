@@ -8,7 +8,7 @@ const currency = z
   .transform((val) => {
     const num = typeof val === 'string' ? parseFloat(val) : val;
     if (typeof num !== 'number' || isNaN(num)) {
-      throw new Error('Invalid currency value');
+      throw new Error('Currency value must be a valid number (e.g., "12.34", "100", or 99.99)');
     }
     return num.toFixed(2);
   })
