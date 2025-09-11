@@ -7,6 +7,9 @@ const currency = z
   .union([z.string(), z.number()])
   .transform((val) => {
     const num = typeof val === 'string' ? parseFloat(val) : val;
+    if (typeof num !== 'number' || isNaN(num)) {
+      throw new Error('Invalid currency value');
+    }
     return num.toFixed(2);
   })
 
