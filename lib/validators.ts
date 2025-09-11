@@ -2,16 +2,20 @@ import { z } from 'zod';
 import { PAYMENT_METHODS } from './constants';
 
 // Currency type - for decimal values stored as strings
+// Accepts number or string and transforms to string with 2 decimal places
 const currency = z
-  .string()
-  .regex(/^\d+(\.\d{2})?$/, 'Price must be a valid decimal number')
+  .union([z.string(), z.number()])
+  .transform((val) => {
+    const num = typeof val === 'string' ? parseFloat(val) : val;
+    return num.toFixed(2);
+  })
 
 // Product Schemas
 export const insertProductSchema = z.object({
   name: z.string().min(3, 'Name must be at least 3 characters').max(255),
   slug: z.string().min(3, 'Slug must be at least 3 characters').max(255),
   category: z.string().min(1, 'Category is required'),
-  images: z.array(z.string().url('Invalid image URL')).min(1, 'At least one image is required'),
+  images: z.array(z.string().min(1, 'Image path is required')).min(1, 'At least one image is required'),
   brand: z.string().min(1, 'Brand is required'),
   description: z.string().min(1, 'Description is required'),
   stock: z.coerce.number().int().nonnegative('Stock cannot be negative'),
@@ -65,7 +69,7 @@ export const insertUserSchema = signUpFormSchema
   .extend({
     id: z.string().uuid().optional(),
     emailVerified: z.date().nullable().optional(),
-    image: z.string().url('Invalid image URL').nullable().optional(),
+    image: z.string().nullable().optional(),
     role: z.enum(['user', 'admin']).default('user'),
     address: z.object({
       street: z.string(),
@@ -90,7 +94,7 @@ export const cartItemSchema = z.object({
   productId: z.string().uuid(),
   name: z.string().min(1, 'Name is required'),
   slug: z.string().min(1, 'Slug is required'),
-  image: z.string().url('Invalid image URL'),
+  image: z.string().min(1, 'Image is required'), // Allow relative paths for local images
   price: currency,
   qty: z.coerce.number().int().positive('Quantity must be positive'),
 });
@@ -167,7 +171,7 @@ export const insertOrderItemSchema = z.object({
   price: currency,
   name: z.string().min(1),
   slug: z.string().min(1),
-  image: z.string().url(),
+  image: z.string().min(1),
 });
 
 // Review Schemas

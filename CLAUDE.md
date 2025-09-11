@@ -295,6 +295,9 @@ pnpm db:seed        # Seed the database
       /page.tsx
   /dashboard
     /page.tsx
+  /cart
+    /page.tsx
+    /cart-client.tsx
   /loading.tsx
   /not-found.tsx
   /error.tsx
@@ -534,7 +537,7 @@ package.json
 ## Core Features (Template Foundation)
 ### Essential E-Commerce Components
 
-- [x] **Shopping Cart (Partially Implemented)**
+- [x] **Shopping Cart (Implemented)**
   - ✅ Persistent cart (cookie-based sessionCartId + database)
   - ✅ Add to cart functionality with quantity selector
   - ✅ Server actions for cart operations (add, update, remove, clear)
@@ -543,7 +546,10 @@ package.json
   - ✅ Zustand store for client-side state management
   - ✅ Cart count badge in header
   - ✅ Price calculations (items, shipping, tax, total)
-  - [ ] Cart page/drawer UI
+  - ✅ Cart page with full item management
+  - ✅ Quantity updates and item removal
+  - ✅ Order summary with shipping and tax
+  - ✅ Free shipping threshold ($100)
   - [ ] Discount/coupon system
 
 - [ ] **Checkout Process**
@@ -688,8 +694,36 @@ NEXT_PUBLIC_CHAT_WIDGET_ID=""
   - Enhancement recommendations
 
 ## Progress Log
+- **2025-09-11 (Session 3)**:
+  - **Price Formatting Standardization:**
+    - Fixed price validation error in cart operations
+    - Updated currency validator to accept both string and number inputs
+    - Transforms all prices to strings with exactly 2 decimal places (e.g., "10.50" not "10.5")
+    - Updated Prisma extensions to use `formatNumberWithDecimal` utility function
+    - All prices now consistently display with 2 decimal places throughout the app:
+      - Product prices: "59.99" instead of "59.99" or "60"
+      - Cart totals: "100.00" instead of "100"
+      - Shipping/tax: "10.00" instead of "10"
+    - ✅ Verified: Build completes successfully
+    - ✅ Verified: Add to cart now works with proper price formatting
+  - **Image URL Validation Fix:**
+    - Fixed Zod validation error for cart item images
+    - Updated validators to accept relative paths (not just full URLs)
+    - Changed `z.string().url()` to `z.string().min(1)` for image fields
+    - Now supports Next.js static image paths like `/images/sample-products/`
+    - Fixed deprecated `.url()` warnings in validators
 - **2025-09-11 (Session 2)**:
-  - **Shopping Cart Implementation (Partial):**
+  - **Shopping Cart Implementation (Complete):**
+    - Created cart page (`/app/cart/page.tsx` and `/app/cart/cart-client.tsx`)
+      - Full cart item display with product images and details
+      - Quantity management with +/- buttons and direct input
+      - Item removal with confirmation toast
+      - Order summary showing subtotal, shipping, tax, and total
+      - Free shipping indicator for orders over $100
+      - Empty cart state with call-to-action
+      - Responsive grid layout (2/3 for items, 1/3 for summary)
+      - Links to continue shopping and proceed to checkout
+      - Optimistic UI updates with error rollback
     - Created cart server actions in `/lib/actions/cart-actions.ts`
       - addToCart: Adds items to cart with quantity management
       - getCart: Retrieves cart from database
