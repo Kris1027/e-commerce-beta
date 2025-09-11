@@ -1,7 +1,7 @@
 'use client';
 
 import { useTransition } from 'react';
-import { ShoppingCart, Plus } from 'lucide-react';
+import { ShoppingCart } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { addToCart } from '@/lib/actions/cart-actions';
@@ -95,12 +95,10 @@ export function AddToCartButton({
         )}
         aria-label={isOutOfStock ? 'Out of stock' : `Add ${productName} to cart`}
       >
-        {isOutOfStock ? (
-          <Plus className="h-4 w-4" />
-        ) : isPending ? (
+        {isPending ? (
           <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
         ) : (
-          <Plus className="h-4 w-4" />
+          <ShoppingCart className="h-4 w-4" />
         )}
       </button>
     );

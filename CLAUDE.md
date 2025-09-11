@@ -753,6 +753,7 @@ NEXT_PUBLIC_CHAT_WIDGET_ID=""
       - Prevents inconsistent behavior across different locations
       - Always opens cart drawer when item is added
       - Supports multiple variants: default, icon, compact
+      - Icon variant shows shopping cart icon (not plus)
       - Handles Buy Now functionality with navigation
       - Prevents event propagation and default behavior
       - Optimistic updates with loading states
