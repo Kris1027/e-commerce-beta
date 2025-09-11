@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useState, useTransition } from 'react';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Trash2, Minus, Plus, ShoppingBag } from 'lucide-react';
@@ -35,7 +34,6 @@ interface CartClientProps {
 }
 
 export default function CartClient({ initialCart }: CartClientProps) {
-  const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [itemToDelete, setItemToDelete] = useState<{ id: string; name: string } | null>(null);
@@ -45,6 +43,7 @@ export default function CartClient({ initialCart }: CartClientProps) {
     shippingPrice, 
     taxPrice, 
     totalPrice,
+    addItem: addItemToStore,
     updateItem,
     removeItem: removeFromStore,
     syncWithServer 
@@ -64,6 +63,10 @@ export default function CartClient({ initialCart }: CartClientProps) {
       return;
     }
     
+    // Get previous quantity for potential rollback
+    const previousItem = items.find(item => item.productId === productId);
+    const previousQty = previousItem?.qty || 1;
+    
     startTransition(async () => {
       // Optimistic update
       updateItem(productId, newQty);
@@ -71,8 +74,8 @@ export default function CartClient({ initialCart }: CartClientProps) {
       const result = await updateCartItem(productId, newQty);
       if (!result.success) {
         toast.error(result.message || 'Failed to update quantity');
-        // Revert on error
-        router.refresh();
+        // Revert optimistic update by restoring previous quantity
+        updateItem(productId, previousQty);
       }
     });
   };
@@ -85,16 +88,22 @@ export default function CartClient({ initialCart }: CartClientProps) {
   const handleConfirmRemove = () => {
     if (!itemToDelete) return;
     
+    // Get the item to be removed for potential rollback
+    const itemToRemove = items.find(item => item.productId === itemToDelete.id);
+    
     startTransition(async () => {
+      // Optimistic update - remove from store
       removeFromStore(itemToDelete.id);
       
       const result = await removeFromCart(itemToDelete.id);
       if (result.success) {
         toast.success(`${itemToDelete.name} removed from cart`);
-        router.refresh();
       } else {
         toast.error(result.message || 'Failed to remove item');
-        router.refresh();
+        // Revert by adding the item back to the store
+        if (itemToRemove) {
+          addItemToStore(itemToRemove);
+        }
       }
       
       setDeleteDialogOpen(false);

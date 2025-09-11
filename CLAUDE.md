@@ -78,6 +78,8 @@ This is a **production-ready e-commerce template** designed to be the foundation
 - ✅ Implement virtual scrolling for long lists
 - ✅ Minimize bundle size - check with `next build`
 - ✅ Use proper caching strategies
+- ✅ Avoid unnecessary navigation delays (no setTimeout for routing)
+- ✅ Use state updates instead of page refreshes for data sync
 
 #### 7. **Accessibility (a11y)**
 - ✅ Semantic HTML elements
@@ -104,6 +106,8 @@ This is a **production-ready e-commerce template** designed to be the foundation
 - ✅ Use Zustand for global state (already installed)
 - ✅ Keep state as close to usage as possible
 - ✅ Avoid prop drilling - use context or state management
+- ✅ Implement proper optimistic updates with rollback on error
+- ✅ Avoid using `router.refresh()` for state synchronization
 
 #### 10. **Security**
 - ✅ Sanitize all user inputs
@@ -709,7 +713,22 @@ NEXT_PUBLIC_CHAT_WIDGET_ID=""
   - Enhancement recommendations
 
 ## Progress Log
-- **2025-09-11 (Session 7 - Latest)**:
+- **2025-09-11 (Session 8 - Latest)**:
+  - **Performance & Code Quality Improvements:**
+    - **Optimistic Update Reversal Fix:**
+      - Removed inefficient `router.refresh()` calls that caused full page reloads
+      - Implemented proper state-based rollback for failed operations
+      - Quantity updates now store previous value and revert on error
+      - Item removal now stores removed item and re-adds on error
+      - Benefits: Better performance, smoother UX, no unnecessary network requests
+    - **Navigation Timing Fix:**
+      - Removed `setTimeout` delay in shipping address form submission
+      - Direct navigation after success - toast persists across routes
+      - Prevents potential memory leaks from uncleared timeouts
+      - Cleaner, more predictable navigation behavior
+    - ✅ Verified: Build completes successfully
+    - ✅ Verified: No TypeScript errors or warnings
+- **2025-09-11 (Session 7)**:
   - **Code Quality & UX Improvements:**
     - **Business Logic Constants Refactoring:**
       - Created `/lib/constants/cart.ts` with configurable business values
