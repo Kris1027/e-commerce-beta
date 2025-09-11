@@ -38,7 +38,14 @@ const calculatePrices = (items: CartItem[], coupon: Coupon | null = null) => {
   // Prices are stored as strings for precision, parseFloat is necessary
   // This calculation only runs when cart changes, not on every render
   const itemsPrice = items.reduce(
-    (sum, item) => sum + parseFloat(item.price) * item.qty,
+    (sum, item) => {
+      const price = parseFloat(item.price);
+      if (isNaN(price)) {
+        console.error(`Invalid price for item ${item.name}: ${item.price}`);
+        return sum; // Skip invalid items instead of throwing
+      }
+      return sum + price * item.qty;
+    },
     0
   );
   

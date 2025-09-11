@@ -17,9 +17,6 @@ export function CouponForm() {
 
     setIsApplying(true);
     
-    // Simulate API call delay
-    await new Promise(resolve => setTimeout(resolve, 500));
-    
     const validation = validateCoupon(code, parseFloat(itemsPrice));
     
     if (validation.valid && validation.coupon) {

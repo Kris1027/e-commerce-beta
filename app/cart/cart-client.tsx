@@ -7,7 +7,7 @@ import { Trash2, Minus, Plus, ShoppingBag } from 'lucide-react';
 import { toast } from 'sonner';
 import { useCartStore } from '@/lib/store/cart-store';
 import { updateCartItem, removeFromCart } from '@/lib/actions/cart-actions';
-import { cn, formatNumberWithDecimal } from '@/lib/utils';
+import { cn, formatNumberWithDecimal, validateQuantity } from '@/lib/utils';
 import { z } from 'zod';
 import { cartItemSchema } from '@/lib/validators';
 import { CART_CONSTANTS } from '@/lib/constants/cart';
@@ -206,15 +206,7 @@ export default function CartClient({ initialCart }: CartClientProps) {
                         }}
                         onBlur={(e) => {
                           const value = parseInt(e.target.value);
-                          let finalQty = item.qty;
-                          
-                          if (!isNaN(value) && value > 0 && value <= CART_CONSTANTS.MAX_QUANTITY_PER_ITEM) {
-                            finalQty = value;
-                          } else if (value > CART_CONSTANTS.MAX_QUANTITY_PER_ITEM) {
-                            finalQty = CART_CONSTANTS.MAX_QUANTITY_PER_ITEM;
-                          } else {
-                            finalQty = 1;
-                          }
+                          const finalQty = validateQuantity(value);
                           
                           // Clear local state and update server if changed
                           setQuantityInputs(prev => {

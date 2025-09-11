@@ -15,7 +15,7 @@ async function getSessionCartId() {
   
   if (!cartId) {
     // Use crypto.randomUUID if available, otherwise fallback to randomBytes
-    cartId = typeof crypto !== 'undefined' && crypto.randomUUID
+    cartId = crypto.randomUUID
       ? crypto.randomUUID()
       : randomBytes(16).toString('hex');
     cookieStore.set('sessionCartId', cartId, {

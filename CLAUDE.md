@@ -724,7 +724,27 @@ NEXT_PUBLIC_CHAT_WIDGET_ID=""
   - Enhancement recommendations
 
 ## Progress Log
-- **2025-09-11 (Session 12 - Latest)**:
+- **2025-09-11 (Session 13 - Latest)**:
+  - **Code Quality & Robustness Improvements:**
+    - **Fixed crypto.randomUUID Check:**
+      - Corrected condition in server actions (cart-actions, checkout-actions)
+      - Now properly checks `crypto.randomUUID` directly instead of `typeof crypto`
+      - crypto object is always defined in Node.js, but randomUUID may not be
+    - **Added Price Validation:**
+      - Added parseFloat validation in cart-store calculatePrices
+      - Logs error and skips invalid items instead of breaking calculations
+      - Prevents NaN values from corrupting cart totals
+    - **Removed Artificial Delay:**
+      - Removed 500ms setTimeout in coupon-form
+      - Improves user experience with instant coupon validation
+    - **Created validateQuantity Utility:**
+      - New reusable function in lib/utils.ts
+      - Centralizes quantity validation logic
+      - Ensures quantities are integers between 1 and MAX_QUANTITY_PER_ITEM
+      - Applied to cart-client.tsx input blur handler
+    - ✅ Verified: Build completes successfully
+    - ✅ All improvements enhance reliability without breaking changes
+- **2025-09-11 (Session 12)**:
   - **Code Quality Improvements:**
     - **Cart Store Coupon Fix:**
       - Fixed missing coupon parameter in calculatePrices calls

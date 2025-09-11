@@ -1,9 +1,21 @@
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 import qs from 'query-string';
+import { CART_CONSTANTS } from '@/lib/constants/cart';
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
+}
+
+// Validate and normalize quantity for cart items
+export function validateQuantity(value: number): number {
+  if (isNaN(value) || value < 1) {
+    return 1;
+  }
+  if (value > CART_CONSTANTS.MAX_QUANTITY_PER_ITEM) {
+    return CART_CONSTANTS.MAX_QUANTITY_PER_ITEM;
+  }
+  return Math.floor(value); // Ensure integer quantity
 }
 
 // Convert prisma object into a regular JS object

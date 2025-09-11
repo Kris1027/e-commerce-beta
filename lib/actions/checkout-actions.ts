@@ -24,7 +24,7 @@ export async function saveShippingAddress(address: ShippingAddress) {
     
     if (!checkoutSession) {
       // Use crypto.randomUUID if available, otherwise fallback to randomBytes
-      checkoutSession = typeof crypto !== 'undefined' && crypto.randomUUID
+      checkoutSession = crypto.randomUUID
         ? crypto.randomUUID()
         : randomBytes(16).toString('hex');
       cookieStore.set(CHECKOUT_COOKIE_NAME, checkoutSession, {
