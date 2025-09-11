@@ -8,7 +8,7 @@ import { Trash2, Minus, Plus, ShoppingBag } from 'lucide-react';
 import { toast } from 'sonner';
 import { useCartStore } from '@/lib/store/cart-store';
 import { updateCartItem, removeFromCart } from '@/lib/actions/cart-actions';
-import { cn } from '@/lib/utils';
+import { cn, formatNumberWithDecimal } from '@/lib/utils';
 import { z } from 'zod';
 import { cartItemSchema } from '@/lib/validators';
 
@@ -47,18 +47,31 @@ export default function CartClient({ initialCart }: CartClientProps) {
   }, [initialCart, syncWithServer]);
 
   const handleUpdateQuantity = (productId: string, newQty: number) => {
+    // Validate quantity
+    if (newQty < 1 || newQty > 99) {
+      toast.error('Quantity must be between 1 and 99');
+      return;
+    }
+    
     startTransition(async () => {
+      // Optimistic update
       updateItem(productId, newQty);
       
       const result = await updateCartItem(productId, newQty);
       if (!result.success) {
-        toast.error('Failed to update quantity');
-        syncWithServer(initialCart);
+        toast.error(result.message || 'Failed to update quantity');
+        // Revert on error
+        router.refresh();
       }
     });
   };
 
   const handleRemoveItem = (productId: string, productName: string) => {
+    // Add confirmation for better UX
+    if (!confirm(`Remove ${productName} from cart?`)) {
+      return;
+    }
+    
     startTransition(async () => {
       removeFromStore(productId);
       
@@ -67,8 +80,8 @@ export default function CartClient({ initialCart }: CartClientProps) {
         toast.success(`${productName} removed from cart`);
         router.refresh();
       } else {
-        toast.error('Failed to remove item');
-        syncWithServer(initialCart);
+        toast.error(result.message || 'Failed to remove item');
+        router.refresh();
       }
     });
   };
@@ -153,11 +166,21 @@ export default function CartClient({ initialCart }: CartClientProps) {
                       <input
                         type="number"
                         min="1"
+                        max="99"
                         value={item.qty}
                         onChange={(e) => {
                           const newQty = parseInt(e.target.value) || 1;
-                          if (newQty > 0) {
+                          if (newQty > 0 && newQty <= 99) {
                             handleUpdateQuantity(item.productId, newQty);
+                          }
+                        }}
+                        onBlur={(e) => {
+                          // Reset to 1 if invalid
+                          const value = parseInt(e.target.value);
+                          if (isNaN(value) || value < 1) {
+                            handleUpdateQuantity(item.productId, 1);
+                          } else if (value > 99) {
+                            handleUpdateQuantity(item.productId, 99);
                           }
                         }}
                         disabled={isPending}
@@ -180,7 +203,7 @@ export default function CartClient({ initialCart }: CartClientProps) {
                     </div>
                     
                     <p className="font-medium">
-                      ${(parseFloat(item.price) * item.qty).toFixed(2)}
+                      ${formatNumberWithDecimal(parseFloat(item.price) * item.qty)}
                     </p>
                   </div>
                 </div>
@@ -242,7 +265,7 @@ export default function CartClient({ initialCart }: CartClientProps) {
           
           {parseFloat(itemsPrice) < 100 && (
             <p className="mt-4 text-xs text-muted-foreground">
-              Add ${(100 - parseFloat(itemsPrice)).toFixed(2)} more for free shipping
+              Add ${formatNumberWithDecimal(100 - parseFloat(itemsPrice))} more for free shipping
             </p>
           )}
         </div>

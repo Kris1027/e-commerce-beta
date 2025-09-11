@@ -90,7 +90,8 @@ export async function addToCart(item: z.infer<typeof cartItemSchema>) {
       if (existingItemIndex > -1) {
         const existingItem = items[existingItemIndex];
         if (existingItem) {
-          existingItem.qty += validatedItem.qty;
+          // Limit maximum quantity to 99 per item
+          existingItem.qty = Math.min(existingItem.qty + validatedItem.qty, 99);
         }
       } else {
         items.push(validatedItem);

@@ -96,6 +96,7 @@ This is a **production-ready e-commerce template** designed to be the foundation
 - ✅ Self-documenting code with clear naming
 - ✅ TODO comments must include ticket/issue reference
 - ✅ Use Lucide React icons instead of creating custom SVGs
+- ✅ Always format prices with 2 decimal places using `formatNumberWithDecimal` utility
 
 #### 9. **State Management**
 - ✅ Use React state for component-level state

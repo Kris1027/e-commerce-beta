@@ -46,8 +46,11 @@ export function ShippingAddressForm({
       const result = await saveShippingAddress(data);
       
       if (result.success) {
-        toast.success('Shipping address saved');
-        router.push('/checkout/payment');
+        toast.success('Shipping address saved successfully!');
+        // Small delay for user to see success message
+        setTimeout(() => {
+          router.push('/checkout/payment');
+        }, 500);
       } else {
         toast.error(result.message || 'Failed to save address');
       }
@@ -66,6 +69,7 @@ export function ShippingAddressForm({
               {...register('fullName')}
               type="text"
               id="fullName"
+              autoFocus
               className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
               placeholder="John Doe"
             />
