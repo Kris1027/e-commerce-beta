@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useTransition } from 'react';
+import { useEffect, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -11,6 +11,14 @@ import { updateCartItem, removeFromCart } from '@/lib/actions/cart-actions';
 import { cn, formatNumberWithDecimal } from '@/lib/utils';
 import { z } from 'zod';
 import { cartItemSchema } from '@/lib/validators';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 
 type CartItem = z.infer<typeof cartItemSchema>;
 
@@ -28,6 +36,8 @@ interface CartClientProps {
 export default function CartClient({ initialCart }: CartClientProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState<{ id: string; name: string } | null>(null);
   const { 
     items, 
     itemsPrice, 
@@ -66,23 +76,28 @@ export default function CartClient({ initialCart }: CartClientProps) {
     });
   };
 
-  const handleRemoveItem = (productId: string, productName: string) => {
-    // Add confirmation for better UX
-    if (!confirm(`Remove ${productName} from cart?`)) {
-      return;
-    }
+  const handleRemoveClick = (productId: string, productName: string) => {
+    setItemToDelete({ id: productId, name: productName });
+    setDeleteDialogOpen(true);
+  };
+
+  const handleConfirmRemove = () => {
+    if (!itemToDelete) return;
     
     startTransition(async () => {
-      removeFromStore(productId);
+      removeFromStore(itemToDelete.id);
       
-      const result = await removeFromCart(productId);
+      const result = await removeFromCart(itemToDelete.id);
       if (result.success) {
-        toast.success(`${productName} removed from cart`);
+        toast.success(`${itemToDelete.name} removed from cart`);
         router.refresh();
       } else {
         toast.error(result.message || 'Failed to remove item');
         router.refresh();
       }
+      
+      setDeleteDialogOpen(false);
+      setItemToDelete(null);
     });
   };
 
@@ -138,7 +153,7 @@ export default function CartClient({ initialCart }: CartClientProps) {
                     </div>
                     
                     <button
-                      onClick={() => handleRemoveItem(item.productId, item.name)}
+                      onClick={() => handleRemoveClick(item.productId, item.name)}
                       disabled={isPending}
                       className="text-destructive hover:text-destructive/80 cursor-pointer"
                       aria-label={`Remove ${item.name} from cart`}
@@ -270,6 +285,34 @@ export default function CartClient({ initialCart }: CartClientProps) {
           )}
         </div>
       </div>
+      
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Remove Item from Cart</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to remove {itemToDelete?.name} from your cart?
+              This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="flex gap-2 sm:gap-0">
+            <button
+              onClick={() => setDeleteDialogOpen(false)}
+              className="flex-1 sm:flex-none rounded-md border border-input px-4 py-2 text-sm font-medium hover:bg-accent hover:text-accent-foreground cursor-pointer transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleConfirmRemove}
+              disabled={isPending}
+              className="flex-1 sm:flex-none rounded-md bg-destructive px-4 py-2 text-sm font-medium text-destructive-foreground hover:bg-destructive/90 cursor-pointer transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isPending ? 'Removing...' : 'Remove'}
+            </button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
