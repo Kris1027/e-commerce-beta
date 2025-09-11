@@ -7,13 +7,17 @@ import { cartItemSchema } from '@/lib/validators';
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 import { CART_CONSTANTS, calculateCartPrices } from '@/lib/constants/cart';
+import { randomBytes } from 'crypto';
 
 async function getSessionCartId() {
   const cookieStore = await cookies();
   let cartId = cookieStore.get('sessionCartId')?.value;
   
   if (!cartId) {
-    cartId = crypto.randomUUID();
+    // Use crypto.randomUUID if available, otherwise fallback to randomBytes
+    cartId = typeof crypto !== 'undefined' && crypto.randomUUID
+      ? crypto.randomUUID()
+      : randomBytes(16).toString('hex');
     cookieStore.set('sessionCartId', cartId, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',

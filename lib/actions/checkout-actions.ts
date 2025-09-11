@@ -6,6 +6,7 @@ import prisma from '@/db/prisma';
 import { z } from 'zod';
 import { shippingAddressSchema } from '@/lib/validators';
 import { revalidatePath } from 'next/cache';
+import { randomBytes } from 'crypto';
 
 const CHECKOUT_COOKIE_NAME = 'checkout-session';
 
@@ -22,7 +23,10 @@ export async function saveShippingAddress(address: ShippingAddress) {
     let checkoutSession = cookieStore.get(CHECKOUT_COOKIE_NAME)?.value;
     
     if (!checkoutSession) {
-      checkoutSession = crypto.randomUUID();
+      // Use crypto.randomUUID if available, otherwise fallback to randomBytes
+      checkoutSession = typeof crypto !== 'undefined' && crypto.randomUUID
+        ? crypto.randomUUID()
+        : randomBytes(16).toString('hex');
       cookieStore.set(CHECKOUT_COOKIE_NAME, checkoutSession, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',

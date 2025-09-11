@@ -724,7 +724,24 @@ NEXT_PUBLIC_CHAT_WIDGET_ID=""
   - Enhancement recommendations
 
 ## Progress Log
-- **2025-09-11 (Session 11 - Latest)**:
+- **2025-09-11 (Session 12 - Latest)**:
+  - **Code Quality Improvements:**
+    - **Cart Store Coupon Fix:**
+      - Fixed missing coupon parameter in calculatePrices calls
+      - updateItem function now preserves coupon discounts when qty=0
+      - Ensures coupon discounts aren't lost when removing items
+    - **Error Logging Enhancement:**
+      - Added console.error for sign-out failures in user-nav
+      - Properly logs error for debugging and monitoring
+      - Maintains user-facing error toast notification
+    - **UUID Generation Fallback:**
+      - Added fallback for crypto.randomUUID in server actions
+      - Uses randomBytes(16).toString('hex') when randomUUID unavailable
+      - Improves compatibility across different Node.js environments
+      - Applied to both cart-actions and checkout-actions
+    - ✅ Verified: Build completes successfully
+    - ✅ All fixes maintain backwards compatibility
+- **2025-09-11 (Session 11)**:
   - **Shopping Cart Enhancements (Completed):**
     - **Cart Drawer Implementation:**
       - Created cart drawer using shadcn Sheet component

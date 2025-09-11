@@ -105,7 +105,7 @@ export const useCartStore = create<CartStore>()(
             const newItems = state.items.filter(
               (item) => item.productId !== productId
             );
-            const prices = calculatePrices(newItems);
+            const prices = calculatePrices(newItems, state.appliedCoupon);
             const itemsCount = newItems.reduce((sum, item) => sum + item.qty, 0);
             
             return {
