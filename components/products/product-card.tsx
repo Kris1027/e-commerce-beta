@@ -6,7 +6,10 @@ import { Product } from '@/types/product';
 import { ProductPrice } from './product-price';
 import { cn } from '@/lib/utils';
 import { Star, ShoppingCart, Heart } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useTransition } from 'react';
+import { addToCart } from '@/lib/actions/cart-actions';
+import { useCartStore } from '@/lib/store/cart-store';
+import { toast } from 'sonner';
 
 interface ProductCardProps {
   product: Product;
@@ -17,8 +20,34 @@ export function ProductCard({ product, className }: ProductCardProps) {
   const [imageIndex, setImageIndex] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
   const [isWishlisted, setIsWishlisted] = useState(false);
+  const [isPending, startTransition] = useTransition();
+  const addItemToStore = useCartStore((state) => state.addItem);
 
   const isOutOfStock = product.stock === 0;
+
+  const handleAddToCart = (e: React.MouseEvent) => {
+    e.preventDefault();
+    
+    startTransition(async () => {
+      const cartItem = {
+        productId: product.id,
+        name: product.name,
+        slug: product.slug,
+        image: product.images[0] || '/placeholder.svg',
+        price: product.price,
+        qty: 1,
+      };
+      
+      const result = await addToCart(cartItem);
+
+      if (result.success) {
+        addItemToStore(cartItem);
+        toast.success(`${product.name} added to cart!`);
+      } else {
+        toast.error(result.message || 'Failed to add to cart');
+      }
+    });
+  };
 
   return (
     <div
@@ -117,11 +146,14 @@ export function ProductCard({ product, className }: ProductCardProps) {
           <ProductPrice price={product.price} size="sm" />
           {!isOutOfStock && (
             <button
-              onClick={(e) => {
-                e.preventDefault();
-                // TODO: Implement add to cart functionality
-              }}
-              className="rounded-full bg-primary p-2 text-primary-foreground transition-colors hover:bg-primary/90"
+              onClick={handleAddToCart}
+              disabled={isPending}
+              className={cn(
+                "rounded-full p-2 transition-colors",
+                isPending
+                  ? "bg-muted text-muted-foreground cursor-not-allowed"
+                  : "bg-primary text-primary-foreground hover:bg-primary/90"
+              )}
               aria-label="Add to cart"
             >
               <ShoppingCart className="h-4 w-4" />
