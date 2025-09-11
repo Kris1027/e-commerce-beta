@@ -4,6 +4,7 @@ import { ThemeToggle } from '@/components/theme-toggle'
 import { MobileMenu } from '@/components/layout/mobile-menu'
 import { auth } from '@/auth'
 import { UserNav } from '@/components/layout/user-nav'
+import { CartButton } from '@/components/layout/cart-button'
 
 export async function Header() {
   const session = await auth();
@@ -64,27 +65,7 @@ export async function Header() {
               </svg>
               <span className="sr-only">Search</span>
             </Link>
-            <Link
-              href="/cart"
-              className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground h-9 w-9 relative"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <circle cx="9" cy="21" r="1" />
-                <circle cx="20" cy="21" r="1" />
-                <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
-              </svg>
-              <span className="sr-only">Cart</span>
-            </Link>
+            <CartButton />
             {session ? (
               <UserNav user={session.user} />
             ) : (

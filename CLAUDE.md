@@ -94,6 +94,7 @@ This is a **production-ready e-commerce template** designed to be the foundation
 - ✅ Comments only for complex logic
 - ✅ Self-documenting code with clear naming
 - ✅ TODO comments must include ticket/issue reference
+- ✅ Use Lucide React icons instead of creating custom SVGs
 
 #### 9. **State Management**
 - ✅ Use React state for component-level state
@@ -307,6 +308,8 @@ pnpm db:seed        # Seed the database
     /header.tsx
     /footer.tsx
     /mobile-menu.tsx
+    /cart-button.tsx
+    /user-nav.tsx
   /products
     /product-card.tsx
     /product-list.tsx
@@ -331,6 +334,9 @@ pnpm db:seed        # Seed the database
   /actions
     /auth-actions.ts
     /product-actions.ts
+    /cart-actions.ts
+  /store
+    /cart-store.ts
 /public
   /images
     /banner-1.jpg
@@ -528,12 +534,17 @@ package.json
 ## Core Features (Template Foundation)
 ### Essential E-Commerce Components
 
-- [ ] **Shopping Cart**
-  - Persistent cart (localStorage + database)
-  - Cart drawer/modal
-  - Quantity management
-  - Price calculations
-  - Discount/coupon system
+- [x] **Shopping Cart (Partially Implemented)**
+  - ✅ Persistent cart (cookie-based sessionCartId + database)
+  - ✅ Add to cart functionality with quantity selector
+  - ✅ Server actions for cart operations (add, update, remove, clear)
+  - ✅ Guest cart support with session cookies
+  - ✅ Cart merging when user signs in
+  - ✅ Zustand store for client-side state management
+  - ✅ Cart count badge in header
+  - ✅ Price calculations (items, shipping, tax, total)
+  - [ ] Cart page/drawer UI
+  - [ ] Discount/coupon system
 
 - [ ] **Checkout Process**
   - Multi-step checkout
@@ -677,7 +688,38 @@ NEXT_PUBLIC_CHAT_WIDGET_ID=""
   - Enhancement recommendations
 
 ## Progress Log
-- **2025-09-11**:
+- **2025-09-11 (Session 2)**:
+  - **Shopping Cart Implementation (Partial):**
+    - Created cart server actions in `/lib/actions/cart-actions.ts`
+      - addToCart: Adds items to cart with quantity management
+      - getCart: Retrieves cart from database
+      - updateCartItem: Updates quantity of items in cart
+      - removeFromCart: Removes items from cart
+      - clearCart: Clears entire cart
+      - mergeAnonymousCart: Merges guest cart when user signs in
+    - Implemented session-based guest cart support
+      - Uses httpOnly cookies to store sessionCartId
+      - 30-day cookie expiration for persistent guest carts
+      - Automatic cart merging on authentication
+    - Created Zustand cart store (`/lib/store/cart-store.ts`)
+      - Client-side state management with localStorage persistence
+      - Optimistic UI updates for better UX
+      - Cart count calculation and display
+    - Updated AddToCart component
+      - Integration with server actions
+      - Toast notifications for success/error states
+      - Buy Now button with redirect to cart
+      - Real-time stock status display
+    - Created CartButton component
+      - Shows cart item count badge
+      - Syncs with server on mount
+      - Responsive design with icon/text display
+    - Updated header to use CartButton component
+    - Fixed TypeScript strict mode issues in cart actions
+    - Added development standard: Use Lucide React icons instead of custom SVGs
+    - ✅ Verified: ESLint passes with no errors
+    - ✅ Verified: Build completes successfully
+- **2025-09-11 (Session 1)**:
   - **NextAuth v5 Implementation (Completed):**
     - Successfully installed next-auth@beta (v5.0.0-beta.29) and @auth/prisma-adapter (2.15.0)
     - Created auth.config.ts with credentials-only provider as requested

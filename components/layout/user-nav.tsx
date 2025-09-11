@@ -99,7 +99,7 @@ export function UserNav({ user }: UserNavProps) {
                 try {
                   await signOutAction();
                   toast.success('Signed out successfully');
-                } catch (error) {
+                } catch {
                   toast.error('Sign out failed');
                 }
               }}

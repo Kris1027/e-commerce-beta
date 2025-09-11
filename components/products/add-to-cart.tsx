@@ -1,8 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useTransition } from 'react';
 import { Minus, Plus, ShoppingCart } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { addToCart } from '@/lib/actions/cart-actions';
+import { toast } from 'sonner';
+import { useRouter } from 'next/navigation';
+import { useCartStore } from '@/lib/store/cart-store';
 
 interface AddToCartProps {
   productId: string;
@@ -22,7 +26,9 @@ export function AddToCart({
   image 
 }: AddToCartProps) {
   const [quantity, setQuantity] = useState(1);
-  const [isAdding, setIsAdding] = useState(false);
+  const [isPending, startTransition] = useTransition();
+  const router = useRouter();
+  const addItemToStore = useCartStore((state) => state.addItem);
 
   const handleQuantityChange = (value: number) => {
     if (value >= 1 && value <= stock) {
@@ -30,25 +36,26 @@ export function AddToCart({
     }
   };
 
-  const handleAddToCart = async () => {
-    setIsAdding(true);
-    
-    // TODO: Implement actual cart functionality
-    console.log('Adding to cart:', {
-      productId,
-      productName,
-      price,
-      quantity,
-      slug,
-      image,
+  const handleAddToCart = () => {
+    startTransition(async () => {
+      const cartItem = {
+        productId,
+        name: productName,
+        slug,
+        image,
+        price,
+        qty: quantity,
+      };
+      
+      const result = await addToCart(cartItem);
+
+      if (result.success) {
+        addItemToStore(cartItem);
+        toast.success(`Added ${quantity} ${productName} to cart!`);
+      } else {
+        toast.error(result.message || 'Failed to add to cart');
+      }
     });
-    
-    // Simulate API call
-    setTimeout(() => {
-      setIsAdding(false);
-      // You can show a toast notification here
-      alert(`Added ${quantity} ${productName} to cart!`);
-    }, 500);
   };
 
   const isOutOfStock = stock === 0;
@@ -117,7 +124,7 @@ export function AddToCart({
       {/* Add to Cart Button */}
       <button
         onClick={handleAddToCart}
-        disabled={isOutOfStock || isAdding}
+        disabled={isOutOfStock || isPending}
         className={cn(
           'w-full flex items-center justify-center gap-2 rounded-md px-6 py-3 text-sm font-medium transition-colors',
           isOutOfStock
@@ -126,13 +133,17 @@ export function AddToCart({
         )}
       >
         <ShoppingCart className="h-4 w-4" />
-        {isOutOfStock ? 'Out of Stock' : isAdding ? 'Adding...' : 'Add to Cart'}
+        {isOutOfStock ? 'Out of Stock' : isPending ? 'Adding...' : 'Add to Cart'}
       </button>
 
       {/* Buy Now Button */}
       {!isOutOfStock && (
         <button
-          disabled={isOutOfStock}
+          onClick={() => {
+            handleAddToCart();
+            router.push('/cart');
+          }}
+          disabled={isOutOfStock || isPending}
           className="w-full rounded-md border border-primary px-6 py-3 text-sm font-medium text-primary transition-colors hover:bg-primary hover:text-primary-foreground"
         >
           Buy Now
