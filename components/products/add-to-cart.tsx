@@ -1,12 +1,10 @@
 'use client';
 
-import { useState, useTransition } from 'react';
-import { Minus, Plus, ShoppingCart } from 'lucide-react';
+import { useState } from 'react';
+import { Minus, Plus } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { addToCart } from '@/lib/actions/cart-actions';
-import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
-import { useCartStore } from '@/lib/store/cart-store';
+import { AddToCartButton } from './add-to-cart-button';
 
 interface AddToCartProps {
   productId: string;
@@ -26,37 +24,12 @@ export function AddToCart({
   image 
 }: AddToCartProps) {
   const [quantity, setQuantity] = useState(1);
-  const [isPending, startTransition] = useTransition();
   const router = useRouter();
-  const { addItem: addItemToStore, setOpen } = useCartStore();
 
   const handleQuantityChange = (value: number) => {
     if (value >= 1 && value <= stock) {
       setQuantity(value);
     }
-  };
-
-  const handleAddToCart = () => {
-    startTransition(async () => {
-      const cartItem = {
-        productId,
-        name: productName,
-        slug,
-        image,
-        price,
-        qty: quantity,
-      };
-      
-      const result = await addToCart(cartItem);
-
-      if (result.success) {
-        addItemToStore(cartItem);
-        toast.success(`Added ${quantity} ${productName} to cart!`);
-        setOpen(true); // Open cart drawer after adding item
-      } else {
-        toast.error(result.message || 'Failed to add to cart');
-      }
-    });
   };
 
   const isOutOfStock = stock === 0;
@@ -123,32 +96,33 @@ export function AddToCart({
       )}
 
       {/* Add to Cart Button */}
-      <button
-        onClick={handleAddToCart}
-        disabled={isOutOfStock || isPending}
-        className={cn(
-          'w-full flex items-center justify-center gap-2 rounded-md px-6 py-3 text-sm font-medium transition-colors',
-          isOutOfStock
-            ? 'bg-muted text-muted-foreground cursor-not-allowed'
-            : 'bg-primary text-primary-foreground hover:bg-primary/90 cursor-pointer'
-        )}
-      >
-        <ShoppingCart className="h-4 w-4" />
-        {isOutOfStock ? 'Out of Stock' : isPending ? 'Adding...' : 'Add to Cart'}
-      </button>
+      <AddToCartButton
+        productId={productId}
+        productName={productName}
+        price={price}
+        slug={slug}
+        image={image}
+        stock={stock}
+        quantity={quantity}
+        variant="default"
+      />
 
       {/* Buy Now Button */}
       {!isOutOfStock && (
-        <button
-          onClick={() => {
-            handleAddToCart();
-            router.push('/cart');
-          }}
-          disabled={isOutOfStock || isPending}
-          className="w-full rounded-md border border-primary px-6 py-3 text-sm font-medium text-primary transition-colors hover:bg-primary hover:text-primary-foreground cursor-pointer"
-        >
-          Buy Now
-        </button>
+        <AddToCartButton
+          productId={productId}
+          productName={productName}
+          price={price}
+          slug={slug}
+          image={image}
+          stock={stock}
+          quantity={quantity}
+          variant="default"
+          buyNow={true}
+          onSuccess={() => router.push('/cart')}
+          className="border border-primary bg-transparent text-primary hover:bg-primary hover:text-primary-foreground"
+          showIcon={false}
+        />
       )}
     </div>
   );

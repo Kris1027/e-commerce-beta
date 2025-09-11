@@ -748,17 +748,31 @@ NEXT_PUBLIC_CHAT_WIDGET_ID=""
       - applyCoupon and removeCoupon methods
       - Discount amount tracking in state
       - Persistent coupon application across sessions
+    - **Reusable AddToCartButton Component:**
+      - Created centralized AddToCartButton component
+      - Prevents inconsistent behavior across different locations
+      - Always opens cart drawer when item is added
+      - Supports multiple variants: default, icon, compact
+      - Handles Buy Now functionality with navigation
+      - Prevents event propagation and default behavior
+      - Optimistic updates with loading states
+      - Stock validation and disabled states
     - **UI/UX Improvements:**
-      - Cart drawer opens automatically when item added
+      - Cart drawer opens automatically when item added from ANY location
+      - ProductCard now uses reusable AddToCartButton
+      - Product detail page uses same component for consistency
       - Empty cart state with call-to-action
       - Free shipping progress indicator
       - Optimistic updates with rollback on error
       - Smooth animations and transitions
     - **Component Organization:**
       - Created /components/cart folder for cart-specific components
+      - Created /components/products/add-to-cart-button.tsx
       - CouponForm component for promo code input
       - CartDrawer integrated into root layout
+      - Refactored AddToCart component to use reusable button
     - ✅ Verified: Build completes successfully
+    - ✅ All add-to-cart buttons now consistently open drawer
     - ✅ All features working with Zustand persist middleware
 - **2025-09-11 (Session 10)**:
   - **Security & Performance Improvements:**
