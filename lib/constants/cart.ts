@@ -7,6 +7,11 @@ export const CART_CONSTANTS = {
   CART_SESSION_DURATION: 60 * 60 * 24 * 30, // 30 days in seconds
 } as const;
 
+// Wishlist configuration
+export const WISHLIST_CONFIG = {
+  REMOVE_ON_ADD_TO_CART: true, // Set to false to keep items in wishlist after adding to cart
+} as const;
+
 // Helper function to calculate cart prices
 export const calculateCartPrices = (itemsPrice: number) => {
   const shippingPrice = itemsPrice > CART_CONSTANTS.FREE_SHIPPING_THRESHOLD 

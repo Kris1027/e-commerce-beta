@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { removeFromWishlist } from '@/lib/actions/wishlist-actions';
 import { addToCart } from '@/lib/actions/cart-actions';
 import { useCartStore } from '@/lib/store/cart-store';
+import { WISHLIST_CONFIG } from '@/lib/constants/cart';
 import { formatCurrency } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -72,8 +73,10 @@ export default function WishlistContent({ items: initialItems }: WishlistContent
         addItem(cartItem);
         toast.success('Added to cart');
         
-        // Optionally remove from wishlist after adding to cart
-        await handleRemove(product.id);
+        // Conditionally remove from wishlist based on configuration
+        if (WISHLIST_CONFIG.REMOVE_ON_ADD_TO_CART) {
+          await handleRemove(product.id);
+        }
       } else {
         toast.error(result.message || 'Failed to add to cart');
       }

@@ -49,6 +49,14 @@ export interface PaginatedOrders {
   hasMore: boolean;
 }
 
+// Interface for updateProfile function
+interface UpdateData {
+  email?: string;
+  name?: string;
+  address?: Record<string, unknown>;
+  password?: string;
+}
+
 export interface UpdateProfileData {
   name?: string;
   email?: string;
@@ -438,12 +446,6 @@ export async function updateProfile(data: UpdateProfileData) {
       };
     }
     
-    interface UpdateData {
-      email?: string;
-      name?: string;
-      address?: Record<string, unknown>;
-      password?: string;
-    }
     const updateData: UpdateData = {};
     
     // Check if email is being changed and is not already taken
@@ -456,12 +458,12 @@ export async function updateProfile(data: UpdateProfileData) {
         return { success: false, message: 'Email already in use' };
       }
       
-      updateData['email'] = validatedData.data.email.toLowerCase();
+      updateData.email = validatedData.data.email.toLowerCase();
     }
     
     // Update name if provided
     if (validatedData.data.name) {
-      updateData['name'] = validatedData.data.name;
+      updateData.name = validatedData.data.name;
     }
     
     // Update phone if provided (stored in address JSON)
@@ -474,16 +476,16 @@ export async function updateProfile(data: UpdateProfileData) {
       const currentAddress = currentUser?.address ? (currentUser.address as Record<string, unknown>) : {};
       
       if (validatedData.data.address) {
-        updateData['address'] = {
+        updateData.address = {
           ...currentAddress,
           ...validatedData.data.address,
         };
       }
       
       if (validatedData.data.phone) {
-        updateData['address'] = {
+        updateData.address = {
           ...currentAddress,
-          ...(updateData['address'] || {}),
+          ...(updateData.address || {}),
           phone: validatedData.data.phone,
         };
       }

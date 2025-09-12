@@ -17,6 +17,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from 'sonner';
+import { formatPhoneNumber } from '@/lib/utils';
 import { 
   Loader2, 
   Plus, 
@@ -485,7 +486,7 @@ export default function AddressManager({ userName, onSelectAddress, selectionMod
                 </p>
                 {address.phone && (
                   <p className="text-sm text-muted-foreground">
-                    Phone: {address.phone.replace(/(\d{2})(\d{3})(\d{3})(\d{3})/, '+$1 $2-$3-$4')}
+                    Phone: {formatPhoneNumber(address.phone)}
                   </p>
                 )}
                 {selectionMode ? (

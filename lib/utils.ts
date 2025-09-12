@@ -29,6 +29,25 @@ export function formatNumberWithDecimal(num: number): string {
   return decimal ? `${int}.${decimal.padEnd(2, '0')}` : `${int}.00`;
 }
 
+// Format Polish phone numbers safely
+export function formatPhoneNumber(phone: string): string {
+  // Remove all non-digit characters
+  const digits = phone.replace(/\D/g, '');
+  
+  // Only format if exactly 11 digits (Polish format with country code)
+  if (digits.length === 11 && digits.startsWith('48')) {
+    return digits.replace(/(\d{2})(\d{3})(\d{3})(\d{3})/, '+$1 $2-$3-$4');
+  }
+  
+  // Format 9-digit Polish numbers (without country code)
+  if (digits.length === 9) {
+    return digits.replace(/(\d{3})(\d{3})(\d{3})/, '$1-$2-$3');
+  }
+  
+  // Otherwise, return the original phone string
+  return phone;
+}
+
 // Format errors
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function formatError(error: any) {

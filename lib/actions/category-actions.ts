@@ -112,8 +112,11 @@ export async function getProductsByCategory(
 // Get category details with top products
 export async function getCategoryDetails(categorySlug: string) {
   try {
-    // Convert slug back to category name
-    const categoryName = categorySlug.replace(/-/g, ' ');
+    // Convert slug back to category name with proper case handling
+    const categoryName = categorySlug
+      .split('-')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
     
     // Get category product count
     const productCount = await prisma.product.count({
