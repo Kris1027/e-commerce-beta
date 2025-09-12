@@ -40,7 +40,7 @@ export async function placeOrder({ cart, shippingAddress, paymentMethod }: Place
         totalPrice: cart.totalPrice,
         couponCode: cart.couponCode || null,
         status: ORDER_STATUS.PENDING,
-        isPaid: paymentMethod === 'cashOnDelivery' ? false : false,
+        isPaid: false,
         orderitems: {
           create: cart.items.map((item) => ({
             productId: item.productId,

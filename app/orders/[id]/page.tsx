@@ -222,11 +222,9 @@ export default async function OrderDetailsPage({ params }: OrderDetailsPageProps
                   
                   <div>
                     <p className="text-sm text-muted-foreground">Order Status</p>
-                    <p className="font-medium">
-                      <span className={`text-sm ${order.status === 'delivered' ? 'text-green-600' : order.status === 'cancelled' ? 'text-red-600' : 'text-yellow-600'}`}>
-                        {formatOrderStatus(order.status)}
-                      </span>
-                    </p>
+                    <div className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getOrderStatusColor(order.status)}`}>
+                      {formatOrderStatus(order.status)}
+                    </div>
                   </div>
                   
                   {order.couponCode && (

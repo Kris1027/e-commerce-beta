@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { Package, ShoppingBag, Clock, CheckCircle, Truck, Heart, User, MapPin } from 'lucide-react';
 import { getOrders } from '@/lib/actions/order-actions';
-import { formatCurrency, formatDateTime, formatOrderStatus, getOrderStatusColor } from '@/lib/utils';
+import { formatCurrency, formatDateTime, formatOrderStatus, getOrderStatusColor, isActiveOrder } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { ORDER_STATUS } from '@/lib/validators';
 
@@ -18,10 +18,7 @@ export default async function DashboardPage() {
   const orders = await getOrders();
   
   // Calculate statistics
-  const activeOrders = orders.filter(order => 
-    order.status !== ORDER_STATUS.DELIVERED && 
-    order.status !== ORDER_STATUS.CANCELLED
-  );
+  const activeOrders = orders.filter(order => isActiveOrder(order.status));
   
   const totalOrders = orders.length;
   const deliveredOrders = orders.filter(order => order.status === ORDER_STATUS.DELIVERED).length;

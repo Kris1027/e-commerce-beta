@@ -12,14 +12,12 @@ const steps = [
 ];
 
 export default function CheckoutSteps({ activeStep }: CheckoutStepsProps) {
-  const currentStepIndex = activeStep;
-
   return (
     <nav aria-label="Progress">
       <ol className="flex items-center justify-center space-x-4 sm:space-x-8">
         {steps.map((step, index) => {
-          const isCompleted = index < currentStepIndex;
-          const isCurrent = index === currentStepIndex;
+          const isCompleted = index < activeStep;
+          const isCurrent = index === activeStep;
           
           return (
             <li key={step.name} className="flex items-center">

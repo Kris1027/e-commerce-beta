@@ -114,6 +114,12 @@ export function getOrderStatusColor(status: string): string {
   return statusColors[status.toLowerCase()] || 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300';
 }
 
+// Check if an order is active (not delivered or cancelled)
+export function isActiveOrder(status: string): boolean {
+  const inactiveStatuses = ['delivered', 'cancelled'];
+  return !inactiveStatuses.includes(status.toLowerCase());
+}
+
 // Format date and times
 export const formatDateTime = (dateString: Date) => {
   const dateTimeOptions: Intl.DateTimeFormatOptions = {
