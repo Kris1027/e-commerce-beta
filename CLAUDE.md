@@ -87,6 +87,8 @@ Production-ready e-commerce template built with Next.js 15.5.2, TypeScript (stri
   /cart                # Cart drawer, components
   /checkout            # Checkout steps, forms
   /products            # Product cards, gallery
+  /profile             # Profile management, address manager
+  /wishlist            # Wishlist components
 /lib
   /actions             # Server actions (ALWAYS use these for data ops)
   /constants           # Business logic constants
@@ -133,12 +135,25 @@ setDefaultAddress(id)                       // Set default shipping address
 getOrderStats()                             // User order statistics
 ```
 
+### Wishlist Actions (`/lib/actions/wishlist-actions.ts`)
+```typescript
+getWishlist()                               // Get user's wishlist items
+addToWishlist(productId)                    // Add product to wishlist
+removeFromWishlist(productId)               // Remove from wishlist
+toggleWishlist(productId)                   // Toggle wishlist status
+isInWishlist(productId)                     // Check if in wishlist
+getWishlistProductIds()                     // Get list of product IDs
+getWishlistCount()                          // Get total count
+```
+
 ### Validation Schemas (`/lib/validators.ts`)
 - `cartItemSchema` - Cart item validation
 - `shippingAddressSchema` - Address validation
 - `signInSchema` / `signUpSchema` - Auth validation
 - `ORDER_STATUS` constant - Order states
 - `CartResponse` type - API responses
+- `wishlistItemSchema` - Wishlist item validation
+- `insertWishlistSchema` - Add to wishlist validation
 
 ## Database Models
 
@@ -149,6 +164,7 @@ getOrderStats()                             // User order statistics
 - **Order**: Status tracking, payment info
 - **OrderItem**: Order line items
 - **Address**: Multiple shipping addresses per user with default selection
+- **Wishlist**: User's saved products with unique constraint
 - **Review**: Product reviews (future implementation)
 
 ### Order Status Flow
@@ -164,6 +180,8 @@ pending → processing → shipped → delivered
 - `/checkout/*` - Requires authentication
 - `/orders/*` - Requires authentication
 - `/dashboard` - Requires authentication
+- `/profile` - Requires authentication
+- `/wishlist` - Requires authentication
 - `/admin/*` - Requires admin role
 
 ### Session Management
@@ -191,6 +209,14 @@ pending → processing → shipped → delivered
   - Multiple shipping addresses support
   - Address management (add/edit/delete/set default)
   - Address labels (Home, Work, Other)
+- Wishlist functionality:
+  - Add/remove products from wishlist
+  - Wishlist page with grid view
+  - Heart icon on all product cards
+  - Integration with profile dashboard
+  - Wishlist count display
+  - Add to cart from wishlist
+  - Authentication required
 
 ### 🚧 Pending
 - Stripe/PayPal payment integration
@@ -198,8 +224,10 @@ pending → processing → shipped → delivered
 - Password reset via email
 - Email notifications
 - Product search and filters
-- Wishlist
 - Product reviews
+- Social login (Google, Facebook)
+- Product recommendations
+- Advanced analytics
 
 ## Common Patterns
 

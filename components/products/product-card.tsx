@@ -5,19 +5,20 @@ import Link from 'next/link';
 import { Product } from '@/types/product';
 import { ProductPrice } from './product-price';
 import { AddToCartButton } from './add-to-cart-button';
+import { WishlistButton } from '@/components/wishlist/wishlist-button';
 import { cn } from '@/lib/utils';
-import { Star, Heart } from 'lucide-react';
+import { Star } from 'lucide-react';
 import { useState } from 'react';
 
 interface ProductCardProps {
   product: Product;
+  isInWishlist?: boolean;
   className?: string;
 }
 
-export function ProductCard({ product, className }: ProductCardProps) {
+export function ProductCard({ product, isInWishlist = false, className }: ProductCardProps) {
   const [imageIndex, setImageIndex] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
-  const [isWishlisted, setIsWishlisted] = useState(false);
 
   const isOutOfStock = product.stock === 0;
 
@@ -39,21 +40,12 @@ export function ProductCard({ product, className }: ProductCardProps) {
         </span>
       )}
 
-      <button
-        onClick={(e) => {
-          e.preventDefault();
-          setIsWishlisted(!isWishlisted);
-        }}
-        className="absolute right-2 top-2 z-10 rounded-full bg-background/80 p-2 opacity-0 backdrop-blur transition-opacity group-hover:opacity-100 cursor-pointer"
-        aria-label="Add to wishlist"
-      >
-        <Heart
-          className={cn(
-            'h-4 w-4 transition-colors',
-            isWishlisted ? 'fill-red-500 text-red-500' : 'text-foreground'
-          )}
+      <div className="absolute right-2 top-2 z-10 opacity-0 transition-opacity group-hover:opacity-100">
+        <WishlistButton 
+          productId={product.id}
+          isInWishlist={isInWishlist}
         />
-      </button>
+      </div>
 
       <Link href={`/products/${product.slug}`} className="relative aspect-square overflow-hidden bg-muted">
         <Image

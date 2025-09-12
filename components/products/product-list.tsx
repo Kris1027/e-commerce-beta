@@ -4,12 +4,14 @@ import { cn } from '@/lib/utils';
 
 interface ProductListProps {
   products: Product[];
+  wishlistProductIds?: string[];
   className?: string;
   columns?: 2 | 3 | 4 | 5;
 }
 
 export function ProductList({ 
   products, 
+  wishlistProductIds = [],
   className,
   columns = 4 
 }: ProductListProps) {
@@ -38,7 +40,8 @@ export function ProductList({
       {products.map((product, index) => (
         <ProductCard 
           key={product.id || `${product.slug}-${index}`} 
-          product={product} 
+          product={product}
+          isInWishlist={wishlistProductIds.includes(product.id)}
         />
       ))}
     </div>

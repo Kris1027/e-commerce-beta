@@ -1,8 +1,10 @@
 import { redirect } from 'next/navigation';
 import { auth } from '@/auth';
 import { getCurrentUser, getOrderStats } from '@/lib/actions/user-actions';
+import { getWishlistCount } from '@/lib/actions/wishlist-actions';
 import ProfileForm from '@/components/profile/profile-form';
-import { Package, Truck, CheckCircle, Clock, Ban, CreditCard } from 'lucide-react';
+import { Package, Truck, CheckCircle, Clock, Ban, CreditCard, Heart } from 'lucide-react';
+import Link from 'next/link';
 import { formatCurrency } from '@/lib/utils';
 
 export default async function ProfilePage() {
@@ -12,9 +14,10 @@ export default async function ProfilePage() {
     redirect('/auth/signin');
   }
   
-  const [user, stats] = await Promise.all([
+  const [user, stats, wishlistCount] = await Promise.all([
     getCurrentUser(),
     getOrderStats(),
+    getWishlistCount(),
   ]);
   
   if (!user) {
@@ -97,6 +100,28 @@ export default async function ProfilePage() {
                     <span className="font-semibold">{stats.cancelledOrders}</span>
                   </div>
                 )}
+              </div>
+            </div>
+            
+            {/* Wishlist Card */}
+            <div className="rounded-lg border bg-card p-6">
+              <h3 className="text-lg font-semibold mb-4">Wishlist</h3>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="p-3 bg-pink-100 dark:bg-pink-900/30 rounded-lg">
+                    <Heart className="h-6 w-6 text-pink-600 dark:text-pink-400" />
+                  </div>
+                  <div>
+                    <p className="text-2xl font-bold">{wishlistCount}</p>
+                    <p className="text-sm text-muted-foreground">Saved items</p>
+                  </div>
+                </div>
+                <Link 
+                  href="/wishlist" 
+                  className="text-sm font-medium text-primary hover:underline"
+                >
+                  View all →
+                </Link>
               </div>
             </div>
             

@@ -31,6 +31,7 @@ model Product {
   createdAt   DateTime    @default(now()) @db.Timestamp(6)
   OrderItem   OrderItem[]
   Review      Review[]
+  Wishlist    Wishlist[]
 }
 
 model User {
@@ -51,6 +52,7 @@ model User {
   Order         Order[]
   Review        Review[]
   addresses     Address[]
+  Wishlist      Wishlist[]
 }
 
 model Account {
@@ -172,4 +174,17 @@ model Address {
   user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   
   @@index([userId])
+}
+
+model Wishlist {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId    String   @db.Uuid
+  productId String   @db.Uuid
+  createdAt DateTime @default(now()) @db.Timestamp(6)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  
+  @@unique([userId, productId])
+  @@index([userId])
+  @@index([productId])
 }

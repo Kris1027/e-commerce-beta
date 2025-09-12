@@ -1,8 +1,10 @@
 import { ProductList } from '@/components/products/product-list';
 import { getAllProducts } from '@/lib/actions/product-actions';
+import { getWishlistProductIds } from '@/lib/actions/wishlist-actions';
 
 export default async function ProductsPage() {
   const { data: products } = await getAllProducts({ page: 1 });
+  const wishlistProductIds = await getWishlistProductIds();
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
@@ -12,7 +14,7 @@ export default async function ProductsPage() {
           Browse our collection of high-quality products
         </p>
       </div>
-      <ProductList products={products} />
+      <ProductList products={products} wishlistProductIds={wishlistProductIds} />
     </div>
   );
 }

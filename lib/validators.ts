@@ -254,3 +254,31 @@ export type InsertOrderItem = z.infer<typeof insertOrderItemSchema>;
 
 export type Review = z.infer<typeof reviewSchema>;
 export type InsertReview = z.infer<typeof insertReviewSchema>;
+
+// Wishlist Schemas
+export const wishlistItemSchema = z.object({
+  id: z.string().uuid(),
+  userId: z.string().uuid(),
+  productId: z.string().uuid(),
+  product: z.object({
+    id: z.string().uuid(),
+    name: z.string(),
+    slug: z.string(),
+    price: z.string(),
+    rating: z.string(),
+    numReviews: z.number(),
+    images: z.array(z.string()),
+    brand: z.string(),
+    category: z.string(),
+    stock: z.number(),
+  }).optional(),
+  createdAt: z.date().or(z.string().transform((val) => new Date(val))),
+});
+
+export const insertWishlistSchema = z.object({
+  userId: z.string().uuid(),
+  productId: z.string().uuid(),
+});
+
+export type WishlistItem = z.infer<typeof wishlistItemSchema>;
+export type InsertWishlist = z.infer<typeof insertWishlistSchema>;
