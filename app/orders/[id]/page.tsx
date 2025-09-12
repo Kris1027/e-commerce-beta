@@ -221,13 +221,11 @@ export default async function OrderDetailsPage({ params }: OrderDetailsPageProps
                   </div>
                   
                   <div>
-                    <p className="text-sm text-muted-foreground">Payment Status</p>
+                    <p className="text-sm text-muted-foreground">Order Status</p>
                     <p className="font-medium">
-                      {order.isPaid ? (
-                        <span className="text-green-600">Paid</span>
-                      ) : (
-                        <span className="text-yellow-600">Pending</span>
-                      )}
+                      <span className={`text-sm ${order.status === 'delivered' ? 'text-green-600' : order.status === 'cancelled' ? 'text-red-600' : 'text-yellow-600'}`}>
+                        {formatOrderStatus(order.status)}
+                      </span>
                     </p>
                   </div>
                   
