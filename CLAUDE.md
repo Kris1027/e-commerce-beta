@@ -2,6 +2,7 @@
 
 ## Project Context
 Production-ready e-commerce template built with Next.js 15.5.2, TypeScript (strict mode), Prisma ORM with PostgreSQL (Neon), and NextAuth v5.
+**Currently configured for Poland-only shipping.**
 
 ## Critical Development Rules (MUST FOLLOW)
 
@@ -100,11 +101,12 @@ Production-ready e-commerce template built with Next.js 15.5.2, TypeScript (stri
 
 ### Business Constants (`/lib/constants/cart.ts`)
 ```typescript
-FREE_SHIPPING_THRESHOLD = 100
-SHIPPING_PRICE = 10
-TAX_RATE = 0.1
+FREE_SHIPPING_THRESHOLD = 100  // PLN
+SHIPPING_PRICE = 10            // PLN (Poland only)
+TAX_RATE = 0.23                // Polish VAT rate
 MAX_QUANTITY_PER_ITEM = 99
 CART_SESSION_DURATION = 30 days
+ORDERS_PER_PAGE = 10  // Pagination for order history
 ```
 
 ### Essential Utilities (`/lib/utils.ts`)
@@ -116,6 +118,19 @@ isActiveOrder(status: string)              // true/false
 validateQuantity(value: number)            // 1-99
 formatNumberWithDecimal(num: number)       // "10.00"
 calculateCartPrices(itemsPrice: number)    // {shipping, tax, total}
+```
+
+### User & Address Actions (`/lib/actions/user-actions.ts`)
+```typescript
+getMyOrders(page: number)                  // Paginated order history
+getCurrentUser()                            // Get current user profile
+updateProfile(data)                         // Update email/password
+getUserAddresses()                          // Get all user addresses
+addAddress(data)                            // Add new shipping address
+updateAddress(id, data)                     // Update existing address
+deleteAddress(id)                           // Remove address
+setDefaultAddress(id)                       // Set default shipping address
+getOrderStats()                             // User order statistics
 ```
 
 ### Validation Schemas (`/lib/validators.ts`)
@@ -133,6 +148,8 @@ calculateCartPrices(itemsPrice: number)    // {shipping, tax, total}
 - **Cart**: Session-based, user-linked
 - **Order**: Status tracking, payment info
 - **OrderItem**: Order line items
+- **Address**: Multiple shipping addresses per user with default selection
+- **Review**: Product reviews (future implementation)
 
 ### Order Status Flow
 ```
@@ -167,7 +184,13 @@ pending → processing → shipped → delivered
 - User dashboard with statistics
 - Cart persistence and guest support
 - Order history with pagination (10 orders per page)
-- User profile management (update info, password, address)
+- User profile management:
+  - Read-only name field (contact support to change)
+  - Email update functionality
+  - Password change with validation
+  - Multiple shipping addresses support
+  - Address management (add/edit/delete/set default)
+  - Address labels (Home, Work, Other)
 
 ### 🚧 Pending
 - Stripe/PayPal payment integration
@@ -240,10 +263,28 @@ AUTH_SECRET="[generate with: openssl rand -base64 32]"
 pnpm dev          # Development
 pnpm build        # Build for production
 pnpm lint         # Check code quality
-pnpm db:push      # Push schema changes
+pnpm db:push      # Push schema changes (updates Address table)
 pnpm db:seed      # Seed sample data
 pnpm db:studio    # Prisma Studio GUI
 ```
+
+## Recent Updates
+- **Profile Management**: Full name is now read-only in profile (contact support for changes)
+- **Multiple Addresses**: Users can manage multiple shipping addresses with labels
+- **Address Features**: Add, edit, delete, and set default shipping addresses
+- **Order Pagination**: Order history now supports pagination (10 per page)
+- **Database**: Added Address model for multiple shipping addresses per user
+- **Poland-Only Shipping**: 
+  - Country field hardcoded to "Poland" in all address forms
+  - Voivodeship field instead of State/Province
+  - Polish address formatting (ul., postal codes XX-XXX)
+  - Polish phone format display: +48 XXX-XXX-XXX
+- **Checkout Address Selection**:
+  - Reuses the same AddressManager component from profile
+  - Users can select from saved addresses during checkout
+  - Option to add new address during checkout flow
+  - "Use This Address" button for quick selection
+  - Automatic navigation to payment after selection
 
 ---
 **Remember**: Always follow the rules above to maintain consistency. When in doubt, check existing implementations in the codebase.

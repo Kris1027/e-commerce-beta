@@ -6,6 +6,7 @@ import { formatNumberWithDecimal } from '@/lib/utils';
 import { revalidatePath } from 'next/cache';
 import bcrypt from 'bcryptjs';
 import { z } from 'zod';
+import { shippingAddressSchema } from '@/lib/validators';
 
 const ORDERS_PER_PAGE = 10;
 
@@ -205,6 +206,217 @@ export async function getCurrentUser() {
   } catch (error) {
     console.error('Error fetching current user:', error);
     return null;
+  }
+}
+
+// Address-related actions
+export async function getUserAddresses() {
+  try {
+    const session = await auth();
+    
+    if (!session?.user?.id) {
+      return [];
+    }
+    
+    const addresses = await prisma.address.findMany({
+      where: {
+        userId: session.user.id,
+      },
+      orderBy: [
+        { isDefault: 'desc' },
+        { createdAt: 'desc' },
+      ],
+    });
+    
+    return addresses;
+  } catch (error) {
+    console.error('Error fetching addresses:', error);
+    return [];
+  }
+}
+
+export async function addAddress(data: Omit<z.infer<typeof shippingAddressSchema>, 'fullName'> & { fullName: string; label?: string }) {
+  try {
+    const session = await auth();
+    
+    if (!session?.user?.id) {
+      return { success: false, message: 'Please sign in to add an address' };
+    }
+    
+    // If this is the first address or it's marked as default, update other addresses
+    const existingAddresses = await prisma.address.findMany({
+      where: { userId: session.user.id },
+    });
+    
+    const isFirstAddress = existingAddresses.length === 0;
+    
+    const newAddress = await prisma.address.create({
+      data: {
+        userId: session.user.id,
+        fullName: data.fullName,
+        street: data.street,
+        city: data.city,
+        state: data.state,
+        zipCode: data.zipCode,
+        country: data.country,
+        phone: data.phone || '',
+        label: data.label,
+        isDefault: isFirstAddress,
+      },
+    });
+    
+    revalidatePath('/profile');
+    
+    return { 
+      success: true, 
+      message: 'Address added successfully',
+      address: newAddress,
+    };
+  } catch (error) {
+    console.error('Error adding address:', error);
+    return { success: false, message: 'Failed to add address' };
+  }
+}
+
+export async function updateAddress(addressId: string, data: Partial<z.infer<typeof shippingAddressSchema>> & { label?: string }) {
+  try {
+    const session = await auth();
+    
+    if (!session?.user?.id) {
+      return { success: false, message: 'Please sign in to update address' };
+    }
+    
+    // Verify the address belongs to the user
+    const existingAddress = await prisma.address.findFirst({
+      where: {
+        id: addressId,
+        userId: session.user.id,
+      },
+    });
+    
+    if (!existingAddress) {
+      return { success: false, message: 'Address not found' };
+    }
+    
+    const updatedAddress = await prisma.address.update({
+      where: { id: addressId },
+      data: {
+        fullName: data.fullName,
+        street: data.street,
+        city: data.city,
+        state: data.state,
+        zipCode: data.zipCode,
+        country: data.country,
+        phone: data.phone,
+        label: data.label,
+      },
+    });
+    
+    revalidatePath('/profile');
+    
+    return { 
+      success: true, 
+      message: 'Address updated successfully',
+      address: updatedAddress,
+    };
+  } catch (error) {
+    console.error('Error updating address:', error);
+    return { success: false, message: 'Failed to update address' };
+  }
+}
+
+export async function deleteAddress(addressId: string) {
+  try {
+    const session = await auth();
+    
+    if (!session?.user?.id) {
+      return { success: false, message: 'Please sign in to delete address' };
+    }
+    
+    // Verify the address belongs to the user
+    const existingAddress = await prisma.address.findFirst({
+      where: {
+        id: addressId,
+        userId: session.user.id,
+      },
+    });
+    
+    if (!existingAddress) {
+      return { success: false, message: 'Address not found' };
+    }
+    
+    await prisma.address.delete({
+      where: { id: addressId },
+    });
+    
+    // If this was the default address, make another one default
+    if (existingAddress.isDefault) {
+      const firstAddress = await prisma.address.findFirst({
+        where: { userId: session.user.id },
+        orderBy: { createdAt: 'asc' },
+      });
+      
+      if (firstAddress) {
+        await prisma.address.update({
+          where: { id: firstAddress.id },
+          data: { isDefault: true },
+        });
+      }
+    }
+    
+    revalidatePath('/profile');
+    
+    return { 
+      success: true, 
+      message: 'Address deleted successfully',
+    };
+  } catch (error) {
+    console.error('Error deleting address:', error);
+    return { success: false, message: 'Failed to delete address' };
+  }
+}
+
+export async function setDefaultAddress(addressId: string) {
+  try {
+    const session = await auth();
+    
+    if (!session?.user?.id) {
+      return { success: false, message: 'Please sign in to set default address' };
+    }
+    
+    // Verify the address belongs to the user
+    const existingAddress = await prisma.address.findFirst({
+      where: {
+        id: addressId,
+        userId: session.user.id,
+      },
+    });
+    
+    if (!existingAddress) {
+      return { success: false, message: 'Address not found' };
+    }
+    
+    // Update all addresses to not default
+    await prisma.address.updateMany({
+      where: { userId: session.user.id },
+      data: { isDefault: false },
+    });
+    
+    // Set the selected address as default
+    await prisma.address.update({
+      where: { id: addressId },
+      data: { isDefault: true },
+    });
+    
+    revalidatePath('/profile');
+    
+    return { 
+      success: true, 
+      message: 'Default address updated successfully',
+    };
+  } catch (error) {
+    console.error('Error setting default address:', error);
+    return { success: false, message: 'Failed to set default address' };
   }
 }
 

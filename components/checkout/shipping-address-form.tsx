@@ -36,7 +36,7 @@ export function ShippingAddressForm({
       city: '',
       state: '',
       zipCode: '',
-      country: '',
+      country: 'Poland',
       phone: '',
     },
   });
@@ -85,7 +85,7 @@ export function ShippingAddressForm({
               type="text"
               id="street"
               className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-              placeholder="123 Main St"
+              placeholder="ul. Marszałkowska 123"
             />
             {errors.street && (
               <p className="mt-1 text-sm text-destructive">{errors.street.message}</p>
@@ -101,7 +101,7 @@ export function ShippingAddressForm({
               type="text"
               id="city"
               className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-              placeholder="New York"
+              placeholder="Warsaw"
             />
             {errors.city && (
               <p className="mt-1 text-sm text-destructive">{errors.city.message}</p>
@@ -110,14 +110,14 @@ export function ShippingAddressForm({
 
           <div>
             <label htmlFor="state" className="block text-sm font-medium mb-2">
-              State / Province
+              Voivodeship
             </label>
             <input
               {...register('state')}
               type="text"
               id="state"
               className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-              placeholder="NY"
+              placeholder="Mazowieckie"
             />
             {errors.state && (
               <p className="mt-1 text-sm text-destructive">{errors.state.message}</p>
@@ -126,14 +126,14 @@ export function ShippingAddressForm({
 
           <div>
             <label htmlFor="zipCode" className="block text-sm font-medium mb-2">
-              ZIP / Postal Code
+              Postal Code
             </label>
             <input
               {...register('zipCode')}
               type="text"
               id="zipCode"
               className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-              placeholder="10001"
+              placeholder="00-001"
             />
             {errors.zipCode && (
               <p className="mt-1 text-sm text-destructive">{errors.zipCode.message}</p>
@@ -145,15 +145,17 @@ export function ShippingAddressForm({
               Country
             </label>
             <input
-              {...register('country')}
               type="text"
               id="country"
-              className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-              placeholder="United States"
+              value="Poland"
+              disabled
+              className="w-full rounded-md border border-input bg-muted px-3 py-2 text-sm"
             />
-            {errors.country && (
-              <p className="mt-1 text-sm text-destructive">{errors.country.message}</p>
-            )}
+            <input
+              {...register('country')}
+              type="hidden"
+              value="Poland"
+            />
           </div>
 
           <div className="sm:col-span-2">
@@ -165,7 +167,7 @@ export function ShippingAddressForm({
               type="tel"
               id="phone"
               className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-              placeholder="+1 (555) 123-4567"
+              placeholder="+48 123 456 789"
             />
             {errors.phone && (
               <p className="mt-1 text-sm text-destructive">{errors.phone.message}</p>

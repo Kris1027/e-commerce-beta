@@ -3,11 +3,11 @@ import { redirect } from 'next/navigation';
 import { auth } from '@/auth';
 import { getCart } from '@/lib/actions/cart-actions';
 import CheckoutSteps from '@/components/checkout/checkout-steps';
-import { ShippingAddressForm } from '@/components/checkout/shipping-address-form';
+import CheckoutAddressSelector from '@/components/checkout/checkout-address-selector';
 
 export const metadata: Metadata = {
   title: 'Shipping Address',
-  description: 'Enter your shipping address',
+  description: 'Select your shipping address',
 };
 
 export default async function ShippingPage() {
@@ -25,11 +25,10 @@ export default async function ShippingPage() {
         <CheckoutSteps activeStep={0} />
       </div>
 
-      <div className="mx-auto max-w-2xl">
-        <h1 className="mb-6 text-2xl font-bold">Shipping Address</h1>
-        <ShippingAddressForm 
-          userId={session?.user?.id}
-          userEmail={session?.user?.email}
+      <div className="mx-auto max-w-3xl">
+        <h1 className="mb-6 text-2xl font-bold">Select Shipping Address</h1>
+        <CheckoutAddressSelector 
+          userName={session?.user?.name || ''}
         />
       </div>
     </div>
