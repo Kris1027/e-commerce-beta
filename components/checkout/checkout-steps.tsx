@@ -2,28 +2,27 @@ import { Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface CheckoutStepsProps {
-  currentStep: 'cart' | 'shipping' | 'payment' | 'review';
+  activeStep: number;
 }
 
 const steps = [
-  { id: 'cart', name: 'Cart', href: '/cart' },
-  { id: 'shipping', name: 'Shipping', href: '/checkout/shipping' },
-  { id: 'payment', name: 'Payment', href: '/checkout/payment' },
-  { id: 'review', name: 'Review', href: '/checkout/review' },
+  { name: 'Shipping', href: '/checkout/shipping' },
+  { name: 'Payment', href: '/checkout/payment' },
+  { name: 'Review', href: '/checkout/review' },
 ];
 
-export function CheckoutSteps({ currentStep }: CheckoutStepsProps) {
-  const currentStepIndex = steps.findIndex((step) => step.id === currentStep);
+export default function CheckoutSteps({ activeStep }: CheckoutStepsProps) {
+  const currentStepIndex = activeStep;
 
   return (
     <nav aria-label="Progress">
       <ol className="flex items-center justify-center space-x-4 sm:space-x-8">
         {steps.map((step, index) => {
           const isCompleted = index < currentStepIndex;
-          const isCurrent = step.id === currentStep;
+          const isCurrent = index === currentStepIndex;
           
           return (
-            <li key={step.id} className="flex items-center">
+            <li key={step.name} className="flex items-center">
               <div className="flex items-center">
                 <div
                   className={cn(

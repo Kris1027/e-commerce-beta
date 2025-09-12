@@ -59,16 +59,20 @@ export async function getCart() {
       shippingPrice: cart.shippingPrice.toString(),
       taxPrice: cart.taxPrice.toString(),
       totalPrice: cart.totalPrice.toString(),
+      discountPrice: '0.00',
+      couponCode: null,
     };
   } catch (error) {
     console.error('Error getting cart:', error);
     return {
       id: null,
       items: [],
-      itemsPrice: '0',
-      shippingPrice: '0',
-      taxPrice: '0',
-      totalPrice: '0',
+      itemsPrice: '0.00',
+      shippingPrice: '0.00',
+      taxPrice: '0.00',
+      totalPrice: '0.00',
+      discountPrice: '0.00',
+      couponCode: null,
     };
   }
 }
