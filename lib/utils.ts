@@ -94,6 +94,29 @@ export function formatId(id: string) {
   return `..${id.substring(id.length - 6)}`;
 }
 
+// Format order status for display
+export function formatOrderStatus(status: string): string {
+  return status.charAt(0).toUpperCase() + status.slice(1).toLowerCase();
+}
+
+// Get order status color for badges
+export function getOrderStatusColor(status: string): string {
+  const statusColors: Record<string, string> = {
+    pending: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300',
+    processing: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300',
+    shipped: 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300',
+    delivered: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300',
+    cancelled: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300',
+  };
+  return statusColors[status.toLowerCase()] || 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300';
+}
+
+// Check if an order is active (not delivered or cancelled)
+export function isActiveOrder(status: string): boolean {
+  const inactiveStatuses = ['delivered', 'cancelled'];
+  return !inactiveStatuses.includes(status.toLowerCase());
+}
+
 // Format date and times
 export const formatDateTime = (dateString: Date) => {
   const dateTimeOptions: Intl.DateTimeFormatOptions = {

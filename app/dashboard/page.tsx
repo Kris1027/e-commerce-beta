@@ -1,6 +1,11 @@
 import { auth } from '@/auth';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
+import { Package, ShoppingBag, Clock, CheckCircle, Truck, Heart, User, MapPin } from 'lucide-react';
+import { getOrders } from '@/lib/actions/order-actions';
+import { formatCurrency, formatDateTime, formatOrderStatus, getOrderStatusColor, isActiveOrder } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
+import { ORDER_STATUS } from '@/lib/validators';
 
 export default async function DashboardPage() {
   const session = await auth();
@@ -8,6 +13,19 @@ export default async function DashboardPage() {
   if (!session) {
     redirect('/auth/signin');
   }
+
+  // Fetch user's orders
+  const orders = await getOrders();
+  
+  // Calculate statistics
+  const activeOrders = orders.filter(order => isActiveOrder(order.status));
+  
+  const totalOrders = orders.length;
+  const deliveredOrders = orders.filter(order => order.status === ORDER_STATUS.DELIVERED).length;
+  const pendingOrders = orders.filter(order => order.status === ORDER_STATUS.PENDING).length;
+  
+  // Get recent orders (last 5)
+  const recentOrders = orders.slice(0, 5);
 
   return (
     <div>
@@ -18,33 +36,70 @@ export default async function DashboardPage() {
         </p>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+      {/* Statistics Cards */}
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 mb-8">
+        <div className="rounded-lg border bg-card p-6">
+          <div className="flex items-center space-x-4">
+            <div className="p-3 bg-blue-100 dark:bg-blue-900/30 rounded-full">
+              <Package className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+            </div>
+            <div>
+              <p className="text-sm font-medium text-muted-foreground">Total Orders</p>
+              <p className="text-2xl font-bold">{totalOrders}</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="rounded-lg border bg-card p-6">
+          <div className="flex items-center space-x-4">
+            <div className="p-3 bg-yellow-100 dark:bg-yellow-900/30 rounded-full">
+              <Clock className="h-6 w-6 text-yellow-600 dark:text-yellow-400" />
+            </div>
+            <div>
+              <p className="text-sm font-medium text-muted-foreground">Active Orders</p>
+              <p className="text-2xl font-bold">{activeOrders.length}</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="rounded-lg border bg-card p-6">
+          <div className="flex items-center space-x-4">
+            <div className="p-3 bg-green-100 dark:bg-green-900/30 rounded-full">
+              <CheckCircle className="h-6 w-6 text-green-600 dark:text-green-400" />
+            </div>
+            <div>
+              <p className="text-sm font-medium text-muted-foreground">Delivered</p>
+              <p className="text-2xl font-bold">{deliveredOrders}</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="rounded-lg border bg-card p-6">
+          <div className="flex items-center space-x-4">
+            <div className="p-3 bg-purple-100 dark:bg-purple-900/30 rounded-full">
+              <Truck className="h-6 w-6 text-purple-600 dark:text-purple-400" />
+            </div>
+            <div>
+              <p className="text-sm font-medium text-muted-foreground">Pending</p>
+              <p className="text-2xl font-bold">{pendingOrders}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Quick Links */}
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 mb-8">
         <Link
           href="/orders"
           className="rounded-lg border bg-card p-6 hover:bg-accent transition-colors"
         >
           <div className="flex items-center space-x-4">
             <div className="p-3 bg-primary/10 rounded-full">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="text-primary"
-              >
-                <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
-                <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
-                <line x1="12" y1="22.08" x2="12" y2="12" />
-              </svg>
+              <ShoppingBag className="h-6 w-6 text-primary" />
             </div>
             <div>
               <p className="text-sm font-medium text-muted-foreground">My Orders</p>
-              <p className="text-2xl font-bold">0</p>
+              <p className="text-lg font-semibold">View All</p>
             </div>
           </div>
         </Link>
@@ -55,24 +110,11 @@ export default async function DashboardPage() {
         >
           <div className="flex items-center space-x-4">
             <div className="p-3 bg-primary/10 rounded-full">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="text-primary"
-              >
-                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
-              </svg>
+              <Heart className="h-6 w-6 text-primary" />
             </div>
             <div>
               <p className="text-sm font-medium text-muted-foreground">Wishlist</p>
-              <p className="text-2xl font-bold">0</p>
+              <p className="text-lg font-semibold">Manage</p>
             </div>
           </div>
         </Link>
@@ -83,25 +125,11 @@ export default async function DashboardPage() {
         >
           <div className="flex items-center space-x-4">
             <div className="p-3 bg-primary/10 rounded-full">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="text-primary"
-              >
-                <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
-                <circle cx="12" cy="7" r="4" />
-              </svg>
+              <User className="h-6 w-6 text-primary" />
             </div>
             <div>
               <p className="text-sm font-medium text-muted-foreground">Profile</p>
-              <p className="text-lg">Manage</p>
+              <p className="text-lg font-semibold">Manage</p>
             </div>
           </div>
         </Link>
@@ -112,58 +140,160 @@ export default async function DashboardPage() {
         >
           <div className="flex items-center space-x-4">
             <div className="p-3 bg-primary/10 rounded-full">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="text-primary"
-              >
-                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
-                <circle cx="12" cy="10" r="3" />
-              </svg>
+              <MapPin className="h-6 w-6 text-primary" />
             </div>
             <div>
               <p className="text-sm font-medium text-muted-foreground">Addresses</p>
-              <p className="text-lg">Manage</p>
+              <p className="text-lg font-semibold">Manage</p>
             </div>
           </div>
         </Link>
       </div>
 
-      {session.user.role === 'admin' && (
-        <div className="mt-8 p-6 rounded-lg border bg-primary/5">
-          <h2 className="text-xl font-semibold mb-4">Admin Access</h2>
-          <Link
-            href="/admin"
-            className="inline-flex items-center justify-center rounded-md bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 text-sm font-medium transition-colors"
-          >
-            Go to Admin Panel
-          </Link>
+      {/* Active Orders Section */}
+      {activeOrders.length > 0 && (
+        <div className="mb-8">
+          <h2 className="text-xl font-semibold mb-4">Active Orders</h2>
+          <div className="space-y-4">
+            {activeOrders.map((order) => {
+              const { dateOnly } = formatDateTime(order.createdAt);
+              const statusColor = getOrderStatusColor(order.status);
+              
+              return (
+                <div key={order.id} className="rounded-lg border bg-card p-6">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4">
+                    <div className="mb-2 sm:mb-0">
+                      <div className="flex items-center gap-3 mb-1">
+                        <h3 className="text-sm font-medium break-all">
+                          Order {order.id}
+                        </h3>
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${statusColor}`}>
+                          {formatOrderStatus(order.status)}
+                        </span>
+                      </div>
+                      <p className="text-sm text-muted-foreground">
+                        Placed on {dateOnly}
+                      </p>
+                    </div>
+                    <Button asChild variant="outline" size="sm">
+                      <Link href={`/orders/${order.id}`}>
+                        Track Order
+                      </Link>
+                    </Button>
+                  </div>
+                  
+                  <div className="flex items-center justify-between">
+                    <div className="text-sm text-muted-foreground">
+                      {order.orderitems.length} item(s)
+                    </div>
+                    <div className="font-semibold">
+                      {formatCurrency(order.totalPrice)}
+                    </div>
+                  </div>
+                  
+                  {order.status === ORDER_STATUS.SHIPPED && (
+                    <div className="mt-3 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-md">
+                      <p className="text-sm text-blue-800 dark:text-blue-200">
+                        Your order is on the way! Expected delivery in 2-3 days.
+                      </p>
+                    </div>
+                  )}
+                  
+                  {order.status === ORDER_STATUS.PROCESSING && (
+                    <div className="mt-3 p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded-md">
+                      <p className="text-sm text-yellow-800 dark:text-yellow-200">
+                        We&apos;re preparing your order for shipment.
+                      </p>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
         </div>
       )}
 
-      <div className="mt-8">
-        <h2 className="text-xl font-semibold mb-4">Recent Orders</h2>
-        <div className="rounded-lg border bg-card p-6">
-          <p className="text-muted-foreground text-center py-8">
-            You haven&apos;t placed any orders yet.
-          </p>
-          <div className="text-center">
+      {/* Recent Orders Section */}
+      <div>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-xl font-semibold">Recent Orders</h2>
+          {orders.length > 0 && (
             <Link
-              href="/products"
-              className="inline-flex items-center justify-center rounded-md bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 text-sm font-medium transition-colors"
+              href="/orders"
+              className="text-sm text-primary hover:underline"
             >
-              Start Shopping
+              View All
             </Link>
-          </div>
+          )}
         </div>
+        
+        {recentOrders.length > 0 ? (
+          <div className="space-y-4">
+            {recentOrders.map((order) => {
+              const { dateOnly } = formatDateTime(order.createdAt);
+              const statusColor = getOrderStatusColor(order.status);
+              
+              return (
+                <div key={order.id} className="rounded-lg border bg-card p-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div>
+                        <p className="text-sm font-medium break-all">
+                          {order.id}
+                        </p>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          {dateOnly}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${statusColor}`}>
+                        {formatOrderStatus(order.status)}
+                      </span>
+                      <div className="text-right">
+                        <p className="font-semibold">
+                          {formatCurrency(order.totalPrice)}
+                        </p>
+                        <Link
+                          href={`/orders/${order.id}`}
+                          className="text-xs text-primary hover:underline"
+                        >
+                          View Details
+                        </Link>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        ) : (
+          <div className="rounded-lg border bg-card p-6">
+            <p className="text-muted-foreground text-center py-8">
+              You haven&apos;t placed any orders yet.
+            </p>
+            <div className="text-center">
+              <Button asChild>
+                <Link href="/products">
+                  Start Shopping
+                </Link>
+              </Button>
+            </div>
+          </div>
+        )}
       </div>
+
+      {/* Admin Access */}
+      {session.user.role === 'admin' && (
+        <div className="mt-8 p-6 rounded-lg border bg-primary/5">
+          <h2 className="text-xl font-semibold mb-4">Admin Access</h2>
+          <Button asChild>
+            <Link href="/admin">
+              Go to Admin Panel
+            </Link>
+          </Button>
+        </div>
+      )}
     </div>
   );
 }

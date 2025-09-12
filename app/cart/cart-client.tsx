@@ -32,9 +32,10 @@ interface CartClientProps {
     taxPrice: string;
     totalPrice: string;
   };
+  isAuthenticated: boolean;
 }
 
-export default function CartClient({ initialCart }: CartClientProps) {
+export default function CartClient({ initialCart, isAuthenticated }: CartClientProps) {
   const [isPending, startTransition] = useTransition();
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [itemToDelete, setItemToDelete] = useState<{ id: string; name: string } | null>(null);
@@ -297,12 +298,21 @@ export default function CartClient({ initialCart }: CartClientProps) {
           </div>
           
           <div className="mt-6 space-y-3">
-            <Link
-              href="/checkout"
-              className="flex w-full items-center justify-center rounded-md bg-primary px-6 py-3 text-sm font-medium text-primary-foreground hover:bg-primary/90"
-            >
-              Proceed to Checkout
-            </Link>
+            {isAuthenticated ? (
+              <Link
+                href="/checkout"
+                className="flex w-full items-center justify-center rounded-md bg-primary px-6 py-3 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+              >
+                Proceed to Checkout
+              </Link>
+            ) : (
+              <Link
+                href="/auth/signin?callbackUrl=/checkout"
+                className="flex w-full items-center justify-center rounded-md bg-primary px-6 py-3 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+              >
+                Sign in to Checkout
+              </Link>
+            )}
             
             <Link
               href="/products"

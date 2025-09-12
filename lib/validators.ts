@@ -110,6 +110,8 @@ export const insertCartSchema = z.object({
   shippingPrice: currency.optional().default('0'),
   taxPrice: currency.optional().default('0'),
   totalPrice: currency.optional().default('0'),
+  discountPrice: currency.optional().default('0'),
+  couponCode: z.string().nullable().optional(),
 });
 
 export const cartSchema = insertCartSchema.extend({
@@ -145,6 +147,23 @@ export const paymentResultSchema = z.object({
   paidAt: z.string(),
 });
 
+// Order Status Constants
+export const ORDER_STATUS = {
+  PENDING: 'pending',
+  PROCESSING: 'processing',
+  SHIPPED: 'shipped',
+  DELIVERED: 'delivered',
+  CANCELLED: 'cancelled',
+} as const;
+
+export const orderStatusSchema = z.enum([
+  ORDER_STATUS.PENDING,
+  ORDER_STATUS.PROCESSING,
+  ORDER_STATUS.SHIPPED,
+  ORDER_STATUS.DELIVERED,
+  ORDER_STATUS.CANCELLED,
+]);
+
 // Order Schemas
 export const insertOrderSchema = z.object({
   userId: z.string().uuid(),
@@ -154,7 +173,10 @@ export const insertOrderSchema = z.object({
   itemsPrice: currency,
   shippingPrice: currency,
   taxPrice: currency,
+  discountPrice: currency.default('0.00'),
   totalPrice: currency,
+  couponCode: z.string().nullable().optional(),
+  status: orderStatusSchema.default(ORDER_STATUS.PENDING),
   isPaid: z.boolean().default(false),
   paidAt: z.date().nullable().optional(),
   isDelivered: z.boolean().default(false),
@@ -164,6 +186,7 @@ export const insertOrderSchema = z.object({
 export const orderSchema = insertOrderSchema.extend({
   id: z.string().uuid(),
   createdAt: z.date().or(z.string().transform((val) => new Date(val))),
+  updatedAt: z.date().or(z.string().transform((val) => new Date(val))),
 });
 
 // Order Item Schemas
@@ -203,12 +226,26 @@ export type UpdateUser = z.infer<typeof updateUserSchema>;
 export type SignInForm = z.infer<typeof signInFormSchema>;
 export type SignUpForm = z.infer<typeof signUpFormSchema>;
 
+// Simplified cart response type for API
+export const cartResponseSchema = z.object({
+  id: z.string().nullable(),
+  items: z.array(cartItemSchema),
+  itemsPrice: currency,
+  shippingPrice: currency,
+  taxPrice: currency,
+  totalPrice: currency,
+  discountPrice: currency.optional(),
+  couponCode: z.string().nullable().optional(),
+});
+
 export type Cart = z.infer<typeof cartSchema>;
+export type CartResponse = z.infer<typeof cartResponseSchema>;
 export type InsertCart = z.infer<typeof insertCartSchema>;
 export type CartItem = z.infer<typeof cartItemSchema>;
 
 export type Order = z.infer<typeof orderSchema>;
 export type InsertOrder = z.infer<typeof insertOrderSchema>;
+export type OrderStatus = z.infer<typeof orderStatusSchema>;
 export type ShippingAddress = z.infer<typeof shippingAddressSchema>;
 export type PaymentResult = z.infer<typeof paymentResultSchema>;
 export type PaymentMethod = z.infer<typeof paymentMethodSchema>;
