@@ -2,7 +2,7 @@ import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { auth } from '@/auth';
 import { getOrders } from '@/lib/actions/order-actions';
-import { formatCurrency, formatDateTime, formatId, formatOrderStatus, getOrderStatusColor } from '@/lib/utils';
+import { formatCurrency, formatDateTime, formatOrderStatus, getOrderStatusColor } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Package, ShoppingBag } from 'lucide-react';
 
@@ -45,8 +45,8 @@ export default async function OrdersPage() {
                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4">
                     <div className="mb-2 sm:mb-0">
                       <div className="flex items-center gap-3 mb-1">
-                        <h2 className="text-lg font-semibold">
-                          Order {formatId(order.id)}
+                        <h2 className="text-sm font-medium break-all">
+                          {order.id}
                         </h2>
                         <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${statusColor}`}>
                           {formatOrderStatus(order.status)}

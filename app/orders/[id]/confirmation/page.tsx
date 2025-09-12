@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { CheckCircle, Package, Home, FileText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { getOrderById } from '@/lib/actions/order-actions';
-import { formatCurrency, formatDateTime, formatId } from '@/lib/utils';
+import { formatCurrency, formatDateTime } from '@/lib/utils';
 import type { ShippingAddress } from '@/lib/validators';
 
 interface OrderConfirmationPageProps {
@@ -38,7 +38,7 @@ export default async function OrderConfirmationPage({ params }: OrderConfirmatio
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
               <p className="text-sm text-muted-foreground">Order Number</p>
-              <p className="font-medium">{formatId(order.id)}</p>
+              <p className="font-medium text-xs break-all">{order.id}</p>
             </div>
             <div>
               <p className="text-sm text-muted-foreground">Order Date</p>

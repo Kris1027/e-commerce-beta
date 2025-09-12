@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { placeOrder } from '@/lib/actions/order-actions';
+import { useCartStore } from '@/lib/store/cart-store';
 import type { CartResponse, ShippingAddress } from '@/lib/validators';
 
 interface PlaceOrderButtonProps {
@@ -20,6 +21,7 @@ export default function PlaceOrderButton({
 }: PlaceOrderButtonProps) {
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
+  const clearClientCart = useCartStore(state => state.clearCart);
 
   const handlePlaceOrder = async () => {
     setIsLoading(true);
@@ -32,6 +34,8 @@ export default function PlaceOrderButton({
       });
       
       if (result.success && result.orderId) {
+        // Clear the client-side cart store
+        clearClientCart();
         toast.success('Order placed successfully!');
         router.push(`/orders/${result.orderId}/confirmation`);
       } else {

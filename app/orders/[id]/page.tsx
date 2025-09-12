@@ -4,7 +4,7 @@ import Image from 'next/image';
 import { ArrowLeft, Package, Truck, CheckCircle, XCircle, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { getOrderById } from '@/lib/actions/order-actions';
-import { formatCurrency, formatDateTime, formatId, formatOrderStatus, getOrderStatusColor } from '@/lib/utils';
+import { formatCurrency, formatDateTime, formatOrderStatus, getOrderStatusColor } from '@/lib/utils';
 import type { ShippingAddress } from '@/lib/validators';
 
 interface OrderDetailsPageProps {
@@ -55,8 +55,8 @@ export default async function OrderDetailsPage({ params }: OrderDetailsPageProps
           
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <h1 className="text-2xl font-bold mb-2">
-                Order {formatId(order.id)}
+              <h1 className="text-xl font-bold mb-2 break-all">
+                Order {order.id}
               </h1>
               <p className="text-sm text-muted-foreground">
                 Placed on {dateTime}
