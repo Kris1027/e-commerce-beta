@@ -512,7 +512,7 @@ export async function updateProfile(data: UpdateProfileData) {
       }
       
       const hashedPassword = await bcrypt.hash(validatedData.data.newPassword, 12);
-      updateData['password'] = hashedPassword;
+      updateData.password = hashedPassword;
     }
     
     // Update user in database

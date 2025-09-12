@@ -5,6 +5,7 @@ import { getCategoryDetails, getProductsByCategory } from '@/lib/actions/categor
 import { getWishlistProductIds } from '@/lib/actions/wishlist-actions';
 import { ProductList } from '@/components/products/product-list';
 import { Button } from '@/components/ui/button';
+import { generatePaginationNumbers } from '@/lib/utils';
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -107,29 +108,25 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
               )}
               
               <div className="flex items-center gap-2">
-                {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                  const page = i + 1;
-                  if (totalPages <= 5 || page === 1 || page === totalPages || 
-                      Math.abs(page - currentPage) <= 1) {
+                {generatePaginationNumbers(currentPage, totalPages).map((page, index) => {
+                  if (typeof page === 'string') {
                     return (
-                      <Button
-                        key={page}
-                        variant={page === currentPage ? 'default' : 'outline'}
-                        asChild
-                      >
-                        <Link href={`/categories/${slug}?page=${page}`}>
-                          {page}
-                        </Link>
-                      </Button>
+                      <span key={`ellipsis-${index}`} className="px-2 text-muted-foreground">
+                        {page}
+                      </span>
                     );
                   }
-                  if (page === 2 && currentPage > 3) {
-                    return <span key="ellipsis1">...</span>;
-                  }
-                  if (page === totalPages - 1 && currentPage < totalPages - 2) {
-                    return <span key="ellipsis2">...</span>;
-                  }
-                  return null;
+                  return (
+                    <Button
+                      key={page}
+                      variant={page === currentPage ? 'default' : 'outline'}
+                      asChild
+                    >
+                      <Link href={`/categories/${slug}?page=${page}`}>
+                        {page}
+                      </Link>
+                    </Button>
+                  );
                 })}
               </div>
               

@@ -225,16 +225,17 @@ pending → processing → shipped → delivered
   - Heart icon on all product cards
   - Integration with profile dashboard
   - Wishlist count display
-  - Add to cart from wishlist
+  - Add to cart from wishlist (with configurable auto-removal via WISHLIST_CONFIG)
   - Authentication required
+  - Optimized server actions (combined cart + wishlist operations)
 - Dynamic categories system:
-  - Categories extracted from product data
-  - No hardcoded categories
-  - Categories page with grid view
-  - Category product pages with pagination
+  - Categories extracted from product database
+  - Category pages with product grid
+  - Pagination with ellipsis support (using generatePaginationNumbers)
+  - Breadcrumb navigation
   - Product count per category
-  - Category images from products
-  - SEO-friendly URLs
+  - No hardcoded category list
+  - SEO-friendly slugs with proper title casing
 
 ### 🚧 Pending
 - Stripe/PayPal payment integration
@@ -270,7 +271,7 @@ const form = useForm<SignInInput>({
 ```typescript
 // Use Zustand store + server actions
 const { addItem } = useCartStore();
-await addToCart(item); // Server action
+await addToCart(item, removeFromWishlist); // Server action with optional wishlist removal
 addItem(item); // Optimistic update
 ```
 
@@ -287,10 +288,13 @@ const result = await prisma.$transaction(async (tx) => {
 ## Testing Checklist
 - [ ] Run `pnpm lint` - must pass
 - [ ] Run `pnpm build` - must succeed
+- [ ] Run `pnpm prisma generate` after schema changes
 - [ ] No console.log statements
-- [ ] TypeScript types defined
+- [ ] TypeScript types defined (avoid `any`, use `unknown` if needed)
+- [ ] Use dot notation for object properties (not bracket notation)
 - [ ] Zod validation in place
 - [ ] Error handling implemented
+- [ ] Polish formatting for addresses/phones
 
 ## Environment Variables
 ```env
@@ -303,6 +307,14 @@ AUTH_SECRET="[generate with: openssl rand -base64 32]"
 ## Sample Users
 - Admin: admin@example.com / 123456
 - User: user@example.com / 123456
+
+## Polish Localization
+- All addresses configured for Poland only
+- Voivodeship field instead of State
+- Postal code format: XX-XXX
+- Phone format: +48 XXX-XXX-XXX (with formatPhoneNumber utility)
+- Currency: PLN (Polish Złoty)
+- VAT rate: 23%
 
 ## Commands
 ```bash

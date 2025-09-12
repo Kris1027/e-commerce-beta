@@ -1,7 +1,6 @@
 'use client';
 
-import { useState } from 'react';
-import { useTransition } from 'react';
+import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { saveShippingAddress } from '@/lib/actions/checkout-actions';
 import AddressManager from '@/components/profile/address-manager';

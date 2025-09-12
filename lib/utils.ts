@@ -200,3 +200,41 @@ export function formUrlQuery({
     }
   );
 }
+
+// Generate pagination page numbers
+export function generatePaginationNumbers(currentPage: number, totalPages: number): (number | string)[] {
+  // Show all pages if 7 or fewer
+  if (totalPages <= 7) {
+    return Array.from({ length: totalPages }, (_, i) => i + 1);
+  }
+
+  const pages: (number | string)[] = [];
+
+  // Always show first page
+  pages.push(1);
+
+  // Show ellipsis if current page is far from start
+  if (currentPage > 3) {
+    pages.push('...');
+  }
+
+  // Show pages around current page
+  const start = Math.max(2, currentPage - 1);
+  const end = Math.min(totalPages - 1, currentPage + 1);
+  
+  for (let i = start; i <= end; i++) {
+    pages.push(i);
+  }
+
+  // Show ellipsis if current page is far from end
+  if (currentPage < totalPages - 2) {
+    pages.push('...');
+  }
+
+  // Always show last page if more than 1 page
+  if (totalPages > 1) {
+    pages.push(totalPages);
+  }
+
+  return pages;
+}

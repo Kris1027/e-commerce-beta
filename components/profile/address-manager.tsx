@@ -343,14 +343,10 @@ export default function AddressManager({ userName, onSelectAddress, selectionMod
                   <Label htmlFor="country">Country</Label>
                   <Input
                     id="country"
+                    {...form.register('country')}
                     value="Poland"
                     disabled
                     className="bg-muted"
-                  />
-                  <Input
-                    type="hidden"
-                    {...form.register('country')}
-                    value="Poland"
                   />
                 </div>
               </div>

@@ -77,7 +77,7 @@ export async function getCart() {
   }
 }
 
-export async function addToCart(item: z.infer<typeof cartItemSchema>) {
+export async function addToCart(item: z.infer<typeof cartItemSchema>, removeFromWishlist: boolean = false) {
   try {
     const validatedItem = cartItemSchema.parse(item);
     const session = await auth();
@@ -139,6 +139,17 @@ export async function addToCart(item: z.infer<typeof cartItemSchema>) {
       await prisma.cart.create({
         data: cartData,
       });
+    }
+
+    // Remove from wishlist if requested and user is authenticated
+    if (removeFromWishlist && session?.user?.id) {
+      await prisma.wishlist.deleteMany({
+        where: {
+          userId: session.user.id,
+          productId: validatedItem.productId,
+        },
+      });
+      revalidatePath('/wishlist');
     }
 
     revalidatePath('/');

@@ -67,15 +67,15 @@ export default function WishlistContent({ items: initialItems }: WishlistContent
         qty: 1,
       };
 
-      const result = await addToCart(cartItem);
+      const result = await addToCart(cartItem, WISHLIST_CONFIG.REMOVE_ON_ADD_TO_CART);
       
       if (result.success) {
         addItem(cartItem);
         toast.success('Added to cart');
         
-        // Conditionally remove from wishlist based on configuration
+        // Update local state if item was removed from wishlist
         if (WISHLIST_CONFIG.REMOVE_ON_ADD_TO_CART) {
-          await handleRemove(product.id);
+          setItems(prev => prev.filter(item => item.product?.id !== product.id));
         }
       } else {
         toast.error(result.message || 'Failed to add to cart');
