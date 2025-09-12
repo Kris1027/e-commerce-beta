@@ -1,6 +1,5 @@
 import { HeroBanner } from '@/components/home/hero-banner';
 import { FeaturedProducts } from '@/components/home/featured-products';
-import { CategoriesSection } from '@/components/home/categories-section';
 import { ProductList } from '@/components/products/product-list';
 import { getFeaturedProducts, getNewArrivals } from '@/lib/actions/product-actions';
 import { getWishlistProductIds } from '@/lib/actions/wishlist-actions';
@@ -29,8 +28,6 @@ export default async function Home() {
           wishlistProductIds={wishlistProductIds}
         />
       )}
-      
-      {homepage.sections.categories && <CategoriesSection />}
 
       {homepage.sections.trustBadges && (
         <section className="bg-muted/50 py-12">

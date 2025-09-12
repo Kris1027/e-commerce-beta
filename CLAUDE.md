@@ -85,6 +85,7 @@ Production-ready e-commerce template built with Next.js 15.5.2, TypeScript (stri
   /ui                  # shadcn/ui components
   /layout              # Header, Footer
   /cart                # Cart drawer, components
+  /categories          # Category grid, category cards
   /checkout            # Checkout steps, forms
   /products            # Product cards, gallery
   /profile             # Profile management, address manager
@@ -146,6 +147,13 @@ getWishlistProductIds()                     // Get list of product IDs
 getWishlistCount()                          // Get total count
 ```
 
+### Category Actions (`/lib/actions/category-actions.ts`)
+```typescript
+getCategories()                             // Get all unique categories with counts
+getProductsByCategory(category, page)       // Get paginated products by category
+getCategoryDetails(slug)                    // Get category details with top products
+```
+
 ### Validation Schemas (`/lib/validators.ts`)
 - `cartItemSchema` - Cart item validation
 - `shippingAddressSchema` - Address validation
@@ -154,6 +162,8 @@ getWishlistCount()                          // Get total count
 - `CartResponse` type - API responses
 - `wishlistItemSchema` - Wishlist item validation
 - `insertWishlistSchema` - Add to wishlist validation
+- `categorySchema` - Category with product count
+- `categoryDetailsSchema` - Category with top products
 
 ## Database Models
 
@@ -217,6 +227,14 @@ pending → processing → shipped → delivered
   - Wishlist count display
   - Add to cart from wishlist
   - Authentication required
+- Dynamic categories system:
+  - Categories extracted from product data
+  - No hardcoded categories
+  - Categories page with grid view
+  - Category product pages with pagination
+  - Product count per category
+  - Category images from products
+  - SEO-friendly URLs
 
 ### 🚧 Pending
 - Stripe/PayPal payment integration

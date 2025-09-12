@@ -282,3 +282,18 @@ export const insertWishlistSchema = z.object({
 
 export type WishlistItem = z.infer<typeof wishlistItemSchema>;
 export type InsertWishlist = z.infer<typeof insertWishlistSchema>;
+
+// Category Schemas
+export const categorySchema = z.object({
+  name: z.string().min(1, 'Category name is required'),
+  slug: z.string().min(1, 'Category slug is required'),
+  productCount: z.number().int().nonnegative(),
+  image: z.string().optional(),
+});
+
+export const categoryDetailsSchema = categorySchema.extend({
+  topProducts: z.array(productSchema).optional(),
+});
+
+export type Category = z.infer<typeof categorySchema>;
+export type CategoryDetails = z.infer<typeof categoryDetailsSchema>;
