@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation';
 import { getCart } from '@/lib/actions/cart-actions';
 import { getShippingAddress, getPaymentMethod } from '@/lib/actions/checkout-actions';
+import { formatCurrency } from '@/lib/utils';
 import CheckoutSteps from '@/components/checkout/checkout-steps';
 import PaymentMethodForm from '@/components/checkout/payment-method-form';
 
@@ -40,26 +41,26 @@ export default async function PaymentMethodPage() {
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Items ({cart.items.length})</span>
-                  <span>${cart.itemsPrice}</span>
+                  <span>{formatCurrency(cart.itemsPrice)}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Shipping</span>
-                  <span>${cart.shippingPrice}</span>
+                  <span>{formatCurrency(cart.shippingPrice)}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Tax</span>
-                  <span>${cart.taxPrice}</span>
+                  <span>{formatCurrency(cart.taxPrice)}</span>
                 </div>
                 {cart.discountPrice && parseFloat(cart.discountPrice) > 0 && (
                   <div className="flex justify-between text-green-600">
                     <span>Discount</span>
-                    <span>-${cart.discountPrice}</span>
+                    <span>-{formatCurrency(cart.discountPrice)}</span>
                   </div>
                 )}
                 <div className="border-t pt-2">
                   <div className="flex justify-between font-semibold">
                     <span>Total</span>
-                    <span>${cart.totalPrice}</span>
+                    <span>{formatCurrency(cart.totalPrice)}</span>
                   </div>
                 </div>
               </div>

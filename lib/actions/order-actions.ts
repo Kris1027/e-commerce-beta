@@ -27,47 +27,56 @@ export async function placeOrder({ cart, shippingAddress, paymentMethod }: Place
       return { success: false, message: 'Your cart is empty' };
     }
     
-    // Create the order
-    const order = await prisma.order.create({
-      data: {
-        userId: session.user.id,
-        shippingAddress: shippingAddress,
-        paymentMethod,
-        itemsPrice: cart.itemsPrice,
-        shippingPrice: cart.shippingPrice,
-        taxPrice: cart.taxPrice,
-        discountPrice: cart.discountPrice || '0.00',
-        totalPrice: cart.totalPrice,
-        couponCode: cart.couponCode || null,
-        status: ORDER_STATUS.PENDING,
-        isPaid: false,
-        orderitems: {
-          create: cart.items.map((item) => ({
-            productId: item.productId,
-            qty: item.qty,
-            price: item.price,
-            name: item.name,
-            slug: item.slug,
-            image: item.image,
-          })),
-        },
-      },
-      include: {
-        orderitems: true,
-      },
-    });
-    
-    // Update product stock
-    for (const item of cart.items) {
-      await prisma.product.update({
-        where: { id: item.productId },
+    // Create the order and update product stock in a transaction
+    const result = await prisma.$transaction(async (tx) => {
+      // Create the order
+      const order = await tx.order.create({
         data: {
-          stock: {
-            decrement: item.qty,
+          userId: session.user.id,
+          shippingAddress: shippingAddress,
+          paymentMethod,
+          itemsPrice: cart.itemsPrice,
+          shippingPrice: cart.shippingPrice,
+          taxPrice: cart.taxPrice,
+          discountPrice: cart.discountPrice || '0.00',
+          totalPrice: cart.totalPrice,
+          couponCode: cart.couponCode || null,
+          status: ORDER_STATUS.PENDING,
+          isPaid: false,
+          orderitems: {
+            create: cart.items.map((item) => ({
+              productId: item.productId,
+              qty: item.qty,
+              price: item.price,
+              name: item.name,
+              slug: item.slug,
+              image: item.image,
+            })),
           },
         },
+        include: {
+          orderitems: true,
+        },
       });
-    }
+      
+      // Update product stock for all items
+      await Promise.all(
+        cart.items.map((item) =>
+          tx.product.update({
+            where: { id: item.productId },
+            data: {
+              stock: {
+                decrement: item.qty,
+              },
+            },
+          })
+        )
+      );
+      
+      return order;
+    });
+    
+    const order = result;
     
     // Clear cart and checkout session
     await clearCart();

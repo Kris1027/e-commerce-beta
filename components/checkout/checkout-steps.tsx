@@ -2,7 +2,7 @@ import { Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface CheckoutStepsProps {
-  activeStep: number;
+  activeStep: 0 | 1 | 2;
 }
 
 const steps = [

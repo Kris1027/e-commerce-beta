@@ -96,10 +96,7 @@ export function formatId(id: string) {
 
 // Format order status for display
 export function formatOrderStatus(status: string): string {
-  return status
-    .split('_')
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-    .join(' ');
+  return status.charAt(0).toUpperCase() + status.slice(1).toLowerCase();
 }
 
 // Get order status color for badges
