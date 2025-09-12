@@ -77,7 +77,12 @@ export async function getCart() {
   }
 }
 
-export async function addToCart(item: z.infer<typeof cartItemSchema>, removeFromWishlist: boolean = false) {
+export async function addToCart(
+  item: z.infer<typeof cartItemSchema>,
+  options: { removeFromWishlist?: boolean } = {}
+) {
+  const { removeFromWishlist = false } = options;
+  
   try {
     const validatedItem = cartItemSchema.parse(item);
     const session = await auth();

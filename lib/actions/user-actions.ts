@@ -6,7 +6,7 @@ import { formatNumberWithDecimal } from '@/lib/utils';
 import { revalidatePath } from 'next/cache';
 import bcrypt from 'bcryptjs';
 import { z } from 'zod';
-import { shippingAddressSchema } from '@/lib/validators';
+import { shippingAddressSchema, PASSWORD_REGEX, PASSWORD_ERROR_MESSAGE } from '@/lib/validators';
 
 const ORDERS_PER_PAGE = 10;
 
@@ -89,10 +89,7 @@ const updateProfileSchema = z.object({
   currentPassword: z.string().optional(),
   newPassword: z.string()
     .min(8, 'Password must be at least 8 characters')
-    .refine(
-      (val) => /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(val),
-      'Password must contain at least one uppercase letter, one lowercase letter, and one number'
-    )
+    .regex(PASSWORD_REGEX, PASSWORD_ERROR_MESSAGE)
     .optional(),
   confirmPassword: z.string().optional(),
   phone: z.string().min(6, 'Phone number must be at least 6 characters').optional(),

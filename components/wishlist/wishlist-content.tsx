@@ -67,7 +67,9 @@ export default function WishlistContent({ items: initialItems }: WishlistContent
         qty: 1,
       };
 
-      const result = await addToCart(cartItem, WISHLIST_CONFIG.REMOVE_ON_ADD_TO_CART);
+      const result = await addToCart(cartItem, { 
+        removeFromWishlist: WISHLIST_CONFIG.REMOVE_ON_ADD_TO_CART 
+      });
       
       if (result.success) {
         addItem(cartItem);

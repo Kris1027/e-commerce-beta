@@ -29,19 +29,48 @@ export function formatNumberWithDecimal(num: number): string {
   return decimal ? `${int}.${decimal.padEnd(2, '0')}` : `${int}.00`;
 }
 
+// Polish phone number format constants
+const PHONE_FORMATS = {
+  WITH_COUNTRY_CODE: {
+    length: 11,
+    prefix: '48',
+    pattern: /(\d{2})(\d{3})(\d{3})(\d{3})/,
+    template: '+$1 $2-$3-$4'
+  },
+  WITHOUT_COUNTRY_CODE: {
+    length: 9,
+    pattern: /(\d{3})(\d{3})(\d{3})/,
+    template: '$1-$2-$3',
+    countryCode: '+48 '
+  }
+} as const;
+
 // Format Polish phone numbers safely
 export function formatPhoneNumber(phone: string): string {
+  // Handle empty or whitespace-only strings
+  if (!phone || !phone.trim()) {
+    return '';
+  }
+  
   // Remove all non-digit characters
   const digits = phone.replace(/\D/g, '');
   
   // Only format if exactly 11 digits (Polish format with country code)
-  if (digits.length === 11 && digits.startsWith('48')) {
-    return digits.replace(/(\d{2})(\d{3})(\d{3})(\d{3})/, '+$1 $2-$3-$4');
+  if (digits.length === PHONE_FORMATS.WITH_COUNTRY_CODE.length && 
+      digits.startsWith(PHONE_FORMATS.WITH_COUNTRY_CODE.prefix)) {
+    return digits.replace(
+      PHONE_FORMATS.WITH_COUNTRY_CODE.pattern, 
+      PHONE_FORMATS.WITH_COUNTRY_CODE.template
+    );
   }
   
   // Format 9-digit Polish numbers (without country code)
-  if (digits.length === 9) {
-    return '+48 ' + digits.replace(/(\d{3})(\d{3})(\d{3})/, '$1-$2-$3');
+  if (digits.length === PHONE_FORMATS.WITHOUT_COUNTRY_CODE.length) {
+    return PHONE_FORMATS.WITHOUT_COUNTRY_CODE.countryCode + 
+           digits.replace(
+             PHONE_FORMATS.WITHOUT_COUNTRY_CODE.pattern,
+             PHONE_FORMATS.WITHOUT_COUNTRY_CODE.template
+           );
   }
   
   // For invalid formats, return the original if it has some digits

@@ -1,6 +1,10 @@
 import { z } from 'zod';
 import { PAYMENT_METHODS } from './constants';
 
+// Password validation regex - at least one uppercase, one lowercase, and one number
+export const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/;
+export const PASSWORD_ERROR_MESSAGE = 'Password must contain at least one uppercase letter, one lowercase letter, and one number';
+
 // Currency type - for decimal values stored as strings
 // Accepts number or string and transforms to string with 2 decimal places
 const currency = z
@@ -41,10 +45,7 @@ export const signInFormSchema = z.object({
   email: z.string().email('Invalid email address'),
   password: z.string()
     .min(8, 'Password must be at least 8 characters')
-    .regex(
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
-      'Password must contain at least one uppercase letter, one lowercase letter, and one number'
-    ),
+    .regex(PASSWORD_REGEX, PASSWORD_ERROR_MESSAGE),
 });
 
 export const signUpFormSchema = z
@@ -53,10 +54,7 @@ export const signUpFormSchema = z
     email: z.string().email('Invalid email address'),
     password: z.string()
       .min(8, 'Password must be at least 8 characters')
-      .regex(
-        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
-        'Password must contain at least one uppercase letter, one lowercase letter, and one number'
-      ),
+      .regex(PASSWORD_REGEX, PASSWORD_ERROR_MESSAGE),
     confirmPassword: z.string().min(8, 'Confirm password must be at least 8 characters'),
   })
   .refine((data) => data.password === data.confirmPassword, {
