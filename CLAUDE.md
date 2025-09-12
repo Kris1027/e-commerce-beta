@@ -166,12 +166,13 @@ pending → processing → shipped → delivered
 - Order management and tracking
 - User dashboard with statistics
 - Cart persistence and guest support
+- Order history with pagination (10 orders per page)
+- User profile management (update info, password, address)
 
 ### 🚧 Pending
 - Stripe/PayPal payment integration
 - Admin dashboard (product/order management)
-- User profile management
-- Password reset
+- Password reset via email
 - Email notifications
 - Product search and filters
 - Wishlist
