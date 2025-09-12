@@ -120,6 +120,8 @@ getOrderStatusColor(status: string)        // "bg-yellow-100..."
 isActiveOrder(status: string)              // true/false
 validateQuantity(value: number)            // 1-99
 formatNumberWithDecimal(num: number)       // "10.00"
+formatPhoneNumber(phone: string)           // "+48 XXX-XXX-XXX" (Polish format, safe handling)
+generatePaginationNumbers(current, total)  // [1, '...', 5, 6, 7, '...', 10]
 calculateCartPrices(itemsPrice: number)    // {shipping, tax, total}
 ```
 
@@ -231,11 +233,16 @@ pending → processing → shipped → delivered
 - Dynamic categories system:
   - Categories extracted from product database
   - Category pages with product grid
-  - Pagination with ellipsis support (using generatePaginationNumbers)
+  - shadcn pagination component integration
   - Breadcrumb navigation
   - Product count per category
   - No hardcoded category list
   - SEO-friendly slugs with proper title casing
+- Pagination system:
+  - Reusable PaginationWrapper component
+  - Uses shadcn/ui pagination components
+  - Consistent pagination across all pages (products, orders, categories)
+  - Smart ellipsis with generatePaginationNumbers utility
 
 ### 🚧 Pending
 - Stripe/PayPal payment integration
@@ -292,9 +299,11 @@ const result = await prisma.$transaction(async (tx) => {
 - [ ] No console.log statements
 - [ ] TypeScript types defined (avoid `any`, use `unknown` if needed)
 - [ ] Use dot notation for object properties (not bracket notation)
+- [ ] Use types from validators.ts for consistency
 - [ ] Zod validation in place
-- [ ] Error handling implemented
+- [ ] Error handling implemented (use catch without error param if unused)
 - [ ] Polish formatting for addresses/phones
+- [ ] All pages with lists have shadcn pagination
 
 ## Environment Variables
 ```env

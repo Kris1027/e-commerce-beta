@@ -49,11 +49,21 @@ export interface PaginatedOrders {
   hasMore: boolean;
 }
 
+// Type for user address data stored in JSON field
+type UserAddressData = {
+  street: string;
+  city: string;
+  state: string;
+  zipCode: string;
+  country: string;
+  phone?: string;
+};
+
 // Interface for updateProfile function
 interface UpdateData {
   email?: string;
   name?: string;
-  address?: Record<string, unknown>;
+  address?: UserAddressData;
   password?: string;
 }
 
@@ -487,7 +497,7 @@ export async function updateProfile(data: UpdateProfileData) {
           ...currentAddress,
           ...(updateData.address || {}),
           phone: validatedData.data.phone,
-        };
+        } as UserAddressData;
       }
     }
     

@@ -116,6 +116,7 @@ export default function AddressManager({ userName, onSelectAddress, selectionMod
     setIsLoading(true);
     try {
       const data = await getUserAddresses();
+      // The data from getUserAddresses already matches the Address interface
       setAddresses(data as Address[]);
     } catch {
       toast.error('Failed to load addresses');

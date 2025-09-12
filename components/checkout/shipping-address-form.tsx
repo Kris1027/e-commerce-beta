@@ -144,13 +144,9 @@ export function ShippingAddressForm({
             <label htmlFor="country" className="block text-sm font-medium mb-2">
               Country
             </label>
-            <input
-              type="text"
-              id="country"
-              value="Poland"
-              disabled
-              className="w-full rounded-md border border-input bg-muted px-3 py-2 text-sm"
-            />
+            <div className="w-full rounded-md border border-input bg-muted px-3 py-2 text-sm">
+              Poland
+            </div>
             <input
               {...register('country')}
               type="hidden"

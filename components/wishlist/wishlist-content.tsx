@@ -36,7 +36,7 @@ export default function WishlistContent({ items: initialItems }: WishlistContent
       } else {
         toast.error(result.message || 'Failed to remove from wishlist');
       }
-    } catch (error) {
+    } catch {
       toast.error('Failed to remove from wishlist');
     } finally {
       setRemovingIds(prev => {
@@ -80,7 +80,7 @@ export default function WishlistContent({ items: initialItems }: WishlistContent
       } else {
         toast.error(result.message || 'Failed to add to cart');
       }
-    } catch (error) {
+    } catch {
       toast.error('Failed to add to cart');
     } finally {
       setAddingToCartIds(prev => {

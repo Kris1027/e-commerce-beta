@@ -26,7 +26,7 @@ export async function getWishlist() {
     return wishlistItems.map(item => ({
       id: item.id,
       userId: item.userId,
-      productId: item.product.id,
+      productId: item.productId,
       product: {
         id: item.product.id,
         name: item.product.name,

@@ -5,7 +5,7 @@ import { getCategoryDetails, getProductsByCategory } from '@/lib/actions/categor
 import { getWishlistProductIds } from '@/lib/actions/wishlist-actions';
 import { ProductList } from '@/components/products/product-list';
 import { Button } from '@/components/ui/button';
-import { generatePaginationNumbers } from '@/lib/utils';
+import PaginationWrapper from '@/components/ui/pagination-wrapper';
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -97,48 +97,13 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
             wishlistProductIds={wishlistProductIds}
           />
           
-          {totalPages > 1 && (
-            <div className="mt-8 flex justify-center gap-2">
-              {currentPage > 1 && (
-                <Button variant="outline" asChild>
-                  <Link href={`/categories/${slug}?page=${currentPage - 1}`}>
-                    Previous
-                  </Link>
-                </Button>
-              )}
-              
-              <div className="flex items-center gap-2">
-                {generatePaginationNumbers(currentPage, totalPages).map((page, index) => {
-                  if (typeof page === 'string') {
-                    return (
-                      <span key={`ellipsis-${index}`} className="px-2 text-muted-foreground">
-                        {page}
-                      </span>
-                    );
-                  }
-                  return (
-                    <Button
-                      key={page}
-                      variant={page === currentPage ? 'default' : 'outline'}
-                      asChild
-                    >
-                      <Link href={`/categories/${slug}?page=${page}`}>
-                        {page}
-                      </Link>
-                    </Button>
-                  );
-                })}
-              </div>
-              
-              {currentPage < totalPages && (
-                <Button variant="outline" asChild>
-                  <Link href={`/categories/${slug}?page=${currentPage + 1}`}>
-                    Next
-                  </Link>
-                </Button>
-              )}
-            </div>
-          )}
+          {/* Pagination */}
+          <PaginationWrapper
+            currentPage={currentPage}
+            totalPages={totalPages}
+            baseUrl={`/categories/${slug}`}
+            className="mt-8"
+          />
         </>
       )}
     </div>

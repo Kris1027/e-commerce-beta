@@ -41,11 +41,16 @@ export function formatPhoneNumber(phone: string): string {
   
   // Format 9-digit Polish numbers (without country code)
   if (digits.length === 9) {
-    return digits.replace(/(\d{3})(\d{3})(\d{3})/, '$1-$2-$3');
+    return '+48 ' + digits.replace(/(\d{3})(\d{3})(\d{3})/, '$1-$2-$3');
   }
   
-  // Otherwise, return the original phone string
-  return phone;
+  // For invalid formats, return the original if it has some digits
+  // This preserves user input for correction rather than losing it
+  if (digits.length > 0) {
+    return phone;
+  }
+  
+  return '';
 }
 
 // Format errors

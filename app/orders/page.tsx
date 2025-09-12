@@ -4,7 +4,8 @@ import { auth } from '@/auth';
 import { getMyOrders } from '@/lib/actions/user-actions';
 import { formatCurrency, formatDateTime, formatOrderStatus, getOrderStatusColor } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import { Package, ShoppingBag, ChevronLeft, ChevronRight } from 'lucide-react';
+import PaginationWrapper from '@/components/ui/pagination-wrapper';
+import { Package, ShoppingBag } from 'lucide-react';
 
 interface OrdersPageProps {
   searchParams: {
@@ -20,7 +21,7 @@ export default async function OrdersPage({ searchParams }: OrdersPageProps) {
   }
   
   const currentPage = Number(searchParams.page) || 1;
-  const { orders, totalPages, totalOrders, hasMore } = await getMyOrders(currentPage);
+  const { orders, totalPages, totalOrders } = await getMyOrders(currentPage);
   
   return (
     <div className="min-h-screen py-8">
@@ -162,111 +163,13 @@ export default async function OrdersPage({ searchParams }: OrdersPageProps) {
               })}
             </div>
             
-            {/* Pagination Controls */}
-            {totalPages > 1 && (
-              <div className="mt-8 flex items-center justify-center gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  disabled={currentPage === 1}
-                  asChild={currentPage !== 1}
-                >
-                  {currentPage === 1 ? (
-                    <>
-                      <ChevronLeft className="h-4 w-4 mr-1" />
-                      Previous
-                    </>
-                  ) : (
-                    <Link href={`/orders?page=${currentPage - 1}`}>
-                      <ChevronLeft className="h-4 w-4 mr-1" />
-                      Previous
-                    </Link>
-                  )}
-                </Button>
-                
-                <div className="flex items-center gap-1">
-                  {/* First page */}
-                  {currentPage > 3 && (
-                    <>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="w-10 h-10 p-0"
-                        asChild
-                      >
-                        <Link href="/orders?page=1">1</Link>
-                      </Button>
-                      {currentPage > 4 && (
-                        <span className="text-muted-foreground px-2">...</span>
-                      )}
-                    </>
-                  )}
-                  
-                  {/* Pages around current */}
-                  {Array.from({ length: totalPages }, (_, i) => i + 1)
-                    .filter((page) => {
-                      return (
-                        page === currentPage ||
-                        page === currentPage - 1 ||
-                        page === currentPage - 2 ||
-                        page === currentPage + 1 ||
-                        page === currentPage + 2
-                      );
-                    })
-                    .map((page) => (
-                      <Button
-                        key={page}
-                        variant={page === currentPage ? 'default' : 'ghost'}
-                        size="sm"
-                        className="w-10 h-10 p-0"
-                        asChild={page !== currentPage}
-                      >
-                        {page === currentPage ? (
-                          <span>{page}</span>
-                        ) : (
-                          <Link href={`/orders?page=${page}`}>{page}</Link>
-                        )}
-                      </Button>
-                    ))}
-                  
-                  {/* Last page */}
-                  {currentPage < totalPages - 2 && (
-                    <>
-                      {currentPage < totalPages - 3 && (
-                        <span className="text-muted-foreground px-2">...</span>
-                      )}
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="w-10 h-10 p-0"
-                        asChild
-                      >
-                        <Link href={`/orders?page=${totalPages}`}>{totalPages}</Link>
-                      </Button>
-                    </>
-                  )}
-                </div>
-                
-                <Button
-                  variant="outline"
-                  size="sm"
-                  disabled={!hasMore}
-                  asChild={hasMore}
-                >
-                  {hasMore ? (
-                    <Link href={`/orders?page=${currentPage + 1}`}>
-                      Next
-                      <ChevronRight className="h-4 w-4 ml-1" />
-                    </Link>
-                  ) : (
-                    <>
-                      Next
-                      <ChevronRight className="h-4 w-4 ml-1" />
-                    </>
-                  )}
-                </Button>
-              </div>
-            )}
+            {/* Pagination */}
+            <PaginationWrapper
+              currentPage={currentPage}
+              totalPages={totalPages}
+              baseUrl="/orders"
+              className="mt-8"
+            />
           </>
         )}
       </div>

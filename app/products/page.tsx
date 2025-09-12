@@ -1,9 +1,18 @@
 import { ProductList } from '@/components/products/product-list';
 import { getAllProducts } from '@/lib/actions/product-actions';
 import { getWishlistProductIds } from '@/lib/actions/wishlist-actions';
+import PaginationWrapper from '@/components/ui/pagination-wrapper';
 
-export default async function ProductsPage() {
-  const { data: products } = await getAllProducts({ page: 1 });
+interface ProductsPageProps {
+  searchParams: Promise<{
+    page?: string;
+  }>;
+}
+
+export default async function ProductsPage({ searchParams }: ProductsPageProps) {
+  const params = await searchParams;
+  const currentPage = Number(params.page) || 1;
+  const { data: products, totalPages } = await getAllProducts({ page: currentPage });
   const wishlistProductIds = await getWishlistProductIds();
 
   return (
@@ -15,6 +24,14 @@ export default async function ProductsPage() {
         </p>
       </div>
       <ProductList products={products} wishlistProductIds={wishlistProductIds} />
+      
+      {/* Pagination */}
+      <PaginationWrapper
+        currentPage={currentPage}
+        totalPages={totalPages}
+        baseUrl="/products"
+        className="mt-8"
+      />
     </div>
   );
 }
