@@ -2,7 +2,7 @@
 
 import prisma from '@/db/prisma';
 import { unstable_cache } from 'next/cache';
-import { convertToPlainObject } from '@/lib/utils';
+import { convertToPlainObject, slugToTitle } from '@/lib/utils';
 import type { Category } from '@/lib/validators';
 
 // Get all unique categories from products with count
@@ -113,10 +113,7 @@ export async function getProductsByCategory(
 export async function getCategoryDetails(categorySlug: string) {
   try {
     // Convert slug back to category name with proper case handling
-    const categoryName = categorySlug
-      .split('-')
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(' ');
+    const categoryName = slugToTitle(categorySlug);
     
     // Get category product count
     const productCount = await prisma.product.count({

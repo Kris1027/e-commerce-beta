@@ -116,8 +116,8 @@ export default function AddressManager({ userName, onSelectAddress, selectionMod
     setIsLoading(true);
     try {
       const data = await getUserAddresses();
-      // The data from getUserAddresses already matches the Address interface
-      setAddresses(data as Address[]);
+      // getUserAddresses returns Address[] from Prisma
+      setAddresses(data);
     } catch {
       toast.error('Failed to load addresses');
     } finally {

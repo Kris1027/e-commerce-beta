@@ -243,3 +243,11 @@ export function generatePaginationNumbers(currentPage: number, totalPages: numbe
 
   return pages;
 }
+
+// Convert slug to title case
+export function slugToTitle(slug: string): string {
+  return slug
+    .split('-')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+}

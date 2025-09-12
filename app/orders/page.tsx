@@ -8,9 +8,9 @@ import PaginationWrapper from '@/components/ui/pagination-wrapper';
 import { Package, ShoppingBag } from 'lucide-react';
 
 interface OrdersPageProps {
-  searchParams: {
+  searchParams: Promise<{
     page?: string;
-  };
+  }>;
 }
 
 export default async function OrdersPage({ searchParams }: OrdersPageProps) {
@@ -20,7 +20,8 @@ export default async function OrdersPage({ searchParams }: OrdersPageProps) {
     redirect('/auth/signin');
   }
   
-  const currentPage = Number(searchParams.page) || 1;
+  const params = await searchParams;
+  const currentPage = Number(params.page) || 1;
   const { orders, totalPages, totalOrders } = await getMyOrders(currentPage);
   
   return (
