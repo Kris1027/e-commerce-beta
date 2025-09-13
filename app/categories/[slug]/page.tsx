@@ -1,6 +1,7 @@
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
+import { cache } from 'react';
 import { getCategoryDetails, getProductsByCategory } from '@/lib/actions/category-actions';
 import { getWishlistProductIds } from '@/lib/actions/wishlist-actions';
 import { ProductList } from '@/components/products/product-list';
@@ -15,6 +16,9 @@ import {
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb';
 
+// Memoize getCategoryDetails for the request lifecycle
+const getCachedCategoryDetails = cache(getCategoryDetails);
+
 interface CategoryPageProps {
   params: Promise<{ slug: string }>;
   searchParams: Promise<{ page?: string }>;
@@ -22,7 +26,7 @@ interface CategoryPageProps {
 
 export async function generateMetadata({ params }: CategoryPageProps): Promise<Metadata> {
   const { slug } = await params;
-  const categoryDetails = await getCategoryDetails(slug);
+  const categoryDetails = await getCachedCategoryDetails(slug);
   
   if (!categoryDetails) {
     return {
@@ -41,7 +45,7 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
   const { page = '1' } = await searchParams;
   const currentPage = parseInt(page, 10) || 1;
 
-  const categoryDetails = await getCategoryDetails(slug);
+  const categoryDetails = await getCachedCategoryDetails(slug);
   
   if (!categoryDetails) {
     notFound();
