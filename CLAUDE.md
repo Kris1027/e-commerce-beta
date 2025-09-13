@@ -294,9 +294,13 @@ const result = await prisma.$transaction(async (tx) => {
 });
 ```
 
+## Development Workflow
+- **For Claude/AI**: Run `pnpm lint` after each update to verify code quality
+- **For User**: Will run `pnpm build` manually when needed
+
 ## Testing Checklist
-- [ ] Run `pnpm lint` - must pass
-- [ ] Run `pnpm build` - must succeed
+- [ ] Run `pnpm lint` - must pass (Claude runs this after each change)
+- [ ] Run `pnpm build` - must succeed (User will verify)
 - [ ] Run `pnpm prisma generate` after schema changes
 - [ ] No console.log statements (use console.error for error logging)
 - [ ] TypeScript types defined (avoid `any`, use `unknown` if needed)

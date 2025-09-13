@@ -27,7 +27,8 @@ const buildPasswordRegex = () => {
     patterns.push('(?=.*[!@#$%^&*(),.?":{}|<>])');
   }
   
-  return new RegExp(`^${patterns.join('')}`);
+  // Include minimum length requirement in the regex
+  return new RegExp(`^${patterns.join('')}.{${PASSWORD_REQUIREMENTS.MIN_LENGTH},}$`);
 };
 
 // Build error message based on requirements
