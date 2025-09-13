@@ -109,53 +109,60 @@ export async function getProductsByCategory(
   }
 }
 
-// Get category details with top products
-export async function getCategoryDetails(categorySlug: string) {
-  try {
-    // Convert slug back to category name with proper case handling
-    const categoryName = slugToTitle(categorySlug);
-    
-    // Get category product count
-    const productCount = await prisma.product.count({
-      where: {
-        category: {
-          equals: categoryName,
-          mode: 'insensitive',
+// Get category details with top products (cached)
+export const getCategoryDetails = unstable_cache(
+  async (categorySlug: string) => {
+    try {
+      // Convert slug back to category name with proper case handling
+      const categoryName = slugToTitle(categorySlug);
+      
+      // Get category product count
+      const productCount = await prisma.product.count({
+        where: {
+          category: {
+            equals: categoryName,
+            mode: 'insensitive',
+          },
         },
-      },
-    });
+      });
 
-    if (productCount === 0) {
+      if (productCount === 0) {
+        return null;
+      }
+
+      // Get top 4 products for preview
+      const topProducts = await prisma.product.findMany({
+        where: {
+          category: {
+            equals: categoryName,
+            mode: 'insensitive',
+          },
+        },
+        take: 4,
+        orderBy: [
+          {
+            rating: 'desc',
+          },
+          {
+            numReviews: 'desc',
+          },
+        ],
+      });
+
+      return {
+        name: categoryName,
+        slug: categorySlug,
+        productCount,
+        topProducts: convertToPlainObject(topProducts),
+      };
+    } catch (error) {
+      console.error('Error fetching category details:', error);
       return null;
     }
-
-    // Get top 4 products for preview
-    const topProducts = await prisma.product.findMany({
-      where: {
-        category: {
-          equals: categoryName,
-          mode: 'insensitive',
-        },
-      },
-      take: 4,
-      orderBy: [
-        {
-          rating: 'desc',
-        },
-        {
-          numReviews: 'desc',
-        },
-      ],
-    });
-
-    return {
-      name: categoryName,
-      slug: categorySlug,
-      productCount,
-      topProducts: convertToPlainObject(topProducts),
-    };
-  } catch (error) {
-    console.error('Error fetching category details:', error);
-    return null;
+  },
+  ['getCategoryDetails'],
+  {
+    revalidate: 3600, // Cache for 1 hour
+    tags: ['categories'],
   }
-}
+);
