@@ -7,6 +7,13 @@ import { cn } from '@/lib/utils';
 import { addToCart } from '@/lib/actions/cart-actions';
 import { useCartStore } from '@/lib/store/cart-store';
 
+// Helper function to determine button text
+function getButtonText(isOutOfStock: boolean, isPending: boolean): string {
+  if (isOutOfStock) return 'Out of Stock';
+  if (isPending) return 'Adding...';
+  return 'Add to Cart';
+}
+
 interface AddToCartButtonProps {
   productId: string;
   productName: string;
@@ -119,7 +126,7 @@ export function AddToCartButton({
         )}
       >
         {showIcon && <ShoppingCart className="h-3 w-3" />}
-        {isOutOfStock ? 'Out of Stock' : isPending ? 'Adding...' : 'Add to Cart'}
+        {getButtonText(isOutOfStock, isPending)}
       </button>
     );
   }

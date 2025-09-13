@@ -45,7 +45,7 @@ export function PaginationWrapper({
         {pages.map((page, index) => {
           if (typeof page === 'string') {
             return (
-              <PaginationItem key={`ellipsis-${index}-${pages[index-1]}-${pages[index+1]}`}>
+              <PaginationItem key={`ellipsis-between-${pages[index-1]}-and-${pages[index+1]}`}>
                 <PaginationEllipsis />
               </PaginationItem>
             );

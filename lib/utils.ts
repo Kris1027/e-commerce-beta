@@ -123,8 +123,8 @@ export function round2(value: number | string) {
   }
 }
 
-const CURRENCY_FORMATTER = new Intl.NumberFormat('en-US', {
-  currency: 'USD',
+const CURRENCY_FORMATTER = new Intl.NumberFormat(LOCALE, {
+  currency: 'PLN',
   style: 'currency',
   minimumFractionDigits: 2,
 });
@@ -141,7 +141,7 @@ export function formatCurrency(amount: number | string | null) {
 }
 
 // Format Number
-const NUMBER_FORMATTER = new Intl.NumberFormat('en-US');
+const NUMBER_FORMATTER = new Intl.NumberFormat(LOCALE);
 
 export function formatNumber(number: number) {
   return NUMBER_FORMATTER.format(number);
