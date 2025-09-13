@@ -47,8 +47,8 @@ const PHONE_FORMATS = {
 
 // Format Polish phone numbers safely
 export function formatPhoneNumber(phone: string): string {
-  // Handle empty or whitespace-only strings
-  if (!phone || !phone.trim()) {
+  // Handle empty, null, undefined, or whitespace-only strings
+  if (!phone?.trim()) {
     return '';
   }
   
