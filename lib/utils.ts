@@ -30,18 +30,23 @@ export function formatNumberWithDecimal(num: number): string {
 }
 
 // Polish phone number format constants
+const POLISH_PHONE_LENGTH_WITH_CODE = 11;
+const POLISH_PHONE_LENGTH_WITHOUT_CODE = 9;
+const POLISH_COUNTRY_CODE_PREFIX = '48';
+const POLISH_COUNTRY_CODE_DISPLAY = '+48 ';
+
 const PHONE_FORMATS = {
   WITH_COUNTRY_CODE: {
-    length: 11,
-    prefix: '48',
+    length: POLISH_PHONE_LENGTH_WITH_CODE,
+    prefix: POLISH_COUNTRY_CODE_PREFIX,
     pattern: /(\d{2})(\d{3})(\d{3})(\d{3})/,
     template: '+$1 $2-$3-$4'
   },
   WITHOUT_COUNTRY_CODE: {
-    length: 9,
+    length: POLISH_PHONE_LENGTH_WITHOUT_CODE,
     pattern: /(\d{3})(\d{3})(\d{3})/,
     template: '$1-$2-$3',
-    countryCode: '+48 '
+    countryCode: POLISH_COUNTRY_CODE_DISPLAY
   }
 } as const;
 
