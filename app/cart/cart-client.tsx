@@ -7,11 +7,13 @@ import { Trash2, Minus, Plus, ShoppingBag } from 'lucide-react';
 import { toast } from 'sonner';
 import { useCartStore } from '@/lib/store/cart-store';
 import { updateCartItem, removeFromCart } from '@/lib/actions/cart-actions';
-import { cn, formatNumberWithDecimal, validateQuantity } from '@/lib/utils';
+import { formatNumberWithDecimal, validateQuantity } from '@/lib/utils';
 import { z } from 'zod';
 import { cartItemSchema } from '@/lib/validators';
 import { CART_CONSTANTS } from '@/lib/constants/cart';
 import { CouponForm } from '@/components/cart/coupon-form';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import {
   Dialog,
   DialogContent,
@@ -167,33 +169,32 @@ export default function CartClient({ initialCart, isAuthenticated }: CartClientP
                       </p>
                     </div>
                     
-                    <button
+                    <Button
                       onClick={() => handleRemoveClick(item.productId, item.name)}
                       disabled={isPending}
-                      className="text-destructive hover:text-destructive/80 cursor-pointer"
+                      variant="ghost"
+                      size="icon"
+                      className="text-destructive hover:text-destructive/80"
                       aria-label={`Remove ${item.name} from cart`}
                     >
                       <Trash2 className="h-5 w-5" />
-                    </button>
+                    </Button>
                   </div>
                   
                   <div className="mt-4 flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <button
+                      <Button
                         onClick={() => handleUpdateQuantity(item.productId, item.qty - 1)}
                         disabled={item.qty <= 1 || isPending}
-                        className={cn(
-                          "h-8 w-8 rounded-md border flex items-center justify-center transition-colors",
-                          item.qty <= 1 || isPending
-                            ? "border-muted text-muted-foreground cursor-not-allowed"
-                            : "border-input hover:bg-accent hover:text-accent-foreground cursor-pointer"
-                        )}
+                        variant="outline"
+                        size="icon"
+                        className="h-8 w-8"
                         aria-label="Decrease quantity"
                       >
                         <Minus className="h-3 w-3" />
-                      </button>
+                      </Button>
                       
-                      <input
+                      <Input
                         type="number"
                         min="1"
                         max={CART_CONSTANTS.MAX_QUANTITY_PER_ITEM}
@@ -208,35 +209,32 @@ export default function CartClient({ initialCart, isAuthenticated }: CartClientP
                         onBlur={(e) => {
                           const value = parseInt(e.target.value);
                           const finalQty = validateQuantity(value);
-                          
+
                           // Clear local state and update server if changed
                           setQuantityInputs(prev => {
                             const newState = { ...prev };
                             delete newState[item.productId];
                             return newState;
                           });
-                          
+
                           if (finalQty !== item.qty) {
                             handleUpdateQuantity(item.productId, finalQty);
                           }
                         }}
                         disabled={isPending}
-                        className="h-8 w-16 rounded-md border border-input text-center text-sm"
+                        className="h-8 w-16 text-center"
                       />
                       
-                      <button
+                      <Button
                         onClick={() => handleUpdateQuantity(item.productId, item.qty + 1)}
                         disabled={isPending}
-                        className={cn(
-                          "h-8 w-8 rounded-md border flex items-center justify-center transition-colors",
-                          isPending
-                            ? "border-muted text-muted-foreground cursor-not-allowed"
-                            : "border-input hover:bg-accent hover:text-accent-foreground cursor-pointer"
-                        )}
+                        variant="outline"
+                        size="icon"
+                        className="h-8 w-8"
                         aria-label="Increase quantity"
                       >
                         <Plus className="h-3 w-3" />
-                      </button>
+                      </Button>
                     </div>
                     
                     <p className="font-medium">
@@ -341,19 +339,21 @@ export default function CartClient({ initialCart, isAuthenticated }: CartClientP
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="flex gap-2 sm:gap-0">
-            <button
+            <Button
               onClick={() => setDeleteDialogOpen(false)}
-              className="flex-1 sm:flex-none rounded-md border border-input px-4 py-2 text-sm font-medium hover:bg-accent hover:text-accent-foreground cursor-pointer transition-colors"
+              variant="outline"
+              className="flex-1 sm:flex-none"
             >
               Cancel
-            </button>
-            <button
+            </Button>
+            <Button
               onClick={handleConfirmRemove}
               disabled={isPending}
-              className="flex-1 sm:flex-none rounded-md bg-destructive px-4 py-2 text-sm font-medium text-destructive-foreground hover:bg-destructive/90 cursor-pointer transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              variant="destructive"
+              className="flex-1 sm:flex-none"
             >
               {isPending ? 'Removing...' : 'Remove'}
-            </button>
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

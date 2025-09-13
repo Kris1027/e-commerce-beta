@@ -4,6 +4,7 @@ import { ShoppingCart } from 'lucide-react';
 import { useEffect } from 'react';
 import { useCartStore } from '@/lib/store/cart-store';
 import { getCart } from '@/lib/actions/cart-actions';
+import { Button } from '@/components/ui/button';
 
 export function CartButton() {
   const { itemsCount, syncWithServer, setOpen } = useCartStore();
@@ -22,9 +23,11 @@ export function CartButton() {
   }, [syncWithServer]);
 
   return (
-    <button
+    <Button
       onClick={() => setOpen(true)}
-      className="relative flex items-center gap-2 text-sm font-medium transition-colors hover:text-primary"
+      variant="ghost"
+      size="sm"
+      className="relative"
       aria-label="Open cart"
     >
       <div className="relative">
@@ -35,7 +38,7 @@ export function CartButton() {
           </span>
         )}
       </div>
-      <span className="hidden lg:inline">Cart</span>
-    </button>
+      <span className="hidden lg:inline ml-2">Cart</span>
+    </Button>
   );
 }

@@ -6,6 +6,7 @@ import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { addToCart } from '@/lib/actions/cart-actions';
 import { useCartStore } from '@/lib/store/cart-store';
+import { Button } from '@/components/ui/button';
 
 // Helper function to determine button text
 function getButtonText(isOutOfStock: boolean, isPending: boolean): string {
@@ -89,15 +90,14 @@ export function AddToCartButton({
   // Icon-only variant (for product cards)
   if (variant === 'icon') {
     return (
-      <button
+      <Button
         onClick={handleAddToCart}
         disabled={isDisabled}
+        size="icon"
         className={cn(
-          'rounded-full p-2 transition-all duration-200',
-          'bg-primary text-primary-foreground',
-          'hover:bg-primary/90 hover:scale-110',
-          'disabled:bg-muted disabled:text-muted-foreground',
-          'disabled:cursor-not-allowed disabled:hover:scale-100',
+          'rounded-full h-8 w-8 transition-all duration-200',
+          'hover:scale-110',
+          'disabled:hover:scale-100',
           className
         )}
         aria-label={isOutOfStock ? 'Out of stock' : `Add ${productName} to cart`}
@@ -107,49 +107,38 @@ export function AddToCartButton({
         ) : (
           <ShoppingCart className="h-4 w-4" />
         )}
-      </button>
+      </Button>
     );
   }
 
   // Compact variant (smaller button)
   if (variant === 'compact') {
     return (
-      <button
+      <Button
         onClick={handleAddToCart}
         disabled={isDisabled}
-        className={cn(
-          'flex items-center gap-1 rounded-md px-3 py-1.5 text-sm font-medium transition-colors',
-          isDisabled
-            ? 'bg-muted text-muted-foreground cursor-not-allowed'
-            : 'bg-primary text-primary-foreground hover:bg-primary/90',
-          className
-        )}
+        size="sm"
+        className={cn(className)}
       >
         {showIcon && <ShoppingCart className="h-3 w-3" />}
         {getButtonText(isOutOfStock, isPending)}
-      </button>
+      </Button>
     );
   }
 
   // Default variant (full button)
   return (
-    <button
+    <Button
       onClick={handleAddToCart}
       disabled={isDisabled}
-      className={cn(
-        'w-full flex items-center justify-center gap-2 rounded-md px-6 py-3 text-sm font-medium transition-colors',
-        isDisabled
-          ? 'bg-muted text-muted-foreground cursor-not-allowed'
-          : 'bg-primary text-primary-foreground hover:bg-primary/90',
-        className
-      )}
+      className={cn('w-full', className)}
     >
       {showIcon && <ShoppingCart className="h-4 w-4" />}
-      {isOutOfStock 
-        ? 'Out of Stock' 
-        : isPending 
-        ? buyNow ? 'Processing...' : 'Adding...' 
+      {isOutOfStock
+        ? 'Out of Stock'
+        : isPending
+        ? buyNow ? 'Processing...' : 'Adding...'
         : buyNow ? 'Buy Now' : 'Add to Cart'}
-    </button>
+    </Button>
   );
 }

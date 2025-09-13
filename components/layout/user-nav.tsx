@@ -4,6 +4,8 @@ import Link from 'next/link';
 import { useState } from 'react';
 import { signOutAction } from '@/lib/actions/auth-actions';
 import { toast } from 'sonner';
+import { Button } from '@/components/ui/button';
+import { User } from 'lucide-react';
 
 interface UserNavProps {
   user: {
@@ -19,26 +21,15 @@ export function UserNav({ user }: UserNavProps) {
 
   return (
     <div className="relative">
-      <button
+      <Button
         onClick={() => setIsOpen(!isOpen)}
-        className="hidden sm:inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground h-9 w-9"
+        variant="ghost"
+        size="icon"
+        className="hidden sm:inline-flex"
         aria-label="User menu"
       >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="20"
-          height="20"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
-          <circle cx="12" cy="7" r="4" />
-        </svg>
-      </button>
+        <User className="h-5 w-5" />
+      </Button>
 
       {isOpen && (
         <>
@@ -57,7 +48,7 @@ export function UserNav({ user }: UserNavProps) {
             
             <Link
               href="/dashboard"
-              className="flex w-full items-center rounded-sm px-2 py-1.5 text-sm hover:bg-accent hover:text-accent-foreground"
+              className="flex w-full items-center rounded-sm px-2 py-1.5 text-sm hover:bg-accent hover:text-accent-foreground cursor-pointer"
               onClick={() => setIsOpen(false)}
             >
               Dashboard
@@ -65,7 +56,7 @@ export function UserNav({ user }: UserNavProps) {
             
             <Link
               href="/profile"
-              className="flex w-full items-center rounded-sm px-2 py-1.5 text-sm hover:bg-accent hover:text-accent-foreground"
+              className="flex w-full items-center rounded-sm px-2 py-1.5 text-sm hover:bg-accent hover:text-accent-foreground cursor-pointer"
               onClick={() => setIsOpen(false)}
             >
               Profile
@@ -73,7 +64,7 @@ export function UserNav({ user }: UserNavProps) {
             
             <Link
               href="/orders"
-              className="flex w-full items-center rounded-sm px-2 py-1.5 text-sm hover:bg-accent hover:text-accent-foreground"
+              className="flex w-full items-center rounded-sm px-2 py-1.5 text-sm hover:bg-accent hover:text-accent-foreground cursor-pointer"
               onClick={() => setIsOpen(false)}
             >
               My Orders
@@ -84,7 +75,7 @@ export function UserNav({ user }: UserNavProps) {
                 <div className="h-px bg-border" />
                 <Link
                   href="/admin"
-                  className="flex w-full items-center rounded-sm px-2 py-1.5 text-sm hover:bg-accent hover:text-accent-foreground"
+                  className="flex w-full items-center rounded-sm px-2 py-1.5 text-sm hover:bg-accent hover:text-accent-foreground cursor-pointer"
                   onClick={() => setIsOpen(false)}
                 >
                   Admin Panel
@@ -107,7 +98,7 @@ export function UserNav({ user }: UserNavProps) {
             >
               <button
                 type="submit"
-                className="flex w-full items-center rounded-sm px-2 py-1.5 text-sm hover:bg-accent hover:text-accent-foreground"
+                className="flex w-full items-center rounded-sm px-2 py-1.5 text-sm hover:bg-accent hover:text-accent-foreground cursor-pointer"
               >
                 Sign Out
               </button>

@@ -5,6 +5,8 @@ import { formatCurrency } from '@/lib/utils';
 import CheckoutSteps from '@/components/checkout/checkout-steps';
 import PaymentMethodForm from '@/components/checkout/payment-method-form';
 
+export const dynamic = 'force-dynamic';
+
 export default async function PaymentMethodPage() {
   // Check if cart exists and has items
   const cart = await getCart();

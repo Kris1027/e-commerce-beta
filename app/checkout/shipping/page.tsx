@@ -10,6 +10,8 @@ export const metadata: Metadata = {
   description: 'Select your shipping address',
 };
 
+export const dynamic = 'force-dynamic';
+
 export default async function ShippingPage() {
   const session = await auth();
   const cart = await getCart();

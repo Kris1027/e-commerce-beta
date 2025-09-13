@@ -11,7 +11,7 @@ interface ProductPriceProps {
 export function ProductPrice({
   price,
   originalPrice,
-  currency = '$',
+  currency = 'zł',
   className,
   size = 'md',
 }: ProductPriceProps) {
@@ -31,7 +31,7 @@ export function ProductPrice({
   return (
     <div className={cn('flex items-center gap-2', className)}>
       <span className={cn('font-semibold', sizeClasses[size])}>
-        {currency}{formatNumberWithDecimal(numPrice)}
+        {formatNumberWithDecimal(numPrice)} {currency}
       </span>
       {numOriginalPrice && numOriginalPrice > numPrice && (
         <>
@@ -39,7 +39,7 @@ export function ProductPrice({
             'text-muted-foreground line-through',
             size === 'sm' ? 'text-xs' : 'text-sm'
           )}>
-            {currency}{formatNumberWithDecimal(numOriginalPrice)}
+            {formatNumberWithDecimal(numOriginalPrice)} {currency}
           </span>
           {discount > 0 && (
             <span className="text-xs font-medium text-green-600 dark:text-green-400">

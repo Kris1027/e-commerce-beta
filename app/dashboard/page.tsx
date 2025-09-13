@@ -1,7 +1,7 @@
 import { auth } from '@/auth';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
-import { Package, ShoppingBag, Clock, CheckCircle, Truck, Heart, User, MapPin } from 'lucide-react';
+import { Package, ShoppingBag, Clock, CheckCircle, Truck, Heart, User, ShoppingCart } from 'lucide-react';
 import { getOrders } from '@/lib/actions/order-actions';
 import { formatCurrency, formatDateTime, formatOrderStatus, getOrderStatusColor, isActiveOrder } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -120,6 +120,21 @@ export default async function DashboardPage() {
         </Link>
 
         <Link
+          href="/cart"
+          className="rounded-lg border bg-card p-6 hover:bg-accent transition-colors"
+        >
+          <div className="flex items-center space-x-4">
+            <div className="p-3 bg-primary/10 rounded-full">
+              <ShoppingCart className="h-6 w-6 text-primary" />
+            </div>
+            <div>
+              <p className="text-sm font-medium text-muted-foreground">Shopping Cart</p>
+              <p className="text-lg font-semibold">View Cart</p>
+            </div>
+          </div>
+        </Link>
+
+        <Link
           href="/profile"
           className="rounded-lg border bg-card p-6 hover:bg-accent transition-colors"
         >
@@ -128,22 +143,7 @@ export default async function DashboardPage() {
               <User className="h-6 w-6 text-primary" />
             </div>
             <div>
-              <p className="text-sm font-medium text-muted-foreground">Profile</p>
-              <p className="text-lg font-semibold">Manage</p>
-            </div>
-          </div>
-        </Link>
-
-        <Link
-          href="/addresses"
-          className="rounded-lg border bg-card p-6 hover:bg-accent transition-colors"
-        >
-          <div className="flex items-center space-x-4">
-            <div className="p-3 bg-primary/10 rounded-full">
-              <MapPin className="h-6 w-6 text-primary" />
-            </div>
-            <div>
-              <p className="text-sm font-medium text-muted-foreground">Addresses</p>
+              <p className="text-sm font-medium text-muted-foreground">Profile & Addresses</p>
               <p className="text-lg font-semibold">Manage</p>
             </div>
           </div>
