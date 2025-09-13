@@ -7,8 +7,7 @@ import { revalidatePath } from 'next/cache';
 import bcrypt from 'bcryptjs';
 import { z } from 'zod';
 import { shippingAddressSchema, PASSWORD_REGEX, PASSWORD_ERROR_MESSAGE } from '@/lib/validators';
-
-const ORDERS_PER_PAGE = 10;
+import { ORDERS_PER_PAGE } from '@/lib/constants/cart';
 
 export interface OrderItemPreview {
   productId: string;

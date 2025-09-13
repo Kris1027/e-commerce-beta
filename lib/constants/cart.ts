@@ -7,6 +7,9 @@ export const CART_CONSTANTS = {
   CART_SESSION_DURATION: 60 * 60 * 24 * 30, // 30 days in seconds
 } as const;
 
+// Pagination constants
+export const ORDERS_PER_PAGE = 10;
+
 // Shipping configuration
 export const SHIPPING_CONFIG = {
   DEFAULT_COUNTRY: 'Poland', // Currently supporting Poland-only shipping
