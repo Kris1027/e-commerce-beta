@@ -25,7 +25,7 @@ export async function Header() {
             </Link>
             <Link
               href="/categories"
-              className="transition-colors hover:text-foreground/80 text-foreground/60"
+              className="transition-colors hover:text-foreground/80 text-foreground"
             >
               Categories
             </Link>

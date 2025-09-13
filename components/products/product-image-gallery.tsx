@@ -68,7 +68,7 @@ export function ProductImageGallery({ images, productName }: ProductImageGallery
         <div className="grid grid-cols-4 gap-2">
           {images.map((image, index) => (
             <button
-              key={index}
+              key={image}
               onClick={() => setSelectedImage(index)}
               className={cn(
                 'relative aspect-square overflow-hidden rounded-md bg-muted border-2 transition-all cursor-pointer',

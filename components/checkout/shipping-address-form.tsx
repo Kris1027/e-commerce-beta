@@ -8,6 +8,7 @@ import { z } from 'zod';
 import { toast } from 'sonner';
 import { shippingAddressSchema } from '@/lib/validators';
 import { saveShippingAddress } from '@/lib/actions/checkout-actions';
+import { SHIPPING_CONFIG } from '@/lib/constants/cart';
 import { ArrowRight } from 'lucide-react';
 
 type ShippingAddressFormData = z.infer<typeof shippingAddressSchema>;
@@ -36,7 +37,7 @@ export function ShippingAddressForm({
       city: '',
       state: '',
       zipCode: '',
-      country: '',
+      country: SHIPPING_CONFIG.DEFAULT_COUNTRY,
       phone: '',
     },
   });
@@ -85,7 +86,7 @@ export function ShippingAddressForm({
               type="text"
               id="street"
               className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-              placeholder="123 Main St"
+              placeholder="ul. Marszałkowska 123"
             />
             {errors.street && (
               <p className="mt-1 text-sm text-destructive">{errors.street.message}</p>
@@ -101,7 +102,7 @@ export function ShippingAddressForm({
               type="text"
               id="city"
               className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-              placeholder="New York"
+              placeholder="Warsaw"
             />
             {errors.city && (
               <p className="mt-1 text-sm text-destructive">{errors.city.message}</p>
@@ -110,14 +111,14 @@ export function ShippingAddressForm({
 
           <div>
             <label htmlFor="state" className="block text-sm font-medium mb-2">
-              State / Province
+              Voivodeship
             </label>
             <input
               {...register('state')}
               type="text"
               id="state"
               className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-              placeholder="NY"
+              placeholder="Mazowieckie"
             />
             {errors.state && (
               <p className="mt-1 text-sm text-destructive">{errors.state.message}</p>
@@ -126,14 +127,14 @@ export function ShippingAddressForm({
 
           <div>
             <label htmlFor="zipCode" className="block text-sm font-medium mb-2">
-              ZIP / Postal Code
+              Postal Code
             </label>
             <input
               {...register('zipCode')}
               type="text"
               id="zipCode"
               className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-              placeholder="10001"
+              placeholder="00-001"
             />
             {errors.zipCode && (
               <p className="mt-1 text-sm text-destructive">{errors.zipCode.message}</p>
@@ -144,16 +145,14 @@ export function ShippingAddressForm({
             <label htmlFor="country" className="block text-sm font-medium mb-2">
               Country
             </label>
+            <div className="w-full rounded-md border border-input bg-muted px-3 py-2 text-sm">
+              {SHIPPING_CONFIG.DEFAULT_COUNTRY}
+            </div>
             <input
               {...register('country')}
-              type="text"
-              id="country"
-              className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-              placeholder="United States"
+              type="hidden"
+              value={SHIPPING_CONFIG.DEFAULT_COUNTRY}
             />
-            {errors.country && (
-              <p className="mt-1 text-sm text-destructive">{errors.country.message}</p>
-            )}
           </div>
 
           <div className="sm:col-span-2">
@@ -165,7 +164,7 @@ export function ShippingAddressForm({
               type="tel"
               id="phone"
               className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-              placeholder="+1 (555) 123-4567"
+              placeholder="+48 123 456 789"
             />
             {errors.phone && (
               <p className="mt-1 text-sm text-destructive">{errors.phone.message}</p>
@@ -177,7 +176,7 @@ export function ShippingAddressForm({
       <div className="flex gap-4">
         <button
           type="button"
-          onClick={() => router.back()}
+          onClick={() => router.push('/cart')}
           className="flex-1 rounded-md border border-input px-6 py-3 text-sm font-medium hover:bg-accent hover:text-accent-foreground cursor-pointer"
         >
           Back to Cart

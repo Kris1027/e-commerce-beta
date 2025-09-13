@@ -1,12 +1,12 @@
 import { auth } from '@/auth';
 
-export async function getCurrentUser() {
+export async function getSessionUser() {
   const session = await auth();
   return session?.user;
 }
 
 export async function requireAuth() {
-  const user = await getCurrentUser();
+  const user = await getSessionUser();
   if (!user) {
     throw new Error('Unauthorized');
   }

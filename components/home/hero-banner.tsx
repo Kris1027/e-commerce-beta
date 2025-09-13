@@ -95,9 +95,9 @@ export function HeroBanner() {
           </button>
 
           <div className="absolute bottom-4 left-1/2 flex -translate-x-1/2 space-x-2">
-            {bannerSlides.map((_, index) => (
+            {bannerSlides.map((slide, index) => (
               <button
-                key={index}
+                key={slide.id}
                 onClick={() => goToSlide(index)}
                 className={cn(
                   'h-2 w-2 rounded-full transition-all',

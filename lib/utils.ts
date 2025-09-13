@@ -1,7 +1,7 @@
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 import qs from 'query-string';
-import { CART_CONSTANTS } from '@/lib/constants/cart';
+import { CART_CONSTANTS, LOCALE } from '@/lib/constants/cart';
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -27,6 +27,64 @@ export function convertToPlainObject<T>(value: T): T {
 export function formatNumberWithDecimal(num: number): string {
   const [int, decimal] = num.toString().split('.');
   return decimal ? `${int}.${decimal.padEnd(2, '0')}` : `${int}.00`;
+}
+
+// Polish phone number format constants
+const POLISH_PHONE_LENGTH_WITH_CODE = 11;
+const POLISH_PHONE_LENGTH_WITHOUT_CODE = 9;
+const POLISH_COUNTRY_CODE_PREFIX = '48';
+const POLISH_COUNTRY_CODE_DISPLAY = '+48 ';
+
+const PHONE_FORMATS = {
+  WITH_COUNTRY_CODE: {
+    length: POLISH_PHONE_LENGTH_WITH_CODE,
+    prefix: POLISH_COUNTRY_CODE_PREFIX,
+    pattern: /(\d{2})(\d{3})(\d{3})(\d{3})/,
+    template: '+$1 $2-$3-$4'
+  },
+  WITHOUT_COUNTRY_CODE: {
+    length: POLISH_PHONE_LENGTH_WITHOUT_CODE,
+    pattern: /(\d{3})(\d{3})(\d{3})/,
+    template: '$1-$2-$3',
+    countryCode: POLISH_COUNTRY_CODE_DISPLAY
+  }
+} as const;
+
+// Format Polish phone numbers safely
+export function formatPhoneNumber(phone: string): string {
+  // Handle empty, null, undefined, or whitespace-only strings
+  if (!phone?.trim()) {
+    return '';
+  }
+  
+  // Remove all non-digit characters
+  const digits = phone.replace(/\D/g, '');
+  
+  // Only format if exactly 11 digits (Polish format with country code)
+  if (digits.length === PHONE_FORMATS.WITH_COUNTRY_CODE.length && 
+      digits.startsWith(PHONE_FORMATS.WITH_COUNTRY_CODE.prefix)) {
+    return digits.replace(
+      PHONE_FORMATS.WITH_COUNTRY_CODE.pattern, 
+      PHONE_FORMATS.WITH_COUNTRY_CODE.template
+    );
+  }
+  
+  // Format 9-digit Polish numbers (without country code)
+  if (digits.length === PHONE_FORMATS.WITHOUT_COUNTRY_CODE.length) {
+    return PHONE_FORMATS.WITHOUT_COUNTRY_CODE.countryCode + 
+           digits.replace(
+             PHONE_FORMATS.WITHOUT_COUNTRY_CODE.pattern,
+             PHONE_FORMATS.WITHOUT_COUNTRY_CODE.template
+           );
+  }
+  
+  // For invalid formats, return the original if it has some digits
+  // This preserves user input for correction rather than losing it
+  if (digits.length > 0) {
+    return phone;
+  }
+  
+  return '';
 }
 
 // Format errors
@@ -65,8 +123,8 @@ export function round2(value: number | string) {
   }
 }
 
-const CURRENCY_FORMATTER = new Intl.NumberFormat('en-US', {
-  currency: 'USD',
+const CURRENCY_FORMATTER = new Intl.NumberFormat(LOCALE, {
+  currency: 'PLN',
   style: 'currency',
   minimumFractionDigits: 2,
 });
@@ -83,7 +141,7 @@ export function formatCurrency(amount: number | string | null) {
 }
 
 // Format Number
-const NUMBER_FORMATTER = new Intl.NumberFormat('en-US');
+const NUMBER_FORMATTER = new Intl.NumberFormat(LOCALE);
 
 export function formatNumber(number: number) {
   return NUMBER_FORMATTER.format(number);
@@ -125,7 +183,7 @@ export const formatDateTime = (dateString: Date) => {
     day: 'numeric', // numeric day of the month (e.g., '25')
     hour: 'numeric', // numeric hour (e.g., '8')
     minute: 'numeric', // numeric minute (e.g., '30')
-    hour12: true, // use 12-hour clock (true) or 24-hour clock (false)
+    hour12: false, // use 24-hour clock for Polish locale
   };
   const dateOptions: Intl.DateTimeFormatOptions = {
     weekday: 'short', // abbreviated weekday name (e.g., 'Mon')
@@ -136,18 +194,18 @@ export const formatDateTime = (dateString: Date) => {
   const timeOptions: Intl.DateTimeFormatOptions = {
     hour: 'numeric', // numeric hour (e.g., '8')
     minute: 'numeric', // numeric minute (e.g., '30')
-    hour12: true, // use 12-hour clock (true) or 24-hour clock (false)
+    hour12: false, // use 24-hour clock for Polish locale
   };
   const formattedDateTime: string = new Date(dateString).toLocaleString(
-    'en-US',
+    LOCALE,
     dateTimeOptions
   );
   const formattedDate: string = new Date(dateString).toLocaleString(
-    'en-US',
+    LOCALE,
     dateOptions
   );
   const formattedTime: string = new Date(dateString).toLocaleString(
-    'en-US',
+    LOCALE,
     timeOptions
   );
   return {
@@ -180,4 +238,50 @@ export function formUrlQuery({
       skipNull: true,
     }
   );
+}
+
+// Generate pagination page numbers
+export function generatePaginationNumbers(currentPage: number, totalPages: number): (number | string)[] {
+  // Show all pages if 7 or fewer
+  if (totalPages <= 7) {
+    return Array.from({ length: totalPages }, (_, i) => i + 1);
+  }
+
+  const pages: (number | string)[] = [];
+
+  // Always show first page
+  pages.push(1);
+
+  // Show ellipsis if current page is far from start
+  if (currentPage > 3) {
+    pages.push('...');
+  }
+
+  // Show pages around current page
+  const start = Math.max(2, currentPage - 1);
+  const end = Math.min(totalPages - 1, currentPage + 1);
+  
+  for (let i = start; i <= end; i++) {
+    pages.push(i);
+  }
+
+  // Show ellipsis if current page is far from end
+  if (currentPage < totalPages - 2) {
+    pages.push('...');
+  }
+
+  // Always show last page if more than 1 page
+  if (totalPages > 1) {
+    pages.push(totalPages);
+  }
+
+  return pages;
+}
+
+// Convert slug to title case
+export function slugToTitle(slug: string): string {
+  return slug
+    .split('-')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
 }

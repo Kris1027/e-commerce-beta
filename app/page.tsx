@@ -1,17 +1,18 @@
 import { HeroBanner } from '@/components/home/hero-banner';
 import { FeaturedProducts } from '@/components/home/featured-products';
-import { CategoriesSection } from '@/components/home/categories-section';
 import { ProductList } from '@/components/products/product-list';
 import { getFeaturedProducts, getNewArrivals } from '@/lib/actions/product-actions';
+import { getWishlistProductIds } from '@/lib/actions/wishlist-actions';
 import { storeConfig } from '@/config/store.config';
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 import * as Icons from 'lucide-react';
 
 export default async function Home() {
-  const [featuredProducts, newArrivals] = await Promise.all([
+  const [featuredProducts, newArrivals, wishlistProductIds] = await Promise.all([
     getFeaturedProducts(),
     getNewArrivals(),
+    getWishlistProductIds(),
   ]);
 
   const { homepage } = storeConfig;
@@ -24,19 +25,18 @@ export default async function Home() {
         <FeaturedProducts 
           products={featuredProducts}
           title={homepage.sectionTitles.featured}
+          wishlistProductIds={wishlistProductIds}
         />
       )}
-      
-      {homepage.sections.categories && <CategoriesSection />}
 
       {homepage.sections.trustBadges && (
         <section className="bg-muted/50 py-12">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
-              {storeConfig.trustBadges.map((badge, index) => {
+              {storeConfig.trustBadges.map((badge) => {
                 const IconComponent = Icons[badge.icon as keyof typeof Icons] as React.ComponentType<{ className?: string }>;
                 return (
-                  <div key={index} className="text-center">
+                  <div key={badge.title} className="text-center">
                     <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
                       {IconComponent && <IconComponent className="h-6 w-6 text-primary" />}
                     </div>
@@ -72,7 +72,7 @@ export default async function Home() {
                 <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
               </Link>
             </div>
-            <ProductList products={newArrivals} />
+            <ProductList products={newArrivals} wishlistProductIds={wishlistProductIds} />
           </div>
         </section>
       )}

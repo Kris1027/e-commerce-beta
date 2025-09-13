@@ -5,6 +5,7 @@ import { ArrowRight } from 'lucide-react';
 
 interface FeaturedProductsProps {
   products: Product[];
+  wishlistProductIds?: string[];
   title?: string;
   description?: string;
   showViewAll?: boolean;
@@ -12,6 +13,7 @@ interface FeaturedProductsProps {
 
 export function FeaturedProducts({
   products,
+  wishlistProductIds = [],
   title = 'Featured Products',
   description = 'Check out our handpicked selection of premium products',
   showViewAll = true,
@@ -40,7 +42,7 @@ export function FeaturedProducts({
             </Link>
           )}
         </div>
-        <ProductList products={featuredProducts} />
+        <ProductList products={featuredProducts} wishlistProductIds={wishlistProductIds} />
       </div>
     </section>
   );

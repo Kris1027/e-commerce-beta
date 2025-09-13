@@ -1,8 +1,19 @@
 import { ProductList } from '@/components/products/product-list';
 import { getAllProducts } from '@/lib/actions/product-actions';
+import { getWishlistProductIds } from '@/lib/actions/wishlist-actions';
+import { PaginationWrapper } from '@/components/ui/pagination-wrapper';
 
-export default async function ProductsPage() {
-  const { data: products } = await getAllProducts({ page: 1 });
+interface ProductsPageProps {
+  searchParams: Promise<{
+    page?: string;
+  }>;
+}
+
+export default async function ProductsPage({ searchParams }: ProductsPageProps) {
+  const params = await searchParams;
+  const currentPage = Number(params.page) || 1;
+  const { data: products, totalPages } = await getAllProducts({ page: currentPage });
+  const wishlistProductIds = await getWishlistProductIds();
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
@@ -12,7 +23,15 @@ export default async function ProductsPage() {
           Browse our collection of high-quality products
         </p>
       </div>
-      <ProductList products={products} />
+      <ProductList products={products} wishlistProductIds={wishlistProductIds} />
+      
+      {/* Pagination */}
+      <PaginationWrapper
+        currentPage={currentPage}
+        totalPages={totalPages}
+        baseUrl="/products"
+        className="mt-8"
+      />
     </div>
   );
 }

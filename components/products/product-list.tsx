@@ -4,12 +4,14 @@ import { cn } from '@/lib/utils';
 
 interface ProductListProps {
   products: Product[];
+  wishlistProductIds?: string[];
   className?: string;
   columns?: 2 | 3 | 4 | 5;
 }
 
 export function ProductList({ 
   products, 
+  wishlistProductIds = [],
   className,
   columns = 4 
 }: ProductListProps) {
@@ -35,10 +37,11 @@ export function ProductList({
 
   return (
     <div className={cn('grid gap-6', gridCols[columns], className)}>
-      {products.map((product, index) => (
+      {products.map((product) => (
         <ProductCard 
-          key={product.id || `${product.slug}-${index}`} 
-          product={product} 
+          key={product.id} 
+          product={product}
+          isInWishlist={wishlistProductIds.includes(product.id)}
         />
       ))}
     </div>
