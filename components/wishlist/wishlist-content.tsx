@@ -73,10 +73,12 @@ export default function WishlistContent({ items: initialItems }: WishlistContent
       });
       
       if (result.success) {
+        // Optimistic update for cart
         addItem(cartItem);
         toast.success('Added to cart');
         
-        // Update local state if item was removed from wishlist
+        // Only update local wishlist state if server confirmed the removal
+        // This ensures consistency between client and server state
         if (WISHLIST_CONFIG.REMOVE_ON_ADD_TO_CART) {
           setItems(prev => prev.filter(item => item.product?.id !== product.id));
         }
