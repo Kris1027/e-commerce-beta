@@ -1,9 +1,67 @@
 import { z } from 'zod';
 import { PAYMENT_METHODS } from './constants';
 
-// Password validation regex - at least one uppercase, one lowercase, and one number
-export const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/;
-export const PASSWORD_ERROR_MESSAGE = 'Password must contain at least one uppercase letter, one lowercase letter, and one number';
+// Password requirements configuration
+export const PASSWORD_REQUIREMENTS = {
+  MIN_LENGTH: 8,
+  REQUIRE_UPPERCASE: true,
+  REQUIRE_LOWERCASE: true,
+  REQUIRE_NUMBER: true,
+  REQUIRE_SPECIAL: false, // Can be enabled in the future
+} as const;
+
+// Build password regex dynamically based on requirements
+const buildPasswordRegex = () => {
+  const patterns: string[] = [];
+  
+  if (PASSWORD_REQUIREMENTS.REQUIRE_LOWERCASE) {
+    patterns.push('(?=.*[a-z])');
+  }
+  if (PASSWORD_REQUIREMENTS.REQUIRE_UPPERCASE) {
+    patterns.push('(?=.*[A-Z])');
+  }
+  if (PASSWORD_REQUIREMENTS.REQUIRE_NUMBER) {
+    patterns.push('(?=.*\\d)');
+  }
+  if (PASSWORD_REQUIREMENTS.REQUIRE_SPECIAL) {
+    patterns.push('(?=.*[!@#$%^&*(),.?":{}|<>])');
+  }
+  
+  return new RegExp(`^${patterns.join('')}`);
+};
+
+// Build error message based on requirements
+const buildPasswordErrorMessage = () => {
+  const requirements: string[] = [];
+  
+  if (PASSWORD_REQUIREMENTS.REQUIRE_UPPERCASE) {
+    requirements.push('one uppercase letter');
+  }
+  if (PASSWORD_REQUIREMENTS.REQUIRE_LOWERCASE) {
+    requirements.push('one lowercase letter');
+  }
+  if (PASSWORD_REQUIREMENTS.REQUIRE_NUMBER) {
+    requirements.push('one number');
+  }
+  if (PASSWORD_REQUIREMENTS.REQUIRE_SPECIAL) {
+    requirements.push('one special character');
+  }
+  
+  if (requirements.length === 0) {
+    return `Password must be at least ${PASSWORD_REQUIREMENTS.MIN_LENGTH} characters`;
+  }
+  
+  const lastRequirement = requirements.pop();
+  const message = requirements.length > 0
+    ? `Password must contain at least ${requirements.join(', ')}, and ${lastRequirement}`
+    : `Password must contain at least ${lastRequirement}`;
+  
+  return message;
+};
+
+// Password validation regex and error message
+export const PASSWORD_REGEX = buildPasswordRegex();
+export const PASSWORD_ERROR_MESSAGE = buildPasswordErrorMessage();
 
 // Currency type - for decimal values stored as strings
 // Accepts number or string and transforms to string with 2 decimal places
@@ -44,7 +102,7 @@ export const productSchema = insertProductSchema.extend({
 export const signInFormSchema = z.object({
   email: z.string().email('Invalid email address'),
   password: z.string()
-    .min(8, 'Password must be at least 8 characters')
+    .min(PASSWORD_REQUIREMENTS.MIN_LENGTH, `Password must be at least ${PASSWORD_REQUIREMENTS.MIN_LENGTH} characters`)
     .regex(PASSWORD_REGEX, PASSWORD_ERROR_MESSAGE),
 });
 
@@ -53,9 +111,9 @@ export const signUpFormSchema = z
     name: z.string().min(3, 'Name must be at least 3 characters'),
     email: z.string().email('Invalid email address'),
     password: z.string()
-      .min(8, 'Password must be at least 8 characters')
+      .min(PASSWORD_REQUIREMENTS.MIN_LENGTH, `Password must be at least ${PASSWORD_REQUIREMENTS.MIN_LENGTH} characters`)
       .regex(PASSWORD_REGEX, PASSWORD_ERROR_MESSAGE),
-    confirmPassword: z.string().min(8, 'Confirm password must be at least 8 characters'),
+    confirmPassword: z.string().min(PASSWORD_REQUIREMENTS.MIN_LENGTH, `Confirm password must be at least ${PASSWORD_REQUIREMENTS.MIN_LENGTH} characters`),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: 'Passwords do not match',

@@ -166,6 +166,7 @@ getCategoryDetails(slug)                    // Get category details with top pro
 - `insertWishlistSchema` - Add to wishlist validation
 - `categorySchema` - Category with product count
 - `categoryDetailsSchema` - Category with top products
+- `PASSWORD_REQUIREMENTS` - Configurable password validation settings (min length, character requirements)
 
 ## Database Models
 
@@ -336,6 +337,10 @@ pnpm db:studio    # Prisma Studio GUI
 ```
 
 ## Recent Updates
+- **Password Validation**: Made password requirements configurable through `PASSWORD_REQUIREMENTS` constant
+  - Easily adjustable minimum length, uppercase, lowercase, number, and special character requirements
+  - Dynamic regex and error message generation based on configuration
+  - Maintains backward compatibility with existing 8-character minimum and current requirements
 - **Profile Management**: Full name is now read-only in profile (contact support for changes)
 - **Multiple Addresses**: Users can manage multiple shipping addresses with labels
 - **Address Features**: Add, edit, delete, and set default shipping addresses
