@@ -84,7 +84,7 @@ export default function CheckoutAddressSelector({ userName }: CheckoutAddressSel
       <div className="flex justify-between pt-4 border-t">
         <Button
           variant="outline"
-          onClick={() => router.back()}
+          onClick={() => router.push('/cart')}
         >
           Back to Cart
         </Button>

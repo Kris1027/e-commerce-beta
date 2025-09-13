@@ -176,7 +176,7 @@ export function ShippingAddressForm({
       <div className="flex gap-4">
         <button
           type="button"
-          onClick={() => router.back()}
+          onClick={() => router.push('/cart')}
           className="flex-1 rounded-md border border-input px-6 py-3 text-sm font-medium hover:bg-accent hover:text-accent-foreground cursor-pointer"
         >
           Back to Cart
