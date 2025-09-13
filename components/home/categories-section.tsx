@@ -1,31 +1,49 @@
 import Link from 'next/link';
-import { Grid3x3, Package, Tag, TrendingUp } from 'lucide-react';
+import { Grid3x3, Package, Tag, TrendingUp, AlertCircle } from 'lucide-react';
 import { getAllCategories } from '@/lib/actions/product-actions';
 
 async function getCategories() {
-  try {
-    const categories = await getAllCategories();
+  const result = await getAllCategories();
 
-    const icons = [Grid3x3, Package, Tag, TrendingUp];
-    const colors = ['bg-blue-500', 'bg-purple-500', 'bg-green-500', 'bg-orange-500'];
-    
-    return categories.map((item, index) => ({
-      name: item.category,
-      icon: icons[index % icons.length],
-      description: `Browse our selection of ${item.category.toLowerCase()}`,
-      productCount: item._count,
-      href: `/products?category=${encodeURIComponent(item.category.toLowerCase().replace(/\s+/g, '-'))}`,
-      color: colors[index % colors.length],
-    }));
-  } catch (error) {
-    console.error('Error fetching categories:', error);
-    return [];
+  if (!result.success) {
+    return { categories: [], error: result.error };
   }
+
+  const icons = [Grid3x3, Package, Tag, TrendingUp];
+  const colors = ['bg-blue-500', 'bg-purple-500', 'bg-green-500', 'bg-orange-500'];
+  
+  const categories = result.data.map((item, index) => ({
+    name: item.category,
+    icon: icons[index % icons.length],
+    description: `Browse our selection of ${item.category.toLowerCase()}`,
+    productCount: item._count,
+    href: `/products?category=${encodeURIComponent(item.category.toLowerCase().replace(/\s+/g, '-'))}`,
+    color: colors[index % colors.length],
+  }));
+
+  return { categories, error: null };
 }
 
 export async function CategoriesSection() {
-  const categories = await getCategories();
+  const { categories, error } = await getCategories();
   
+  // Show error state if there was an error
+  if (error) {
+    return (
+      <section className="py-12 sm:py-16">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="rounded-lg border border-destructive/50 bg-destructive/10 p-4">
+            <div className="flex items-center gap-2">
+              <AlertCircle className="h-5 w-5 text-destructive" />
+              <p className="text-sm text-destructive">{error}</p>
+            </div>
+          </div>
+        </div>
+      </section>
+    );
+  }
+  
+  // Don't render section if no categories
   if (categories.length === 0) return null;
   
   return (

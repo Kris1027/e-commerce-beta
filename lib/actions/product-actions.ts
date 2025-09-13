@@ -192,13 +192,22 @@ export async function updateProduct(data: z.infer<typeof updateProductSchema> & 
 
 // Get all categories with product count
 export async function getAllCategories() {
-  const data = await prisma.product.groupBy({
-    by: ['category'],
-    _count: true,
-  });
+  try {
+    const data = await prisma.product.groupBy({
+      by: ['category'],
+      _count: true,
+    });
 
-  // Don't use convertToPlainObject here as groupBy doesn't return product objects
-  return data;
+    // Don't use convertToPlainObject here as groupBy doesn't return product objects
+    return { success: true, data, error: null };
+  } catch (error) {
+    console.error('Error fetching categories:', error);
+    return { 
+      success: false, 
+      data: [], 
+      error: 'Failed to load categories. Please try refreshing the page.' 
+    };
+  }
 }
 
 // Get featured products
