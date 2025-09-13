@@ -24,6 +24,14 @@ export default async function OrdersPage({ searchParams }: OrdersPageProps) {
   const currentPage = Number(params.page) || 1;
   const { orders, totalPages, totalOrders } = await getMyOrders(currentPage);
   
+  // Pre-process orders data for better performance
+  const processedOrders = orders.map(order => ({
+    ...order,
+    formattedDate: formatDateTime(order.createdAt),
+    statusColor: getOrderStatusColor(order.status),
+    formattedStatus: formatOrderStatus(order.status),
+  }));
+  
   return (
     <div className="min-h-screen py-8">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -64,29 +72,25 @@ export default async function OrdersPage({ searchParams }: OrdersPageProps) {
         ) : (
           <>
             <div className="space-y-6">
-              {orders.map((order) => {
-                const { dateOnly, timeOnly } = formatDateTime(order.createdAt);
-                const statusColor = getOrderStatusColor(order.status);
-                
-                return (
-                  <div key={order.id} className="rounded-lg border bg-card shadow-sm hover:shadow-md transition-shadow">
-                    <div className="p-6">
-                      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-4">
-                        <div className="mb-4 lg:mb-0">
-                          <div className="flex flex-wrap items-center gap-3 mb-2">
-                            <h2 className="text-sm font-medium text-muted-foreground">
-                              Order ID
-                            </h2>
-                            <span className="text-sm font-mono break-all">
-                              {order.id}
-                            </span>
-                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${statusColor}`}>
-                              {formatOrderStatus(order.status)}
-                            </span>
-                          </div>
-                          <p className="text-sm text-muted-foreground">
-                            Placed on {dateOnly} at {timeOnly}
-                          </p>
+              {processedOrders.map((order) => (
+                <div key={order.id} className="rounded-lg border bg-card shadow-sm hover:shadow-md transition-shadow">
+                  <div className="p-6">
+                    <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-4">
+                      <div className="mb-4 lg:mb-0">
+                        <div className="flex flex-wrap items-center gap-3 mb-2">
+                          <h2 className="text-sm font-medium text-muted-foreground">
+                            Order ID
+                          </h2>
+                          <span className="text-sm font-mono break-all">
+                            {order.id}
+                          </span>
+                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${order.statusColor}`}>
+                            {order.formattedStatus}
+                          </span>
+                        </div>
+                        <p className="text-sm text-muted-foreground">
+                          Placed on {order.formattedDate.dateOnly} at {order.formattedDate.timeOnly}
+                        </p>
                         </div>
                         <Button asChild variant="outline" size="sm" className="w-full lg:w-auto">
                           <Link href={`/orders/${order.id}`}>
@@ -160,8 +164,7 @@ export default async function OrdersPage({ searchParams }: OrdersPageProps) {
                       )}
                     </div>
                   </div>
-                );
-              })}
+              ))}
             </div>
             
             {/* Pagination */}
