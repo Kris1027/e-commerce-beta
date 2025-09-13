@@ -45,6 +45,17 @@ Production-ready e-commerce template built with Next.js 15.5.2, TypeScript (stri
 - ✅ Provide user-friendly error messages
 - ✅ Never expose sensitive error details
 
+### Toast Notifications (Best Practices)
+- ✅ Position: Top-center for better visibility and UX
+- ✅ Use semantic variants for clear communication:
+  - `toast.success()` - Successful actions (green)
+  - `toast.error()` - Errors and failures (red)
+  - `toast.warning()` - Warnings and cautions (yellow)
+  - `toast.info()` - Informational messages (blue)
+- ✅ Keep messages concise and actionable
+- ✅ Include item names in messages for context (e.g., "ProductName added to cart")
+- ✅ Avoid generic messages like "Success" or "Error"
+
 ## Tech Stack & Dependencies
 
 ```json
