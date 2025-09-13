@@ -373,5 +373,89 @@ pnpm db:studio    # Prisma Studio GUI
   - "Use This Address" button for quick selection
   - Automatic navigation to payment after selection
 
+## Code Quality Standards & Recent Improvements
+
+### Localization
+- **Polish Locale Consistency**: Use `LOCALE` constant from `/lib/constants/cart.ts` for all date/time/number formatting
+  - Set to `'pl-PL'` for Polish localization
+  - Currency formatters use PLN (Polish Złoty)
+  - Date/time formatting uses 24-hour format (hour12: false)
+  - Never hardcode 'en-US' or other locales
+
+### Navigation Best Practices
+- **Avoid `router.back()`**: Use explicit routing (e.g., `router.push('/cart')`) for predictable navigation
+- **Breadcrumb Navigation**: Implement proper breadcrumb trails for category and product pages
+
+### TypeScript & Type Safety
+- **Type Guards**: Use proper type guards with safe property access
+  ```typescript
+  // Good: Safe property access in type guards
+  const obj = value as UserAddressDataCandidate;
+  typeof obj.street === 'string'
+  
+  // Avoid: Direct assertions without safety
+  const obj = value as Record<string, unknown>;
+  ```
+- **Avoid Type Assertions**: Define proper interfaces instead of using `Record<string, unknown>`
+- **Explicit Types**: Always define types for props, state, and function parameters
+
+### React Best Practices
+- **React Keys**: Never use array index as key in dynamic lists
+  ```typescript
+  // Good: Use stable, unique identifiers
+  key={item.productId}
+  key={slide.id}
+  key={image}
+  
+  // Bad: Array index can cause rendering issues
+  key={index}
+  key={`${item.productId}-${index}`}
+  ```
+- **Component Prop Types**: Avoid complex type intersections that can cause conflicts
+  ```typescript
+  // Good: Explicit, simple type definitions
+  type PaginationLinkProps = {
+    isActive?: boolean
+    size?: "default" | "sm" | "lg" | "icon"
+  } & React.ComponentProps<"a">
+  
+  // Avoid: Complex intersections
+  & Pick<React.ComponentProps<typeof Button>, "size">
+  ```
+
+### Code Organization
+- **Extract Complex Logic**: Move nested ternaries and complex conditionals to helper functions
+  ```typescript
+  // Good: Helper function for clarity
+  function getButtonText(isOutOfStock: boolean, isPending: boolean): string {
+    if (isOutOfStock) return 'Out of Stock';
+    if (isPending) return 'Adding...';
+    return 'Add to Cart';
+  }
+  
+  // Avoid: Nested ternaries
+  isOutOfStock ? 'Out of Stock' : isPending ? 'Adding...' : 'Add to Cart'
+  ```
+- **Helper Functions**: Extract repeated logic into reusable functions (e.g., `saveAddress`, `resetFormWithAddress`)
+
+### Performance Optimization
+- **Request Memoization**: Use React's `cache` function to prevent duplicate database queries
+  ```typescript
+  import { cache } from 'react';
+  const getCachedCategoryDetails = cache(getCategoryDetails);
+  ```
+- **Database Query Optimization**: Cache frequently accessed data with `unstable_cache`
+- **Avoid Duplicate Queries**: Share cached results between `generateMetadata` and page components
+
+### Error Handling Patterns
+- **Structured Error Responses**: Always return consistent error structures from server actions
+- **User-Friendly Messages**: Provide clear, actionable error messages
+- **Type-Safe JSON Parsing**: Implement safe parsers with validation for JSON fields
+
+### Testing & Validation
+- **Always Run Linting**: Execute `pnpm lint` after changes
+- **Type Checking**: Ensure no TypeScript errors with strict mode
+- **Zod Validation**: Validate all data on both client and server
+
 ---
 **Remember**: Always follow the rules above to maintain consistency. When in doubt, check existing implementations in the codebase.
