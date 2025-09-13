@@ -118,7 +118,8 @@ export default function AddressManager({ userName, onSelectAddress, selectionMod
       const data = await getUserAddresses();
       // getUserAddresses returns Address[] from Prisma
       setAddresses(data);
-    } catch {
+    } catch (error) {
+      console.error('Error loading addresses:', error);
       toast.error('Failed to load addresses');
     } finally {
       setIsLoading(false);
@@ -143,7 +144,8 @@ export default function AddressManager({ userName, onSelectAddress, selectionMod
       } else {
         toast.error(result.message);
       }
-    } catch {
+    } catch (error) {
+      console.error('Error saving address:', error);
       toast.error('Failed to save address');
     }
   };
@@ -173,7 +175,8 @@ export default function AddressManager({ userName, onSelectAddress, selectionMod
       } else {
         toast.error(result.message);
       }
-    } catch {
+    } catch (error) {
+      console.error('Error deleting address:', error);
       toast.error('Failed to delete address');
     } finally {
       setDeletingId(null);
@@ -190,7 +193,8 @@ export default function AddressManager({ userName, onSelectAddress, selectionMod
       } else {
         toast.error(result.message);
       }
-    } catch {
+    } catch (error) {
+      console.error('Error setting default address:', error);
       toast.error('Failed to set default address');
     } finally {
       setSettingDefaultId(null);

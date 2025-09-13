@@ -85,7 +85,8 @@ export default function ProfileForm({ user }: ProfileFormProps) {
       } else {
         toast.error(result.message);
       }
-    } catch {
+    } catch (error) {
+      console.error('Error updating profile:', error);
       toast.error('Failed to update profile');
     } finally {
       setIsLoading(false);
@@ -107,7 +108,8 @@ export default function ProfileForm({ user }: ProfileFormProps) {
       } else {
         toast.error(result.message);
       }
-    } catch {
+    } catch (error) {
+      console.error('Error updating password:', error);
       toast.error('Failed to update password');
     } finally {
       setIsLoading(false);

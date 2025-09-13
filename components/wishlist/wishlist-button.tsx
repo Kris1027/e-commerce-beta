@@ -30,18 +30,23 @@ export function WishlistButton({
     e.stopPropagation();
 
     startTransition(async () => {
-      const result = await toggleWishlist(productId);
-      
-      if (result.success) {
-        setIsInWishlist(result.isInWishlist);
-        toast.success(result.message);
-      } else {
-        if (result.message?.includes('sign in')) {
-          toast.error('Please sign in to use wishlist');
-          router.push('/auth/signin?callbackUrl=' + window.location.pathname);
+      try {
+        const result = await toggleWishlist(productId);
+        
+        if (result.success) {
+          setIsInWishlist(result.isInWishlist);
+          toast.success(result.message);
         } else {
-          toast.error(result.message || 'Failed to update wishlist');
+          if (result.message?.includes('sign in')) {
+            toast.error('Please sign in to use wishlist');
+            router.push('/auth/signin?callbackUrl=' + window.location.pathname);
+          } else {
+            toast.error(result.message || 'Failed to update wishlist');
+          }
         }
+      } catch (error) {
+        console.error('Error toggling wishlist:', error);
+        toast.error('Failed to update wishlist');
       }
     });
   };
