@@ -347,7 +347,17 @@ pnpm db:studio    # Prisma Studio GUI
 ```
 
 ## Recent Updates
-- **Navigation UI Improvements** (Latest):
+- **Cart UI/UX Improvements** (Latest):
+  - Replaced all cart buttons with shadcn Button components for consistency
+  - Fixed cursor-pointer on all interactive elements (remove, quantity, close buttons)
+  - Added proper padding to cart drawer (px-6 for content sections)
+  - Improved cart drawer layout with better spacing
+  - Replaced custom buttons in cart-client page with shadcn Button
+  - Replaced quantity input with shadcn Input component
+  - Added cursor-pointer to Sheet close button
+  - Improved free shipping notification with better styling
+  - All cart actions now use proper shadcn components with consistent hover states
+- **Navigation UI Improvements**:
   - Replaced cart button with shadcn Button component (variant="ghost")
   - Replaced user profile button with shadcn Button component and Lucide User icon
   - Added cursor-pointer to all navigation interactive elements
