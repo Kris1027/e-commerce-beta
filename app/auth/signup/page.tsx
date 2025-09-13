@@ -5,7 +5,7 @@ import { useFormStatus } from 'react-dom';
 import { signUpAction } from '@/lib/actions/auth-actions';
 import Link from 'next/link';
 import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { toast } from 'sonner';
 
 function SubmitButton() {
@@ -25,16 +25,18 @@ function SubmitButton() {
 export default function SignUpPage() {
   const [state, formAction] = useActionState(signUpAction, null);
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const callbackUrl = searchParams.get('callbackUrl') || '/dashboard';
 
   useEffect(() => {
     if (state?.success) {
       toast.success('Account created successfully! Welcome aboard!');
-      router.push('/dashboard');
+      router.push(callbackUrl);
       router.refresh();
     } else if (state?.error) {
       toast.error(state.error);
     }
-  }, [state, router]);
+  }, [state, router, callbackUrl]);
 
   return (
     <div className="w-full max-w-md mx-auto">
@@ -46,7 +48,7 @@ export default function SignUpPage() {
           <p className="mt-2 text-center text-sm text-muted-foreground">
             Or{' '}
             <Link
-              href="/auth/signin"
+              href={`/auth/signin${callbackUrl !== '/dashboard' ? `?callbackUrl=${encodeURIComponent(callbackUrl)}` : ''}`}
               className="font-medium text-primary hover:text-primary/80"
             >
               sign in to existing account
@@ -55,6 +57,7 @@ export default function SignUpPage() {
         </div>
         
         <form className="mt-8 space-y-6" action={formAction}>
+          <input type="hidden" name="callbackUrl" value={callbackUrl} />
           <div className="space-y-4">
             <div>
               <label htmlFor="name" className="block text-sm font-medium">

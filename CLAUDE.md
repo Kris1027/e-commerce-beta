@@ -345,7 +345,13 @@ pnpm db:studio    # Prisma Studio GUI
 ```
 
 ## Recent Updates
-- **Code Quality Improvements** (Latest):
+- **Authentication Redirect Fix** (Latest):
+  - Fixed checkout flow to properly redirect back to checkout after login instead of profile page
+  - Sign-in and sign-up pages now read and respect `callbackUrl` from URL search params
+  - Maintains callback URL when switching between sign-in and sign-up pages
+  - Defaults to `/dashboard` when no callback URL is specified
+  - Middleware already correctly sets `callbackUrl` for protected routes
+- **Code Quality Improvements**:
   - Fixed all catch blocks to include error parameter for proper error handling
   - Added comprehensive error logging with console.error throughout the codebase
   - Removed password validation duplication in profile-form.tsx (now uses centralized constants)
