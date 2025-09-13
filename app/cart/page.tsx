@@ -8,6 +8,8 @@ export const metadata: Metadata = {
   description: 'View and manage your shopping cart',
 };
 
+export const dynamic = 'force-dynamic';
+
 export default async function CartPage() {
   const [cart, session] = await Promise.all([
     getCart(),

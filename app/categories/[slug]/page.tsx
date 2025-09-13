@@ -16,6 +16,8 @@ import {
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb';
 
+export const dynamic = 'force-dynamic';
+
 // Memoize getCategoryDetails for the request lifecycle
 const getCachedCategoryDetails = cache(getCategoryDetails);
 

@@ -3,6 +3,8 @@ import { getAllProducts } from '@/lib/actions/product-actions';
 import { getWishlistProductIds } from '@/lib/actions/wishlist-actions';
 import { PaginationWrapper } from '@/components/ui/pagination-wrapper';
 
+export const dynamic = 'force-dynamic';
+
 interface ProductsPageProps {
   searchParams: Promise<{
     page?: string;
