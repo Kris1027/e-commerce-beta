@@ -115,14 +115,20 @@ export default function AddressManager({ userName, onSelectAddress, selectionMod
     }
   };
 
+  // Helper function to handle create vs update logic
+  const saveAddress = async (
+    existingAddress: Address | null, 
+    data: AddressFormData
+  ) => {
+    if (existingAddress) {
+      return await updateAddress(existingAddress.id, data);
+    }
+    return await addAddress(data);
+  };
+
   const onSubmit = async (data: AddressFormData) => {
     try {
-      let result;
-      if (editingAddress) {
-        result = await updateAddress(editingAddress.id, data);
-      } else {
-        result = await addAddress(data);
-      }
+      const result = await saveAddress(editingAddress, data);
 
       if (result.success) {
         toast.success(result.message);
@@ -139,25 +145,52 @@ export default function AddressManager({ userName, onSelectAddress, selectionMod
     }
   };
 
+  // Helper function to reset form with address data
+  const resetFormWithAddress = (address: Address | null) => {
+    if (address) {
+      form.reset({
+        fullName: address.fullName,
+        street: address.street,
+        city: address.city,
+        state: address.state,
+        zipCode: address.zipCode,
+        country: address.country,
+        phone: address.phone,
+        label: address.label || undefined,
+      });
+    } else {
+      form.reset({
+        fullName: userName || '',
+        street: '',
+        city: '',
+        state: '',
+        zipCode: '',
+        country: SHIPPING_CONFIG.DEFAULT_COUNTRY,
+        phone: '',
+        label: 'home',
+      });
+    }
+  };
+
   const handleEdit = (address: Address) => {
     setEditingAddress(address);
-    form.reset({
-      fullName: address.fullName,
-      street: address.street,
-      city: address.city,
-      state: address.state,
-      zipCode: address.zipCode,
-      country: address.country,
-      phone: address.phone,
-      label: address.label || undefined,
-    });
+    resetFormWithAddress(address);
     setIsDialogOpen(true);
   };
 
-  const handleDelete = async (id: string) => {
-    setDeletingId(id);
+  // Generic handler for address operations with consistent error handling
+  const handleAddressOperation = async (
+    operation: () => Promise<{ success: boolean; message: string }>,
+    errorMessage: string,
+    setLoadingState?: (value: string | null) => void,
+    operationId?: string
+  ) => {
+    if (setLoadingState && operationId) {
+      setLoadingState(operationId);
+    }
+    
     try {
-      const result = await deleteAddress(id);
+      const result = await operation();
       if (result.success) {
         toast.success(result.message);
         loadAddresses();
@@ -165,29 +198,31 @@ export default function AddressManager({ userName, onSelectAddress, selectionMod
         toast.error(result.message);
       }
     } catch (error) {
-      console.error('Error deleting address:', error);
-      toast.error('Failed to delete address');
+      console.error(errorMessage, error);
+      toast.error(errorMessage);
     } finally {
-      setDeletingId(null);
+      if (setLoadingState) {
+        setLoadingState(null);
+      }
     }
   };
 
+  const handleDelete = async (id: string) => {
+    await handleAddressOperation(
+      () => deleteAddress(id),
+      'Failed to delete address',
+      setDeletingId,
+      id
+    );
+  };
+
   const handleSetDefault = async (id: string) => {
-    setSettingDefaultId(id);
-    try {
-      const result = await setDefaultAddress(id);
-      if (result.success) {
-        toast.success(result.message);
-        loadAddresses();
-      } else {
-        toast.error(result.message);
-      }
-    } catch (error) {
-      console.error('Error setting default address:', error);
-      toast.error('Failed to set default address');
-    } finally {
-      setSettingDefaultId(null);
-    }
+    await handleAddressOperation(
+      () => setDefaultAddress(id),
+      'Failed to set default address',
+      setSettingDefaultId,
+      id
+    );
   };
 
   const getLabelIcon = (label?: string | null) => {
@@ -223,16 +258,7 @@ export default function AddressManager({ userName, onSelectAddress, selectionMod
             <Button 
               onClick={() => {
                 setEditingAddress(null);
-                form.reset({
-                  fullName: userName || '',
-                  street: '',
-                  city: '',
-                  state: '',
-                  zipCode: '',
-                  country: SHIPPING_CONFIG.DEFAULT_COUNTRY,
-                  phone: '',
-                  label: 'home',
-                });
+                resetFormWithAddress(null);
               }}
             >
               <Plus className="mr-2 h-4 w-4" />
