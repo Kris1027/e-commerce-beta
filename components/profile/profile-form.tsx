@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { updateUserSchema } from '@/lib/validators';
+import { updateUserSchema, PASSWORD_REGEX, PASSWORD_ERROR_MESSAGE, PASSWORD_REQUIREMENTS } from '@/lib/validators';
 import { updateProfile } from '@/lib/actions/user-actions';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -20,14 +20,11 @@ import AddressManager from '@/components/profile/address-manager';
 const profileSchema = updateUserSchema.pick({ email: true });
 
 const passwordSchema = z.object({
-  currentPassword: z.string().min(8, 'Password must be at least 8 characters'),
+  currentPassword: z.string().min(PASSWORD_REQUIREMENTS.MIN_LENGTH, `Password must be at least ${PASSWORD_REQUIREMENTS.MIN_LENGTH} characters`),
   newPassword: z.string()
-    .min(8, 'Password must be at least 8 characters')
-    .refine(
-      (val) => /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(val),
-      'Password must contain at least one uppercase letter, one lowercase letter, and one number'
-    ),
-  confirmPassword: z.string().min(8, 'Password must be at least 8 characters'),
+    .min(PASSWORD_REQUIREMENTS.MIN_LENGTH, `Password must be at least ${PASSWORD_REQUIREMENTS.MIN_LENGTH} characters`)
+    .regex(PASSWORD_REGEX, PASSWORD_ERROR_MESSAGE),
+  confirmPassword: z.string().min(PASSWORD_REQUIREMENTS.MIN_LENGTH, `Password must be at least ${PASSWORD_REQUIREMENTS.MIN_LENGTH} characters`),
 }).refine((data) => data.newPassword === data.confirmPassword, {
   message: 'Passwords do not match',
   path: ['confirmPassword'],

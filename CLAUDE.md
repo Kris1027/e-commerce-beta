@@ -38,7 +38,8 @@ Production-ready e-commerce template built with Next.js 15.5.2, TypeScript (stri
 
 ### Error Handling
 - ✅ Use try-catch for all async operations
-- ✅ Include error parameter in catch blocks
+- ✅ ALWAYS include error parameter in catch blocks (use `catch (error)` not `catch`)
+- ✅ Log errors with console.error for debugging
 - ✅ Provide user-friendly error messages
 - ✅ Never expose sensitive error details
 
@@ -297,14 +298,15 @@ const result = await prisma.$transaction(async (tx) => {
 - [ ] Run `pnpm lint` - must pass
 - [ ] Run `pnpm build` - must succeed
 - [ ] Run `pnpm prisma generate` after schema changes
-- [ ] No console.log statements
+- [ ] No console.log statements (use console.error for error logging)
 - [ ] TypeScript types defined (avoid `any`, use `unknown` if needed)
 - [ ] Use dot notation for object properties (not bracket notation)
 - [ ] Use types from validators.ts for consistency
 - [ ] Zod validation in place
-- [ ] Error handling implemented (use catch without error param if unused)
+- [ ] Error handling implemented (ALWAYS use `catch (error)`, never just `catch`)
 - [ ] Polish formatting for addresses/phones
 - [ ] All pages with lists have shadcn pagination
+- [ ] No duplicate validation logic (use centralized constants)
 
 ## Environment Variables
 ```env
@@ -337,10 +339,17 @@ pnpm db:studio    # Prisma Studio GUI
 ```
 
 ## Recent Updates
+- **Code Quality Improvements** (Latest):
+  - Fixed all catch blocks to include error parameter for proper error handling
+  - Added comprehensive error logging with console.error throughout the codebase
+  - Removed password validation duplication in profile-form.tsx (now uses centralized constants)
+  - Simplified empty check in formatPhoneNumber using optional chaining
+  - Added try-catch blocks to async functions that were missing error handling
 - **Password Validation**: Made password requirements configurable through `PASSWORD_REQUIREMENTS` constant
   - Easily adjustable minimum length, uppercase, lowercase, number, and special character requirements
   - Dynamic regex and error message generation based on configuration
   - Maintains backward compatibility with existing 8-character minimum and current requirements
+  - All password validations now use centralized constants (no duplication)
 - **Profile Management**: Full name is now read-only in profile (contact support for changes)
 - **Multiple Addresses**: Users can manage multiple shipping addresses with labels
 - **Address Features**: Add, edit, delete, and set default shipping addresses
