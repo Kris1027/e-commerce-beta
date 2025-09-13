@@ -8,6 +8,7 @@ import { z } from 'zod';
 import { toast } from 'sonner';
 import { shippingAddressSchema } from '@/lib/validators';
 import { saveShippingAddress } from '@/lib/actions/checkout-actions';
+import { SHIPPING_CONFIG } from '@/lib/constants/cart';
 import { ArrowRight } from 'lucide-react';
 
 type ShippingAddressFormData = z.infer<typeof shippingAddressSchema>;
@@ -36,7 +37,7 @@ export function ShippingAddressForm({
       city: '',
       state: '',
       zipCode: '',
-      country: 'Poland',
+      country: SHIPPING_CONFIG.DEFAULT_COUNTRY,
       phone: '',
     },
   });
@@ -145,12 +146,12 @@ export function ShippingAddressForm({
               Country
             </label>
             <div className="w-full rounded-md border border-input bg-muted px-3 py-2 text-sm">
-              Poland
+              {SHIPPING_CONFIG.DEFAULT_COUNTRY}
             </div>
             <input
               {...register('country')}
               type="hidden"
-              value="Poland"
+              value={SHIPPING_CONFIG.DEFAULT_COUNTRY}
             />
           </div>
 

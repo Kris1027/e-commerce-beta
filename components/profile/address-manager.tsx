@@ -5,6 +5,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { shippingAddressSchema } from '@/lib/validators';
+import { SHIPPING_CONFIG } from '@/lib/constants/cart';
 import { 
   getUserAddresses, 
   addAddress, 
@@ -102,7 +103,7 @@ export default function AddressManager({ userName, onSelectAddress, selectionMod
       city: '',
       state: '',
       zipCode: '',
-      country: 'Poland',
+      country: SHIPPING_CONFIG.DEFAULT_COUNTRY,
       phone: '',
       label: 'home',
     },
@@ -240,7 +241,7 @@ export default function AddressManager({ userName, onSelectAddress, selectionMod
                   city: '',
                   state: '',
                   zipCode: '',
-                  country: 'Poland',
+                  country: SHIPPING_CONFIG.DEFAULT_COUNTRY,
                   phone: '',
                   label: 'home',
                 });
@@ -349,7 +350,7 @@ export default function AddressManager({ userName, onSelectAddress, selectionMod
                   <Input
                     id="country"
                     {...form.register('country')}
-                    value="Poland"
+                    value={SHIPPING_CONFIG.DEFAULT_COUNTRY}
                     disabled
                     className="bg-muted"
                   />
@@ -404,7 +405,7 @@ export default function AddressManager({ userName, onSelectAddress, selectionMod
                   city: '',
                   state: '',
                   zipCode: '',
-                  country: 'Poland',
+                  country: SHIPPING_CONFIG.DEFAULT_COUNTRY,
                   phone: '',
                   label: 'home',
                 });
