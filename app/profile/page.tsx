@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation';
 import { auth } from '@/auth';
-import { getCurrentUser, getOrderStats } from '@/lib/actions/user-actions';
+import * as userActions from '@/lib/actions/user-actions';
 import { getWishlistCount } from '@/lib/actions/wishlist-actions';
 import ProfileForm from '@/components/profile/profile-form';
 import { Package, Truck, CheckCircle, Clock, Ban, CreditCard, Heart } from 'lucide-react';
@@ -14,15 +14,17 @@ export default async function ProfilePage() {
     redirect('/auth/signin');
   }
   
-  const [user, stats, wishlistCount] = await Promise.all([
-    getCurrentUser(),
-    getOrderStats(),
+  const userResult = await userActions.getCurrentUser();
+  const [stats, wishlistCount] = await Promise.all([
+    userActions.getOrderStats(),
     getWishlistCount(),
   ]);
   
-  if (!user) {
+  if (!userResult || !userResult.success || !userResult.data) {
     redirect('/auth/signin');
   }
+  
+  const user = userResult.data;
   
   return (
     <div className="min-h-screen py-8">

@@ -8,6 +8,8 @@ import bcrypt from 'bcryptjs';
 import { z } from 'zod';
 import { shippingAddressSchema, PASSWORD_REGEX, PASSWORD_ERROR_MESSAGE } from '@/lib/validators';
 import { ORDERS_PER_PAGE } from '@/lib/constants/cart';
+import { ActionResult, ListResult, createListErrorResult, createErrorResult } from '@/lib/types/action-results';
+import type { Address } from '@prisma/client';
 
 export interface OrderItemPreview {
   productId: string;
@@ -192,12 +194,21 @@ export async function getMyOrders(page: number = 1): Promise<PaginatedOrders> {
   }
 }
 
-export async function getCurrentUser() {
+export async function getCurrentUser(): Promise<ActionResult<{
+  id: string;
+  name: string | null;
+  email: string | null;
+  image: string | null;
+  role: string;
+  address: unknown;
+  paymentMethod: string | null;
+  createdAt: Date;
+} | null>> {
   try {
     const session = await auth();
     
     if (!session?.user?.id) {
-      return null;
+      return { success: true, data: null };
     }
     
     const user = await prisma.user.findUnique({
@@ -216,20 +227,20 @@ export async function getCurrentUser() {
       },
     });
     
-    return user;
+    return { success: true, data: user };
   } catch (error) {
     console.error('Error fetching current user:', error);
-    return null;
+    return createErrorResult('Failed to load user profile. Please try again.');
   }
 }
 
 // Address-related actions
-export async function getUserAddresses() {
+export async function getUserAddresses(): Promise<ListResult<Address>> {
   try {
     const session = await auth();
     
     if (!session?.user?.id) {
-      return [];
+      return { success: true, data: [] };
     }
     
     const addresses = await prisma.address.findMany({
@@ -242,10 +253,10 @@ export async function getUserAddresses() {
       ],
     });
     
-    return addresses;
+    return { success: true, data: addresses };
   } catch (error) {
     console.error('Error fetching addresses:', error);
-    return [];
+    return createListErrorResult('Failed to load addresses. Please try again.');
   }
 }
 

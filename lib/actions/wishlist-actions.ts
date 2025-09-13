@@ -3,12 +3,15 @@
 import { auth } from '@/auth';
 import prisma from '@/db/prisma';
 import { revalidatePath } from 'next/cache';
+import { ListResult, createListErrorResult } from '@/lib/types/action-results';
+import { WishlistItem } from '@/lib/validators';
 
-export async function getWishlist() {
+export async function getWishlist(): Promise<ListResult<WishlistItem>> {
   try {
     const session = await auth();
     if (!session?.user?.id) {
-      return [];
+      // Return empty list for non-authenticated users (not an error)
+      return { success: true, data: [] };
     }
 
     const wishlistItems = await prisma.wishlist.findMany({
@@ -23,7 +26,7 @@ export async function getWishlist() {
       },
     });
 
-    return wishlistItems.map(item => ({
+    const formattedItems = wishlistItems.map(item => ({
       id: item.id,
       userId: item.userId,
       productId: item.productId,
@@ -41,9 +44,11 @@ export async function getWishlist() {
       },
       createdAt: item.createdAt,
     }));
+
+    return { success: true, data: formattedItems };
   } catch (error) {
     console.error('Error fetching wishlist:', error);
-    return [];
+    return createListErrorResult('Failed to load wishlist. Please try again later.');
   }
 }
 

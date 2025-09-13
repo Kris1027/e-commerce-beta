@@ -30,6 +30,7 @@ import {
   Star,
   Check
 } from 'lucide-react';
+import type { Address } from '@prisma/client';
 import {
   Dialog,
   DialogContent,
@@ -64,22 +65,6 @@ const addressFormSchema = shippingAddressSchema.extend({
 });
 
 type AddressFormData = z.infer<typeof addressFormSchema>;
-
-interface Address {
-  id: string;
-  userId: string;
-  fullName: string;
-  street: string;
-  city: string;
-  state: string;
-  zipCode: string;
-  country: string;
-  phone: string;
-  isDefault: boolean;
-  label?: string | null;
-  createdAt: Date;
-  updatedAt: Date;
-}
 
 interface AddressManagerProps {
   userName: string;
@@ -116,8 +101,12 @@ export default function AddressManager({ userName, onSelectAddress, selectionMod
   const loadAddresses = async () => {
     setIsLoading(true);
     try {
-      const data = await getUserAddresses();
-      setAddresses(data);
+      const result = await getUserAddresses();
+      if (result.success) {
+        setAddresses(result.data);
+      } else {
+        toast.error(result.error);
+      }
     } catch (error) {
       console.error('Error loading addresses:', error);
       toast.error('Failed to load addresses');
