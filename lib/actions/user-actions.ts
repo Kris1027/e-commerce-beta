@@ -55,14 +55,37 @@ export interface PaginatedOrders {
 }
 
 // Type for user address data stored in JSON field
-type UserAddressData = {
+interface UserAddressData {
   street: string;
   city: string;
   state: string;
   zipCode: string;
   country: string;
   phone?: string;
-};
+}
+
+// Type guard to validate if an unknown value is UserAddressData
+function isUserAddressData(value: unknown): value is UserAddressData {
+  if (!value || typeof value !== 'object') return false;
+  
+  const obj = value as Record<string, unknown>;
+  return (
+    typeof obj['street'] === 'string' &&
+    typeof obj['city'] === 'string' &&
+    typeof obj['state'] === 'string' &&
+    typeof obj['zipCode'] === 'string' &&
+    typeof obj['country'] === 'string' &&
+    (obj['phone'] === undefined || typeof obj['phone'] === 'string')
+  );
+}
+
+// Safe parser for user address JSON data
+function parseUserAddress(value: unknown): UserAddressData | null {
+  if (isUserAddressData(value)) {
+    return value;
+  }
+  return null;
+}
 
 // Interface for updateProfile function
 interface UpdateData {
@@ -498,21 +521,31 @@ export async function updateProfile(data: UpdateProfileData) {
         select: { address: true },
       });
       
-      const currentAddress = currentUser?.address ? (currentUser.address as Record<string, unknown>) : {};
+      // Safely parse the current address data
+      const currentAddress = parseUserAddress(currentUser?.address);
+      
+      // Build the new address object with type safety
+      const baseAddress: UserAddressData = currentAddress || {
+        street: '',
+        city: '',
+        state: '',
+        zipCode: '',
+        country: 'Poland', // Default to Poland as per localization
+      };
       
       if (validatedData.data.address) {
         updateData.address = {
-          ...currentAddress,
+          ...baseAddress,
           ...validatedData.data.address,
         };
       }
       
       if (validatedData.data.phone) {
         updateData.address = {
-          ...currentAddress,
+          ...baseAddress,
           ...(updateData.address || {}),
           phone: validatedData.data.phone,
-        } as UserAddressData;
+        };
       }
     }
     
