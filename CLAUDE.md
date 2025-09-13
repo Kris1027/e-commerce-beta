@@ -347,7 +347,23 @@ pnpm db:studio    # Prisma Studio GUI
 ```
 
 ## Recent Updates
-- **Cart UI/UX Improvements** (Latest):
+- **Mobile Menu Navigation Fix** (Latest):
+  - Fixed Sign In/Sign Up links to point to correct auth routes (/auth/signin and /auth/signup)
+  - Fixed My Account link to point to /dashboard instead of non-existent /account
+  - Added Profile link to mobile menu for consistency
+  - Removed non-existent support links (contact, shipping, returns, FAQ)
+  - Replaced custom hamburger button with shadcn Button component
+  - Added Lucide Menu icon for consistency
+  - Added cursor-pointer to all interactive elements
+  - Cleaned up navigation structure to only show existing pages
+- **Dashboard UI Enhancement**:
+  - Added Shopping Cart card to dashboard for quick access
+  - Dashboard now has 4 balanced cards: My Orders, Wishlist, Shopping Cart, and Profile & Addresses
+  - Removed duplicate Address Manager card from dashboard
+  - Fixed incorrect link to non-existent /addresses route
+  - Address management is now only accessible through Profile page (Address tab)
+  - Improved dashboard layout for better UX with symmetrical 4-card grid
+- **Cart UI/UX Improvements**:
   - Replaced all cart buttons with shadcn Button components for consistency
   - Fixed cursor-pointer on all interactive elements (remove, quantity, close buttons)
   - Added proper padding to cart drawer (px-6 for content sections)
