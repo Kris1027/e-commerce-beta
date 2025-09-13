@@ -4,7 +4,7 @@ import { auth } from '@/auth';
 import { getMyOrders } from '@/lib/actions/user-actions';
 import { formatCurrency, formatDateTime, formatOrderStatus, getOrderStatusColor } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import PaginationWrapper from '@/components/ui/pagination-wrapper';
+import { PaginationWrapper } from '@/components/ui/pagination-wrapper';
 import { Package, ShoppingBag } from 'lucide-react';
 
 interface OrdersPageProps {

@@ -1,7 +1,7 @@
 import { ProductList } from '@/components/products/product-list';
 import { getAllProducts } from '@/lib/actions/product-actions';
 import { getWishlistProductIds } from '@/lib/actions/wishlist-actions';
-import PaginationWrapper from '@/components/ui/pagination-wrapper';
+import { PaginationWrapper } from '@/components/ui/pagination-wrapper';
 
 interface ProductsPageProps {
   searchParams: Promise<{

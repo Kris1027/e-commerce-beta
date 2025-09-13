@@ -19,7 +19,7 @@ interface PaginationWrapperProps {
   className?: string;
 }
 
-export default function PaginationWrapper({
+export function PaginationWrapper({
   currentPage,
   totalPages,
   baseUrl,

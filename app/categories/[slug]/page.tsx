@@ -5,7 +5,7 @@ import { getCategoryDetails, getProductsByCategory } from '@/lib/actions/categor
 import { getWishlistProductIds } from '@/lib/actions/wishlist-actions';
 import { ProductList } from '@/components/products/product-list';
 import { Button } from '@/components/ui/button';
-import PaginationWrapper from '@/components/ui/pagination-wrapper';
+import { PaginationWrapper } from '@/components/ui/pagination-wrapper';
 import {
   Breadcrumb,
   BreadcrumbItem,

@@ -117,7 +117,6 @@ export default function AddressManager({ userName, onSelectAddress, selectionMod
     setIsLoading(true);
     try {
       const data = await getUserAddresses();
-      // getUserAddresses returns Address[] from Prisma
       setAddresses(data);
     } catch (error) {
       console.error('Error loading addresses:', error);
