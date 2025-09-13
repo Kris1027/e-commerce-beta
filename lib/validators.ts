@@ -52,12 +52,14 @@ const buildPasswordErrorMessage = () => {
     return `Password must be at least ${PASSWORD_REQUIREMENTS.MIN_LENGTH} characters`;
   }
   
-  const lastRequirement = requirements.pop();
-  const message = requirements.length > 0
-    ? `Password must contain at least ${requirements.join(', ')}, and ${lastRequirement}`
-    : `Password must contain at least ${lastRequirement}`;
+  if (requirements.length === 1) {
+    return `Password must contain at least ${requirements[0]}`;
+  }
   
-  return message;
+  const lastRequirement = requirements[requirements.length - 1];
+  const otherRequirements = requirements.slice(0, -1);
+  
+  return `Password must contain at least ${otherRequirements.join(', ')}, and ${lastRequirement}`;
 };
 
 // Password validation regex and error message
