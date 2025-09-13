@@ -92,8 +92,8 @@ export default async function OrdersPage({ searchParams }: OrdersPageProps) {
                       </div>
                       
                       <div className="space-y-3 mb-4">
-                        {order.orderitems.map((item, index) => (
-                          <div key={`${item.productId}-${index}`} className="flex justify-between items-start">
+                        {order.orderitems.map((item) => (
+                          <div key={item.productId} className="flex justify-between items-start">
                             <div className="flex-1">
                               <p className="font-medium text-sm">{item.name}</p>
                               <p className="text-sm text-muted-foreground">

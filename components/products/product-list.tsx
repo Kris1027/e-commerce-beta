@@ -37,9 +37,9 @@ export function ProductList({
 
   return (
     <div className={cn('grid gap-6', gridCols[columns], className)}>
-      {products.map((product, index) => (
+      {products.map((product) => (
         <ProductCard 
-          key={product.id || `${product.slug}-${index}`} 
+          key={product.id} 
           product={product}
           isInWishlist={wishlistProductIds.includes(product.id)}
         />

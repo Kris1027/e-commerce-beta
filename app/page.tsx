@@ -33,10 +33,10 @@ export default async function Home() {
         <section className="bg-muted/50 py-12">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
-              {storeConfig.trustBadges.map((badge, index) => {
+              {storeConfig.trustBadges.map((badge) => {
                 const IconComponent = Icons[badge.icon as keyof typeof Icons] as React.ComponentType<{ className?: string }>;
                 return (
-                  <div key={index} className="text-center">
+                  <div key={badge.title} className="text-center">
                     <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
                       {IconComponent && <IconComponent className="h-6 w-6 text-primary" />}
                     </div>
