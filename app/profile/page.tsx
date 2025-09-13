@@ -6,6 +6,7 @@ import ProfileForm from '@/components/profile/profile-form';
 import { Package, Truck, CheckCircle, Clock, Ban, CreditCard, Heart } from 'lucide-react';
 import Link from 'next/link';
 import { formatCurrency } from '@/lib/utils';
+import { LOCALE } from '@/lib/constants/cart';
 
 export default async function ProfilePage() {
   const session = await auth();
@@ -152,7 +153,7 @@ export default async function ProfilePage() {
                 <div>
                   <p className="text-sm text-muted-foreground">Member Since</p>
                   <p className="font-medium">
-                    {new Date(user.createdAt).toLocaleDateString('en-US', {
+                    {new Date(user.createdAt).toLocaleDateString(LOCALE, {
                       year: 'numeric',
                       month: 'long',
                       day: 'numeric',

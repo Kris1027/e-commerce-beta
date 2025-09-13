@@ -331,6 +331,8 @@ AUTH_SECRET="[generate with: openssl rand -base64 32]"
 - Phone format: +48 XXX-XXX-XXX (with formatPhoneNumber utility)
 - Currency: PLN (Polish Złoty)
 - VAT rate: 23%
+- Date/time locale: pl-PL (24-hour format, Polish month names)
+- LOCALE constant available in `/lib/constants/cart.ts`
 
 ## Commands
 ```bash

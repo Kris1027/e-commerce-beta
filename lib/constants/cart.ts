@@ -17,6 +17,9 @@ export const SHIPPING_CONFIG = {
   VOIVODESHIP_LABEL: 'Voivodeship', // Polish equivalent of State/Province
 } as const;
 
+// Localization
+export const LOCALE = 'pl-PL'; // Polish locale for date and number formatting
+
 // Wishlist configuration
 export const WISHLIST_CONFIG = {
   REMOVE_ON_ADD_TO_CART: true, // Set to false to keep items in wishlist after adding to cart
