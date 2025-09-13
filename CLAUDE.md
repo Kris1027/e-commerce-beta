@@ -26,6 +26,8 @@ Production-ready e-commerce template built with Next.js 15.5.2, TypeScript (stri
 - ✅ Extract magic numbers to constants
 - ✅ Always add `cursor-pointer` class to interactive elements
 - ✅ Use onBlur instead of onChange for inputs that trigger API calls
+- ✅ ALWAYS use shadcn/ui components (Button, Input, Select, Checkbox, etc.) instead of custom HTML elements
+- ✅ All shadcn interactive components have cursor-pointer added by default
 
 ### Security & Performance
 - ✅ Validate all data with Zod schemas on client AND server
@@ -345,7 +347,15 @@ pnpm db:studio    # Prisma Studio GUI
 ```
 
 ## Recent Updates
-- **Authentication Redirect Fix** (Latest):
+- **UI Component Standardization** (Latest):
+  - Added cursor-pointer to all interactive shadcn components (Button, Select, Input, Radio, Tabs, Checkbox)
+  - Replaced custom button implementations with shadcn Button component in auth pages and error page
+  - Replaced custom input fields with shadcn Input component in auth pages
+  - Replaced custom checkboxes with shadcn Checkbox component
+  - Added shadcn Checkbox component to the project
+  - Improved consistency across the application by using shadcn components
+  - All interactive elements now have proper cursor styles and disabled states
+- **Authentication Redirect Fix**:
   - Fixed checkout flow to properly redirect back to checkout after login instead of profile page
   - Sign-in and sign-up pages now read and respect `callbackUrl` from URL search params
   - Maintains callback URL when switching between sign-in and sign-up pages

@@ -7,18 +7,22 @@ import Link from 'next/link';
 import { useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { toast } from 'sonner';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Checkbox } from '@/components/ui/checkbox';
 
 function SubmitButton() {
   const { pending } = useFormStatus();
 
   return (
-    <button
+    <Button
       type="submit"
       disabled={pending}
-      className="w-full bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 rounded-md font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+      className="w-full"
     >
       {pending ? 'Signing in...' : 'Sign In'}
-    </button>
+    </Button>
   );
 }
 
@@ -60,47 +64,45 @@ export default function SignInPage() {
           <input type="hidden" name="callbackUrl" value={callbackUrl} />
           <div className="space-y-4">
             <div>
-              <label htmlFor="email" className="block text-sm font-medium">
+              <Label htmlFor="email">
                 Email address
-              </label>
-              <input
+              </Label>
+              <Input
                 id="email"
                 name="email"
                 type="email"
                 autoComplete="email"
                 required
-                className="mt-1 block w-full rounded-md border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+                className="mt-1"
                 placeholder="Enter your email"
               />
             </div>
             
             <div>
-              <label htmlFor="password" className="block text-sm font-medium">
+              <Label htmlFor="password">
                 Password
-              </label>
-              <input
+              </Label>
+              <Input
                 id="password"
                 name="password"
                 type="password"
                 autoComplete="current-password"
                 required
-                className="mt-1 block w-full rounded-md border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+                className="mt-1"
                 placeholder="Enter your password"
               />
             </div>
           </div>
 
           <div className="flex items-center justify-between">
-            <div className="flex items-center">
-              <input
+            <div className="flex items-center space-x-2">
+              <Checkbox
                 id="remember-me"
                 name="remember-me"
-                type="checkbox"
-                className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
               />
-              <label htmlFor="remember-me" className="ml-2 block text-sm">
+              <Label htmlFor="remember-me" className="text-sm font-normal cursor-pointer">
                 Remember me
-              </label>
+              </Label>
             </div>
 
             <div className="text-sm">
