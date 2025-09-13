@@ -2,7 +2,7 @@ import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { auth } from '@/auth';
 import { getMyOrders } from '@/lib/actions/user-actions';
-import { formatCurrency, formatDateTime, formatOrderStatus, getOrderStatusColor } from '@/lib/utils';
+import { formatCurrency } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { PaginationWrapper } from '@/components/ui/pagination-wrapper';
 import { Package, ShoppingBag } from 'lucide-react';
@@ -23,14 +23,6 @@ export default async function OrdersPage({ searchParams }: OrdersPageProps) {
   const params = await searchParams;
   const currentPage = Number(params.page) || 1;
   const { orders, totalPages, totalOrders } = await getMyOrders(currentPage);
-  
-  // Pre-process orders data for better performance
-  const processedOrders = orders.map(order => ({
-    ...order,
-    formattedDate: formatDateTime(order.createdAt),
-    statusColor: getOrderStatusColor(order.status),
-    formattedStatus: formatOrderStatus(order.status),
-  }));
   
   return (
     <div className="min-h-screen py-8">
@@ -72,7 +64,7 @@ export default async function OrdersPage({ searchParams }: OrdersPageProps) {
         ) : (
           <>
             <div className="space-y-6">
-              {processedOrders.map((order) => (
+              {orders.map((order) => (
                 <div key={order.id} className="rounded-lg border bg-card shadow-sm hover:shadow-md transition-shadow">
                   <div className="p-6">
                     <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-4">

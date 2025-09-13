@@ -2,7 +2,7 @@
 
 import { auth } from '@/auth';
 import prisma from '@/db/prisma';
-import { formatNumberWithDecimal } from '@/lib/utils';
+import { formatNumberWithDecimal, formatDateTime, formatOrderStatus, getOrderStatusColor } from '@/lib/utils';
 import { revalidatePath } from 'next/cache';
 import bcrypt from 'bcryptjs';
 import { z } from 'zod';
@@ -40,6 +40,10 @@ export interface OrderWithItems {
   createdAt: Date;
   updatedAt: Date;
   orderitems: OrderItemPreview[];
+  // Pre-processed fields for performance
+  formattedDate: ReturnType<typeof formatDateTime>;
+  statusColor: string;
+  formattedStatus: string;
 }
 
 export interface PaginatedOrders {
@@ -161,7 +165,7 @@ export async function getMyOrders(page: number = 1): Promise<PaginatedOrders> {
       take: ORDERS_PER_PAGE,
     });
     
-    // Convert decimal fields to strings
+    // Convert decimal fields to strings and pre-process for performance
     const formattedOrders = orders.map(order => ({
       ...order,
       itemsPrice: formatNumberWithDecimal(Number(order.itemsPrice)),
@@ -173,6 +177,10 @@ export async function getMyOrders(page: number = 1): Promise<PaginatedOrders> {
         ...item,
         price: formatNumberWithDecimal(Number(item.price)),
       })),
+      // Pre-processed fields for better client-side performance
+      formattedDate: formatDateTime(order.createdAt),
+      statusColor: getOrderStatusColor(order.status),
+      formattedStatus: formatOrderStatus(order.status),
     }));
     
     return {
