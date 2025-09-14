@@ -74,13 +74,13 @@ export default function AdminNav() {
   return (
     <aside
       className={cn(
-        'relative flex flex-col bg-white border-r border-gray-200 transition-all duration-300',
+        'relative flex flex-col bg-card/50 backdrop-blur border-r transition-all duration-300',
         isCollapsed ? 'w-16' : 'w-64'
       )}
     >
-      <div className="flex items-center justify-between p-4 border-b border-gray-200">
+      <div className="flex items-center justify-between p-4 border-b">
         {!isCollapsed && (
-          <h2 className="text-xl font-bold text-gray-900">Admin Panel</h2>
+          <h2 className="text-xl font-bold">Admin Panel</h2>
         )}
         <Button
           variant="ghost"
@@ -109,8 +109,8 @@ export default function AdminNav() {
               className={cn(
                 'flex items-center gap-3 px-3 py-2 rounded-lg transition-colors cursor-pointer',
                 isActive
-                  ? 'bg-gray-100 text-gray-900 font-medium'
-                  : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900',
+                  ? 'bg-accent text-accent-foreground font-medium'
+                  : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground',
                 isCollapsed && 'justify-center'
               )}
             >
@@ -123,12 +123,12 @@ export default function AdminNav() {
         })}
       </nav>
 
-      <div className="p-4 border-t border-gray-200">
+      <div className="p-4 border-t">
         <Button
           variant="ghost"
           onClick={handleSignOut}
           className={cn(
-            'w-full justify-start gap-3 text-gray-600 hover:text-gray-900 cursor-pointer',
+            'w-full justify-start gap-3 text-muted-foreground hover:text-accent-foreground cursor-pointer',
             isCollapsed && 'justify-center px-0'
           )}
         >

@@ -1,17 +1,26 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
 import {
   ShoppingCart,
   Users,
   Package,
   TrendingUp,
+  TrendingDown,
   DollarSign,
   Eye,
   Star,
   AlertCircle,
+  ArrowUpRight,
+  CheckCircle2,
+  BarChart3,
+  MoreHorizontal,
 } from 'lucide-react';
 import { formatCurrency } from '@/lib/utils';
 import prisma from '@/db/prisma';
 import { UserRole } from '@prisma/client';
+import Link from 'next/link';
+import { Button } from '@/components/ui/button';
 
 async function getAdminStats() {
   try {
@@ -101,34 +110,56 @@ async function getAdminStats() {
 export default async function AdminDashboard() {
   const stats = await getAdminStats();
 
+  // Calculate percentage changes (mock data for now - replace with real calculations)
+  const revenueChange = 12.5;
+  const ordersChange = 8.2;
+  const customersChange = 5.2;
+  const productsChange = -2.1;
+
   const statsCards = [
     {
       title: 'Total Revenue',
       value: formatCurrency(stats.totalRevenue),
       icon: DollarSign,
-      change: '+12.5%',
-      changeType: 'positive' as const,
+      change: revenueChange,
+      description: 'vs last month',
+      gradient: 'from-green-500/10 to-emerald-500/10',
+      iconBg: 'bg-green-500/10 dark:bg-green-500/20',
+      iconColor: 'text-green-600 dark:text-green-500',
+      href: '/admin/revenue',
     },
     {
       title: 'Total Orders',
       value: stats.totalOrders.toString(),
       icon: ShoppingCart,
-      change: `${stats.todayOrders} today`,
-      changeType: 'neutral' as const,
+      change: ordersChange,
+      description: `${stats.todayOrders} today`,
+      gradient: 'from-blue-500/10 to-cyan-500/10',
+      iconBg: 'bg-blue-500/10 dark:bg-blue-500/20',
+      iconColor: 'text-blue-600 dark:text-blue-500',
+      href: '/admin/orders',
     },
     {
-      title: 'Total Customers',
+      title: 'Customers',
       value: stats.totalCustomers.toString(),
       icon: Users,
-      change: '+5.2%',
-      changeType: 'positive' as const,
+      change: customersChange,
+      description: 'active users',
+      gradient: 'from-purple-500/10 to-pink-500/10',
+      iconBg: 'bg-purple-500/10 dark:bg-purple-500/20',
+      iconColor: 'text-purple-600 dark:text-purple-500',
+      href: '/admin/customers',
     },
     {
-      title: 'Total Products',
+      title: 'Products',
       value: stats.totalProducts.toString(),
       icon: Package,
-      change: `${stats.lowStockProducts} low stock`,
-      changeType: stats.lowStockProducts > 0 ? 'warning' as const : 'neutral' as const,
+      change: productsChange,
+      description: `${stats.lowStockProducts} low stock`,
+      gradient: 'from-orange-500/10 to-red-500/10',
+      iconBg: stats.lowStockProducts > 0 ? 'bg-orange-500/10 dark:bg-orange-500/20' : 'bg-gray-500/10 dark:bg-gray-500/20',
+      iconColor: stats.lowStockProducts > 0 ? 'text-orange-600 dark:text-orange-500' : 'text-gray-600 dark:text-gray-500',
+      href: '/admin/products',
     },
   ];
 
@@ -137,63 +168,139 @@ export default async function AdminDashboard() {
       title: 'Pending Orders',
       value: stats.pendingOrders.toString(),
       icon: AlertCircle,
-      color: 'text-yellow-600',
-      bgColor: 'bg-yellow-100',
+      color: 'text-yellow-600 dark:text-yellow-500',
+      bgColor: 'bg-yellow-100 dark:bg-yellow-900/20',
     },
     {
       title: 'Today\'s Orders',
       value: stats.todayOrders.toString(),
       icon: TrendingUp,
-      color: 'text-green-600',
-      bgColor: 'bg-green-100',
+      color: 'text-green-600 dark:text-green-500',
+      bgColor: 'bg-green-100 dark:bg-green-900/20',
     },
     {
       title: 'Total Reviews',
       value: stats.totalReviews.toString(),
       icon: Star,
-      color: 'text-blue-600',
-      bgColor: 'bg-blue-100',
+      color: 'text-blue-600 dark:text-blue-500',
+      bgColor: 'bg-blue-100 dark:bg-blue-900/20',
     },
     {
       title: 'Page Views',
       value: '12.5K',
       icon: Eye,
-      color: 'text-purple-600',
-      bgColor: 'bg-purple-100',
+      color: 'text-purple-600 dark:text-purple-500',
+      bgColor: 'bg-purple-100 dark:bg-purple-900/20',
     },
   ];
 
   return (
-    <div className="space-y-8">
-      <div>
-        <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-        <p className="text-gray-600 mt-2">
-          Welcome back! Here&apos;s what&apos;s happening with your store today.
-        </p>
+    <div className="space-y-6">
+      {/* Modern Header with Gradient */}
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary/10 via-primary/5 to-background border shadow-sm">
+        <div className="absolute inset-0 bg-grid-white/10 [mask-image:linear-gradient(0deg,transparent,rgba(255,255,255,0.6))]" />
+        <div className="relative p-8">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-4xl font-bold tracking-tight bg-gradient-to-br from-foreground to-foreground/70 bg-clip-text">
+                Admin Dashboard
+              </h1>
+              <p className="text-muted-foreground mt-2 text-lg">
+                Monitor your store performance and manage operations
+              </p>
+            </div>
+            <div className="hidden lg:flex items-center gap-2">
+              <Button variant="outline" size="sm" className="gap-2">
+                <BarChart3 className="h-4 w-4" />
+                View Analytics
+              </Button>
+              <Button size="sm" className="gap-2">
+                <Package className="h-4 w-4" />
+                Add Product
+              </Button>
+            </div>
+          </div>
+        </div>
       </div>
 
+      {/* Main Stats Grid */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         {statsCards.map((stat) => {
           const Icon = stat.icon;
+          const isPositive = stat.change > 0;
+          const TrendIcon = isPositive ? TrendingUp : TrendingDown;
+
           return (
-            <Card key={stat.title}>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">
-                  {stat.title}
-                </CardTitle>
-                <Icon className="h-4 w-4 text-muted-foreground" />
+            <Link key={stat.title} href={stat.href}>
+              <Card className={cn(
+                "relative overflow-hidden rounded-xl border bg-gradient-to-br transition-all hover:shadow-lg hover:-translate-y-1 cursor-pointer",
+                stat.gradient
+              )}>
+                <CardHeader className="pb-2">
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-sm font-medium text-muted-foreground">
+                      {stat.title}
+                    </CardTitle>
+                    <div className={cn("p-2 rounded-lg", stat.iconBg)}>
+                      <Icon className={cn("h-4 w-4", stat.iconColor)} />
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-1">
+                    <div className="text-3xl font-bold tracking-tight">
+                      {stat.value}
+                    </div>
+                    <div className="flex items-center gap-1 text-xs">
+                      {stat.change !== 0 && (
+                        <div className={cn(
+                          "flex items-center gap-0.5",
+                          isPositive ? "text-green-600 dark:text-green-500" : "text-red-600 dark:text-red-500"
+                        )}>
+                          <TrendIcon className="h-3 w-3" />
+                          <span className="font-medium">
+                            {Math.abs(stat.change)}%
+                          </span>
+                        </div>
+                      )}
+                      <span className="text-muted-foreground">
+                        {stat.description}
+                      </span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
+          );
+        })}
+      </div>
+
+      {/* Quick Action Stats */}
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        {quickStats.map((stat) => {
+          const Icon = stat.icon;
+          return (
+            <Card key={stat.title} className="group rounded-xl overflow-hidden hover:shadow-md transition-all hover:-translate-y-0.5 cursor-pointer">
+              <CardHeader className="pb-3">
+                <div className="flex items-center justify-between">
+                  <div className={cn('p-2.5 rounded-xl', stat.bgColor)}>
+                    <Icon className={cn('h-5 w-5', stat.color)} />
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity"
+                  >
+                    <MoreHorizontal className="h-4 w-4" />
+                  </Button>
+                </div>
               </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{stat.value}</div>
-                <p
-                  className={cn(
-                    'text-xs mt-1',
-                    stat.changeType === 'positive' && 'text-green-600',
-                    stat.changeType === 'warning' && 'text-yellow-600',
-                    stat.changeType === 'neutral' && 'text-gray-600'
-                  )}
-                >
-                  {stat.change}
+              <CardContent className="space-y-1">
+                <div className="text-3xl font-bold tabular-nums">
+                  {stat.value}
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  {stat.title}
                 </p>
               </CardContent>
             </Card>
@@ -201,93 +308,155 @@ export default async function AdminDashboard() {
         })}
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        {quickStats.map((stat) => {
-          const Icon = stat.icon;
-          return (
-            <Card key={stat.title} className="border-l-4" style={{ borderLeftColor: stat.color.replace('text-', '#').replace('600', '') }}>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">
-                  {stat.title}
-                </CardTitle>
-                <div className={cn('p-2 rounded-full', stat.bgColor)}>
-                  <Icon className={cn('h-4 w-4', stat.color)} />
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{stat.value}</div>
-              </CardContent>
-            </Card>
-          );
-        })}
-      </div>
-
-      <div className="grid gap-4 lg:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle>Recent Orders</CardTitle>
+      {/* Data Tables Section */}
+      <div className="grid gap-6 lg:grid-cols-2">
+        {/* Recent Orders with Enhanced UI */}
+        <Card className="rounded-xl overflow-hidden">
+          <CardHeader className="flex flex-row items-center justify-between">
+            <div>
+              <CardTitle className="text-lg">Recent Orders</CardTitle>
+              <p className="text-sm text-muted-foreground mt-1">
+                Latest customer transactions
+              </p>
+            </div>
+            <Link href="/admin/orders">
+              <Button variant="ghost" size="sm" className="gap-1">
+                View all
+                <ArrowUpRight className="h-3 w-3" />
+              </Button>
+            </Link>
           </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
+          <CardContent className="p-0">
+            <div className="divide-y">
               {stats.recentOrders.length > 0 ? (
                 stats.recentOrders.map((order) => (
                   <div
                     key={order.id}
-                    className="flex items-center justify-between border-b pb-2 last:border-0"
+                    className="px-6 py-4 hover:bg-muted/50 transition-colors"
                   >
-                    <div>
-                      <p className="font-medium">{order.user?.name || 'Guest'}</p>
-                      <p className="text-sm text-gray-600">
-                        Order #{order.id.slice(-8)}
-                      </p>
-                    </div>
-                    <div className="text-right">
-                      <p className="font-medium">{formatCurrency(order.totalPrice)}</p>
-                      <p className="text-sm text-gray-600">
-                        {new Date(order.createdAt).toLocaleDateString('pl-PL')}
-                      </p>
+                    <div className="flex items-center justify-between">
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2">
+                          <p className="font-medium">
+                            {order.user?.name || 'Guest User'}
+                          </p>
+                          <Badge variant="secondary" className="text-xs">
+                            #{order.id.slice(-6).toUpperCase()}
+                          </Badge>
+                        </div>
+                        <p className="text-sm text-muted-foreground">
+                          {new Date(order.createdAt).toLocaleDateString('pl-PL', {
+                            day: 'numeric',
+                            month: 'short',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                          })}
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-semibold">{formatCurrency(order.totalPrice)}</p>
+                        <Badge
+                          variant={order.status === 'delivered' ? 'default' : 'outline'}
+                          className="mt-1"
+                        >
+                          {order.status}
+                        </Badge>
+                      </div>
                     </div>
                   </div>
                 ))
               ) : (
-                <p className="text-gray-600">No recent orders</p>
+                <div className="px-6 py-12 text-center">
+                  <ShoppingCart className="h-12 w-12 text-muted-foreground/50 mx-auto mb-3" />
+                  <p className="text-muted-foreground">No orders yet</p>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Orders will appear here once customers make purchases
+                  </p>
+                </div>
               )}
             </div>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Low Stock Products</CardTitle>
+        {/* Low Stock Alert with Progress Bars */}
+        <Card className="rounded-xl overflow-hidden">
+          <CardHeader className="flex flex-row items-center justify-between">
+            <div>
+              <CardTitle className="text-lg">Inventory Alerts</CardTitle>
+              <p className="text-sm text-muted-foreground mt-1">
+                Products requiring restocking
+              </p>
+            </div>
+            <Link href="/admin/products">
+              <Button variant="ghost" size="sm" className="gap-1">
+                Manage
+                <ArrowUpRight className="h-3 w-3" />
+              </Button>
+            </Link>
           </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
+          <CardContent className="p-0">
+            <div className="divide-y">
               {stats.topProducts.filter(p => p.stock <= 10).length > 0 ? (
                 stats.topProducts
                   .filter(p => p.stock <= 10)
-                  .map((product) => (
-                    <div
-                      key={product.id}
-                      className="flex items-center justify-between border-b pb-2 last:border-0"
-                    >
-                      <div>
-                        <p className="font-medium">{product.name}</p>
-                        <p className="text-sm text-gray-600">
-                          {formatCurrency(product.price)}
-                        </p>
+                  .slice(0, 5)
+                  .map((product) => {
+                    const stockPercentage = (product.stock / 100) * 100;
+                    const isLow = product.stock <= 5;
+                    const isCritical = product.stock <= 2;
+
+                    return (
+                      <div
+                        key={product.id}
+                        className="px-6 py-4 hover:bg-muted/50 transition-colors"
+                      >
+                        <div className="space-y-3">
+                          <div className="flex items-start justify-between">
+                            <div className="space-y-1">
+                              <p className="font-medium line-clamp-1">
+                                {product.name}
+                              </p>
+                              <div className="flex items-center gap-2">
+                                <span className="text-sm text-muted-foreground">
+                                  {formatCurrency(product.price)}
+                                </span>
+                                <Badge
+                                  variant={isCritical ? "destructive" : isLow ? "secondary" : "outline"}
+                                  className="text-xs"
+                                >
+                                  {product.stock} units left
+                                </Badge>
+                              </div>
+                            </div>
+                            <Button variant="outline" size="sm">
+                              Restock
+                            </Button>
+                          </div>
+                          <div className="space-y-1">
+                            <Progress
+                              value={stockPercentage}
+                              className={cn(
+                                "h-2",
+                                isCritical && "[&>div]:bg-red-500",
+                                isLow && !isCritical && "[&>div]:bg-orange-500"
+                              )}
+                            />
+                            <p className="text-xs text-muted-foreground">
+                              Stock level: {stockPercentage.toFixed(0)}%
+                            </p>
+                          </div>
+                        </div>
                       </div>
-                      <div className="text-right">
-                        <p className={cn(
-                          'font-medium',
-                          product.stock <= 5 ? 'text-red-600' : 'text-yellow-600'
-                        )}>
-                          {product.stock} left
-                        </p>
-                      </div>
-                    </div>
-                  ))
+                    );
+                  })
               ) : (
-                <p className="text-gray-600">All products are well stocked</p>
+                <div className="px-6 py-12 text-center">
+                  <CheckCircle2 className="h-12 w-12 text-green-500/50 mx-auto mb-3" />
+                  <p className="text-muted-foreground">All products well stocked</p>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    No inventory alerts at this time
+                  </p>
+                </div>
               )}
             </div>
           </CardContent>
