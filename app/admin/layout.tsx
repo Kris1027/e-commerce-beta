@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation';
 import { auth } from '@/auth';
 import AdminNav from '@/components/admin/admin-nav';
+import { UserRole } from '@prisma/client';
 
 export default async function AdminLayout({
   children,
@@ -9,7 +10,7 @@ export default async function AdminLayout({
 }) {
   const session = await auth();
 
-  if (!session || session.user?.role !== 'admin') {
+  if (!session || session.user?.role !== UserRole.admin) {
     redirect('/');
   }
 

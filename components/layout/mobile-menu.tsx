@@ -13,6 +13,7 @@ import {
 } from '@/components/ui/sheet'
 import { Button } from '@/components/ui/button'
 import { APP_NAME } from '@/lib/constants'
+import { UserRole } from '@prisma/client'
 
 const mainNavItems = [
   { href: '/', label: 'Home' },
@@ -33,7 +34,7 @@ const accountNavItems = [
 
 interface MobileMenuProps {
   user?: {
-    role: string;
+    role: UserRole;
   } | null;
 }
 
@@ -98,7 +99,7 @@ export function MobileMenu({ user }: MobileMenuProps) {
             </div>
           </div>
 
-          {user?.role === 'admin' && (
+          {user?.role === UserRole.admin && (
             <div className="space-y-3">
               <h3 className="text-sm font-semibold text-muted-foreground">Administration</h3>
               <div className="space-y-1">

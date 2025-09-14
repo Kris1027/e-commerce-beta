@@ -6,6 +6,7 @@ import { getOrders } from '@/lib/actions/order-actions';
 import { formatCurrency, formatDateTime, formatOrderStatus, getOrderStatusColor, isActiveOrder } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { ORDER_STATUS } from '@/lib/validators';
+import { UserRole } from '@prisma/client';
 
 export default async function DashboardPage() {
   const session = await auth();
@@ -151,7 +152,7 @@ export default async function DashboardPage() {
       </div>
 
       {/* Admin Panel Link for Admin Users */}
-      {session.user.role === 'admin' && (
+      {session.user.role === UserRole.admin && (
         <div className="mb-8">
           <Link
             href="/admin"
@@ -297,7 +298,7 @@ export default async function DashboardPage() {
       </div>
 
       {/* Admin Access */}
-      {session.user.role === 'admin' && (
+      {session.user.role === UserRole.admin && (
         <div className="mt-8 p-6 rounded-lg border bg-primary/5">
           <h2 className="text-xl font-semibold mb-4">Admin Access</h2>
           <Button asChild>
