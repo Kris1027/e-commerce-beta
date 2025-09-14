@@ -5,36 +5,44 @@ import { useFormStatus } from 'react-dom';
 import { signUpAction } from '@/lib/actions/auth-actions';
 import Link from 'next/link';
 import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { toast } from 'sonner';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Checkbox } from '@/components/ui/checkbox';
+import { buildAuthUrl } from '@/lib/utils';
+import { DEFAULT_AUTH_REDIRECT } from '@/lib/constants/auth';
 
 function SubmitButton() {
   const { pending } = useFormStatus();
 
   return (
-    <button
+    <Button
       type="submit"
       disabled={pending}
-      className="w-full bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 rounded-md font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+      className="w-full"
     >
       {pending ? 'Creating account...' : 'Sign Up'}
-    </button>
+    </Button>
   );
 }
 
 export default function SignUpPage() {
   const [state, formAction] = useActionState(signUpAction, null);
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const callbackUrl = searchParams.get('callbackUrl') || DEFAULT_AUTH_REDIRECT;
 
   useEffect(() => {
     if (state?.success) {
       toast.success('Account created successfully! Welcome aboard!');
-      router.push('/dashboard');
+      router.push(callbackUrl);
       router.refresh();
     } else if (state?.error) {
       toast.error(state.error);
     }
-  }, [state, router]);
+  }, [state, router, callbackUrl]);
 
   return (
     <div className="w-full max-w-md mx-auto">
@@ -46,7 +54,7 @@ export default function SignUpPage() {
           <p className="mt-2 text-center text-sm text-muted-foreground">
             Or{' '}
             <Link
-              href="/auth/signin"
+              href={buildAuthUrl('/auth/signin', callbackUrl)}
               className="font-medium text-primary hover:text-primary/80"
             >
               sign in to existing account
@@ -55,82 +63,81 @@ export default function SignUpPage() {
         </div>
         
         <form className="mt-8 space-y-6" action={formAction}>
+          <Input type="hidden" name="callbackUrl" value={callbackUrl} />
           <div className="space-y-4">
             <div>
-              <label htmlFor="name" className="block text-sm font-medium">
+              <Label htmlFor="name">
                 Full Name
-              </label>
-              <input
+              </Label>
+              <Input
                 id="name"
                 name="name"
                 type="text"
                 autoComplete="name"
                 required
-                className="mt-1 block w-full rounded-md border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+                className="mt-1"
                 placeholder="Enter your full name"
               />
             </div>
 
             <div>
-              <label htmlFor="email" className="block text-sm font-medium">
+              <Label htmlFor="email">
                 Email address
-              </label>
-              <input
+              </Label>
+              <Input
                 id="email"
                 name="email"
                 type="email"
                 autoComplete="email"
                 required
-                className="mt-1 block w-full rounded-md border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+                className="mt-1"
                 placeholder="Enter your email"
               />
             </div>
             
             <div>
-              <label htmlFor="password" className="block text-sm font-medium">
+              <Label htmlFor="password">
                 Password
-              </label>
-              <input
+              </Label>
+              <Input
                 id="password"
                 name="password"
                 type="password"
                 autoComplete="new-password"
                 required
-                className="mt-1 block w-full rounded-md border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+                className="mt-1"
                 placeholder="Create a password (min 8 characters)"
               />
             </div>
 
             <div>
-              <label htmlFor="confirmPassword" className="block text-sm font-medium">
+              <Label htmlFor="confirmPassword">
                 Confirm Password
-              </label>
-              <input
+              </Label>
+              <Input
                 id="confirmPassword"
                 name="confirmPassword"
                 type="password"
                 autoComplete="new-password"
                 required
-                className="mt-1 block w-full rounded-md border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+                className="mt-1"
                 placeholder="Confirm your password"
               />
             </div>
           </div>
 
-          <div className="flex items-center">
-            <input
+          <div className="flex items-center space-x-2">
+            <Checkbox
               id="agree-terms"
               name="agree-terms"
-              type="checkbox"
               required
-              className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
             />
-            <label htmlFor="agree-terms" className="ml-2 block text-sm">
+            <Label htmlFor="agree-terms" className="text-sm font-normal cursor-pointer">
               I agree to the{' '}
               <Link href="/terms" className="text-primary hover:text-primary/80">
                 Terms and Conditions
               </Link>
-            </label>
+            </Label>
           </div>
 
           <SubmitButton />

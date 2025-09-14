@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect } from 'react'
+import { Button } from '@/components/ui/button'
 
 export default function Error({
   error,
@@ -44,18 +45,17 @@ export default function Error({
         </p>
       </div>
       <div className="flex flex-col gap-2 sm:flex-row">
-        <button
+        <Button
           onClick={reset}
-          className="inline-flex h-10 items-center justify-center rounded-md bg-primary px-6 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
         >
           Try Again
-        </button>
-        <button
+        </Button>
+        <Button
           onClick={() => window.location.href = '/'}
-          className="inline-flex h-10 items-center justify-center rounded-md border border-input bg-background px-6 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+          variant="outline"
         >
           Go to Home
-        </button>
+        </Button>
       </div>
       {process.env.NODE_ENV === 'development' && error.message && (
         <details className="mt-4 max-w-[600px] rounded-lg border bg-muted/50 p-4 text-left">

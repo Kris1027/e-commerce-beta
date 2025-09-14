@@ -26,6 +26,8 @@ Production-ready e-commerce template built with Next.js 15.5.2, TypeScript (stri
 - ✅ Extract magic numbers to constants
 - ✅ Always add `cursor-pointer` class to interactive elements
 - ✅ Use onBlur instead of onChange for inputs that trigger API calls
+- ✅ ALWAYS use shadcn/ui components (Button, Input, Select, Checkbox, etc.) instead of custom HTML elements
+- ✅ All shadcn interactive components have cursor-pointer added by default
 
 ### Security & Performance
 - ✅ Validate all data with Zod schemas on client AND server
@@ -42,6 +44,17 @@ Production-ready e-commerce template built with Next.js 15.5.2, TypeScript (stri
 - ✅ Log errors with console.error for debugging
 - ✅ Provide user-friendly error messages
 - ✅ Never expose sensitive error details
+
+### Toast Notifications (Best Practices)
+- ✅ Position: Top-center for better visibility and UX
+- ✅ Use semantic variants for clear communication:
+  - `toast.success()` - Successful actions (green)
+  - `toast.error()` - Errors and failures (red)
+  - `toast.warning()` - Warnings and cautions (yellow)
+  - `toast.info()` - Informational messages (blue)
+- ✅ Keep messages concise and actionable
+- ✅ Include item names in messages for context (e.g., "ProductName added to cart")
+- ✅ Avoid generic messages like "Success" or "Error"
 
 ## Tech Stack & Dependencies
 
@@ -115,7 +128,7 @@ ORDERS_PER_PAGE = 10  // Pagination for order history
 
 ### Essential Utilities (`/lib/utils.ts`)
 ```typescript
-formatCurrency(value: string | number)     // $99.99
+formatCurrency(value: string | number)     // 99.99 zł (PLN format)
 formatOrderStatus(status: string)          // "Pending"
 getOrderStatusColor(status: string)        // "bg-yellow-100..."
 isActiveOrder(status: string)              // true/false
@@ -124,6 +137,7 @@ formatNumberWithDecimal(num: number)       // "10.00"
 formatPhoneNumber(phone: string)           // "+48 XXX-XXX-XXX" (Polish format, safe handling)
 generatePaginationNumbers(current, total)  // [1, '...', 5, 6, 7, '...', 10]
 calculateCartPrices(itemsPrice: number)    // {shipping, tax, total}
+buildAuthUrl(path: string, callbackUrl: string) // Build auth URL with optional callback
 ```
 
 ### User & Address Actions (`/lib/actions/user-actions.ts`)
@@ -168,6 +182,11 @@ getCategoryDetails(slug)                    // Get category details with top pro
 - `categorySchema` - Category with product count
 - `categoryDetailsSchema` - Category with top products
 - `PASSWORD_REQUIREMENTS` - Configurable password validation settings (min length, character requirements)
+
+### Auth Constants (`/lib/constants/auth.ts`)
+- `DEFAULT_AUTH_REDIRECT` - Default redirect path after authentication ('/dashboard')
+- `AUTH_ROUTES` - Object containing auth route paths
+- `PROTECTED_ROUTES` - Array of protected route patterns
 
 ## Database Models
 
@@ -345,7 +364,76 @@ pnpm db:studio    # Prisma Studio GUI
 ```
 
 ## Recent Updates
-- **Code Quality Improvements** (Latest):
+- **Session Updates (Latest - 2025-09-14)**:
+  - **Cart Drawer Spacing Fix**: Removed `pb-0` class from SheetHeader for consistent spacing with shadcn/ui defaults
+  - **Auth URL Utility Function**: Created `buildAuthUrl()` utility to eliminate duplicate URL construction logic in signin/signup pages
+  - **Price Formatting Standardization**:
+    - Fixed floating-point precision issues (e.g., "14.099999999999994")
+    - Replaced all dollar sign ($) formatting with `formatCurrency()` function
+    - Updated cart-drawer.tsx, cart-client.tsx, product-price.tsx, and coupon-form.tsx
+    - All prices now display in proper XX.XX PLN format with Polish locale
+    - Added `useMemo` optimization in cart-drawer for numeric price calculations
+  - **Hero Banner Simplification**:
+    - Removed text overlays (titles, subtitles, CTAs) from banners
+    - Made entire banner clickable with configurable `promoLink` URLs
+    - Simplified configuration to just image path and promo URL
+    - Fixed missing mobile banner image references (banner-1-mobile.jpg, banner-2-mobile.jpg)
+    - Navigation arrows and dots remain functional with proper z-index
+  - **Auth Constants Extraction**:
+    - Created `/lib/constants/auth.ts` for authentication-related constants
+    - Extracted `DEFAULT_AUTH_REDIRECT = '/dashboard'` to eliminate magic strings
+    - Updated buildAuthUrl(), signin, and signup pages to use the constant
+    - Added AUTH_ROUTES and PROTECTED_ROUTES constants for better maintainability
+- **Mobile Menu Navigation Fix**:
+  - Fixed Sign In/Sign Up links to point to correct auth routes (/auth/signin and /auth/signup)
+  - Fixed My Account link to point to /dashboard instead of non-existent /account
+  - Added Profile link to mobile menu for consistency
+  - Removed non-existent support links (contact, shipping, returns, FAQ)
+  - Replaced custom hamburger button with shadcn Button component
+  - Added Lucide Menu icon for consistency
+  - Added cursor-pointer to all interactive elements
+  - Cleaned up navigation structure to only show existing pages
+- **Dashboard UI Enhancement**:
+  - Added Shopping Cart card to dashboard for quick access
+  - Dashboard now has 4 balanced cards: My Orders, Wishlist, Shopping Cart, and Profile & Addresses
+  - Removed duplicate Address Manager card from dashboard
+  - Fixed incorrect link to non-existent /addresses route
+  - Address management is now only accessible through Profile page (Address tab)
+  - Improved dashboard layout for better UX with symmetrical 4-card grid
+- **Cart UI/UX Improvements**:
+  - Replaced all cart buttons with shadcn Button components for consistency
+  - Fixed cursor-pointer on all interactive elements (remove, quantity, close buttons)
+  - Added proper padding to cart drawer (px-6 for content sections)
+  - Improved cart drawer layout with better spacing
+  - Replaced custom buttons in cart-client page with shadcn Button
+  - Replaced quantity input with shadcn Input component
+  - Added cursor-pointer to Sheet close button
+  - Improved free shipping notification with better styling
+  - All cart actions now use proper shadcn components with consistent hover states
+- **Navigation UI Improvements**:
+  - Replaced cart button with shadcn Button component (variant="ghost")
+  - Replaced user profile button with shadcn Button component and Lucide User icon
+  - Added cursor-pointer to all navigation interactive elements
+  - Added hover effects to cart and profile buttons
+  - Replaced Twitter icon with X icon using react-icons (FaXTwitter)
+  - Updated all social media icons to use react-icons for consistency
+  - Added react-icons package for brand icons (social media)
+  - Fixed deprecated Facebook and Instagram icons from Lucide
+- **UI Component Standardization**:
+  - Added cursor-pointer to all interactive shadcn components (Button, Select, Input, Radio, Tabs, Checkbox)
+  - Replaced custom button implementations with shadcn Button component in auth pages and error page
+  - Replaced custom input fields with shadcn Input component in auth pages
+  - Replaced custom checkboxes with shadcn Checkbox component
+  - Added shadcn Checkbox component to the project
+  - Improved consistency across the application by using shadcn components
+  - All interactive elements now have proper cursor styles and disabled states
+- **Authentication Redirect Fix**:
+  - Fixed checkout flow to properly redirect back to checkout after login instead of profile page
+  - Sign-in and sign-up pages now read and respect `callbackUrl` from URL search params
+  - Maintains callback URL when switching between sign-in and sign-up pages
+  - Defaults to `/dashboard` when no callback URL is specified
+  - Middleware already correctly sets `callbackUrl` for protected routes
+- **Code Quality Improvements**:
   - Fixed all catch blocks to include error parameter for proper error handling
   - Added comprehensive error logging with console.error throughout the codebase
   - Removed password validation duplication in profile-form.tsx (now uses centralized constants)

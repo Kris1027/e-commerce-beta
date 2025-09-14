@@ -25,7 +25,7 @@ export const SAMPLE_COUPONS: Coupon[] = [
   },
   {
     code: 'SAVE20',
-    description: '20% off orders over $100',
+    description: '20% off orders over 100 zł',
     type: 'percentage',
     value: 20,
     minPurchase: 100,
@@ -36,7 +36,7 @@ export const SAMPLE_COUPONS: Coupon[] = [
   },
   {
     code: 'SHIP5',
-    description: '$5 off shipping',
+    description: '5 zł off shipping',
     type: 'fixed',
     value: 5,
     minPurchase: 25,
@@ -71,7 +71,7 @@ export function validateCoupon(code: string, subtotal: number): {
   if (subtotal < coupon.minPurchase) {
     return {
       valid: false,
-      message: `Minimum purchase of $${coupon.minPurchase} required`,
+      message: `Minimum purchase of ${coupon.minPurchase} zł required`,
     };
   }
 

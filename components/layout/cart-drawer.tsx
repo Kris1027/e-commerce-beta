@@ -1,13 +1,13 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { X, ShoppingBag, Minus, Plus } from 'lucide-react';
 import { toast } from 'sonner';
 import { useCartStore } from '@/lib/store/cart-store';
 import { updateCartItem, removeFromCart } from '@/lib/actions/cart-actions';
-import { formatNumberWithDecimal, cn } from '@/lib/utils';
+import { formatCurrency } from '@/lib/utils';
 import { CART_CONSTANTS } from '@/lib/constants/cart';
 import { CouponForm } from '@/components/cart/coupon-form';
 import {
@@ -17,6 +17,7 @@ import {
   SheetHeader,
   SheetTitle,
 } from '@/components/ui/sheet';
+import { Button } from '@/components/ui/button';
 
 export function CartDrawer() {
   const {
@@ -32,6 +33,13 @@ export function CartDrawer() {
     updateItem,
     removeItem: removeFromStore,
   } = useCartStore();
+
+  // Parse numeric values once and memoize them
+  const numericValues = useMemo(() => ({
+    itemsPrice: parseFloat(itemsPrice),
+    shippingPrice: parseFloat(shippingPrice),
+    discountAmount: parseFloat(discountAmount),
+  }), [itemsPrice, shippingPrice, discountAmount]);
 
   // Hydrate on mount
   useEffect(() => {
@@ -92,25 +100,29 @@ export function CartDrawer() {
         </SheetHeader>
 
         {items.length === 0 ? (
-          <div className="flex flex-1 flex-col items-center justify-center space-y-4">
+          <div className="flex flex-1 flex-col items-center justify-center space-y-4 px-6">
             <ShoppingBag className="h-16 w-16 text-muted-foreground" />
             <p className="text-center text-muted-foreground">
               Your cart is empty. Start shopping to add items!
             </p>
-            <Link
-              href="/products"
-              onClick={() => setOpen(false)}
-              className="rounded-md bg-primary px-6 py-3 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+            <Button
+              asChild
+              className="w-full max-w-xs"
             >
-              Browse Products
-            </Link>
+              <Link
+                href="/products"
+                onClick={() => setOpen(false)}
+              >
+                Browse Products
+              </Link>
+            </Button>
           </div>
         ) : (
           <>
-            <div className="flex-1 overflow-y-auto py-4">
-              <div className="space-y-4">
+            <div className="flex-1 overflow-y-auto px-6 py-4">
+              <div className="space-y-3">
                 {items.map((item) => (
-                  <div key={item.productId} className="flex gap-4 rounded-lg border p-3">
+                  <div key={item.productId} className="flex gap-3 rounded-lg border p-3">
                     <Link
                       href={`/products/${item.slug}`}
                       onClick={() => setOpen(false)}
@@ -135,50 +147,46 @@ export function CartDrawer() {
                             {item.name}
                           </Link>
                           <p className="mt-1 text-sm text-muted-foreground">
-                            ${item.price} each
+                            {formatCurrency(item.price)} each
                           </p>
                         </div>
-                        <button
+                        <Button
                           onClick={() => handleRemoveItem(item.productId, item.name)}
-                          className="text-destructive hover:text-destructive/80"
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 text-destructive hover:text-destructive/80"
                           aria-label={`Remove ${item.name} from cart`}
                         >
                           <X className="h-4 w-4" />
-                        </button>
+                        </Button>
                       </div>
 
                       <div className="mt-2 flex items-center justify-between">
                         <div className="flex items-center gap-1">
-                          <button
+                          <Button
                             onClick={() => handleUpdateQuantity(item.productId, item.qty - 1)}
                             disabled={item.qty <= 1}
-                            className={cn(
-                              "h-7 w-7 rounded-md border flex items-center justify-center transition-colors",
-                              item.qty <= 1
-                                ? "border-muted text-muted-foreground cursor-not-allowed"
-                                : "border-input hover:bg-accent hover:text-accent-foreground"
-                            )}
+                            variant="outline"
+                            size="icon"
+                            className="h-7 w-7"
                             aria-label="Decrease quantity"
                           >
                             <Minus className="h-3 w-3" />
-                          </button>
+                          </Button>
                           <span className="w-12 text-center text-sm">{item.qty}</span>
-                          <button
+                          <Button
                             onClick={() => handleUpdateQuantity(item.productId, item.qty + 1)}
                             disabled={item.qty >= CART_CONSTANTS.MAX_QUANTITY_PER_ITEM}
-                            className={cn(
-                              "h-7 w-7 rounded-md border flex items-center justify-center transition-colors",
-                              item.qty >= CART_CONSTANTS.MAX_QUANTITY_PER_ITEM
-                                ? "border-muted text-muted-foreground cursor-not-allowed"
-                                : "border-input hover:bg-accent hover:text-accent-foreground"
-                            )}
+                            variant="outline"
+                            size="icon"
+                            className="h-7 w-7"
                             aria-label="Increase quantity"
                           >
                             <Plus className="h-3 w-3" />
-                          </button>
+                          </Button>
                         </div>
                         <p className="text-sm font-medium">
-                          ${formatNumberWithDecimal(parseFloat(item.price) * item.qty)}
+                          {formatCurrency(parseFloat(item.price) * item.qty)}
                         </p>
                       </div>
                     </div>
@@ -187,8 +195,8 @@ export function CartDrawer() {
               </div>
             </div>
 
-            <div className="border-t pt-4">
-              <div className="space-y-3">
+            <div className="border-t px-6 py-4">
+              <div className="space-y-4">
                 {/* Coupon Form */}
                 <div>
                   <p className="mb-2 text-sm font-medium">Promo Code</p>
@@ -199,58 +207,69 @@ export function CartDrawer() {
                 <div className="space-y-2">
                   <div className="flex justify-between text-sm">
                     <span>Subtotal</span>
-                    <span>${itemsPrice}</span>
+                    <span>{formatCurrency(itemsPrice)}</span>
                   </div>
-                  {appliedCoupon && parseFloat(discountAmount) > 0 && (
+                  {appliedCoupon && discountAmount && discountAmount !== '0' && discountAmount !== '0.00' && (
                     <div className="flex justify-between text-sm text-green-600">
                       <span>Discount ({appliedCoupon.code})</span>
-                      <span>-${discountAmount}</span>
+                      <span>-{formatCurrency(discountAmount)}</span>
                     </div>
                   )}
                   <div className="flex justify-between text-sm">
                     <span>Shipping</span>
                     <span>
-                      {parseFloat(shippingPrice) === 0 ? (
+                      {numericValues.shippingPrice === 0 ? (
                         <span className="text-green-600">Free</span>
                       ) : (
-                        `$${shippingPrice}`
+                        formatCurrency(shippingPrice)
                       )}
                     </span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span>Tax</span>
-                    <span>${taxPrice}</span>
+                    <span>{formatCurrency(taxPrice)}</span>
                   </div>
                   <div className="my-2 h-px bg-border" />
                   <div className="flex justify-between font-semibold">
                     <span>Total</span>
-                    <span>${totalPrice}</span>
+                    <span>{formatCurrency(totalPrice)}</span>
                   </div>
                 </div>
               </div>
 
-              <div className="mt-6 space-y-3">
-                <Link
-                  href="/cart"
-                  onClick={() => setOpen(false)}
-                  className="flex w-full items-center justify-center rounded-md border border-input px-4 py-2.5 text-sm font-medium hover:bg-accent hover:text-accent-foreground"
+              <div className="mt-6 space-y-2">
+                <Button
+                  asChild
+                  variant="outline"
+                  className="w-full"
                 >
-                  View Cart
-                </Link>
-                <Link
-                  href="/checkout"
-                  onClick={() => setOpen(false)}
-                  className="flex w-full items-center justify-center rounded-md bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+                  <Link
+                    href="/cart"
+                    onClick={() => setOpen(false)}
+                  >
+                    View Cart
+                  </Link>
+                </Button>
+                <Button
+                  asChild
+                  className="w-full"
                 >
-                  Checkout
-                </Link>
+                  <Link
+                    href="/checkout"
+                    onClick={() => setOpen(false)}
+                  >
+                    Checkout
+                  </Link>
+                </Button>
               </div>
 
-              {parseFloat(itemsPrice) < CART_CONSTANTS.FREE_SHIPPING_THRESHOLD && (
-                <p className="mt-3 text-center text-xs text-muted-foreground">
-                  Add ${formatNumberWithDecimal(CART_CONSTANTS.FREE_SHIPPING_THRESHOLD - parseFloat(itemsPrice))}{' '}
-                  more for free shipping
-                </p>
+              {numericValues.itemsPrice < CART_CONSTANTS.FREE_SHIPPING_THRESHOLD && (
+                <div className="mt-4 rounded-md bg-muted/50 p-3">
+                  <p className="text-center text-xs text-muted-foreground">
+                    Add {formatCurrency(CART_CONSTANTS.FREE_SHIPPING_THRESHOLD - numericValues.itemsPrice)}{' '}
+                    more for free shipping
+                  </p>
+                </div>
               )}
             </div>
           </>

@@ -2,6 +2,7 @@ import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 import qs from 'query-string';
 import { CART_CONSTANTS, LOCALE } from '@/lib/constants/cart';
+import { DEFAULT_AUTH_REDIRECT } from '@/lib/constants/auth';
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -284,4 +285,14 @@ export function slugToTitle(slug: string): string {
     .split('-')
     .map(word => word.charAt(0).toUpperCase() + word.slice(1))
     .join(' ');
+}
+
+// Build auth URL with optional callback URL parameter
+export function buildAuthUrl(path: string, callbackUrl: string): string {
+  // Only append callbackUrl if it's different from the default
+  if (callbackUrl !== DEFAULT_AUTH_REDIRECT) {
+    return `${path}?callbackUrl=${encodeURIComponent(callbackUrl)}`;
+  }
+
+  return path;
 }

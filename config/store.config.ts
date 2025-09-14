@@ -106,7 +106,7 @@ export const storeConfig = {
   // Currency and Locale
   locale: {
     currency: process.env['NEXT_PUBLIC_CURRENCY'] || 'USD',
-    currencySymbol: process.env['NEXT_PUBLIC_CURRENCY_SYMBOL'] || '$',
+    currencySymbol: process.env['NEXT_PUBLIC_CURRENCY_SYMBOL'] || 'zł',
     language: process.env['NEXT_PUBLIC_LANGUAGE'] || 'en',
     country: process.env['NEXT_PUBLIC_COUNTRY'] || 'US',
   },

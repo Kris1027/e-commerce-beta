@@ -127,7 +127,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
               <div>
                 <p className="text-sm font-medium">Fast Delivery</p>
                 <p className="text-muted-foreground text-xs">
-                  Free shipping on orders over $50
+                  Free shipping on orders over 100 zł
                 </p>
               </div>
             </div>

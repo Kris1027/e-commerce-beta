@@ -5,6 +5,7 @@ import { Tag, X } from 'lucide-react';
 import { toast } from 'sonner';
 import { useCartStore } from '@/lib/store/cart-store';
 import { validateCoupon } from '@/lib/constants/coupons';
+import { formatCurrency } from '@/lib/utils';
 
 export function CouponForm() {
   const [code, setCode] = useState('');
@@ -52,7 +53,7 @@ export function CouponForm() {
           </div>
           <div className="flex items-center gap-2">
             <span className="text-sm font-semibold text-green-900 dark:text-green-100">
-              -${discountAmount}
+              -{formatCurrency(discountAmount)}
             </span>
             <button
               onClick={handleRemoveCoupon}
