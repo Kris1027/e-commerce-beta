@@ -12,6 +12,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { buildAuthUrl } from '@/lib/utils';
+import { DEFAULT_AUTH_REDIRECT } from '@/lib/constants/auth';
 
 function SubmitButton() {
   const { pending } = useFormStatus();
@@ -31,7 +32,7 @@ export default function SignUpPage() {
   const [state, formAction] = useActionState(signUpAction, null);
   const router = useRouter();
   const searchParams = useSearchParams();
-  const callbackUrl = searchParams.get('callbackUrl') || '/dashboard';
+  const callbackUrl = searchParams.get('callbackUrl') || DEFAULT_AUTH_REDIRECT;
 
   useEffect(() => {
     if (state?.success) {

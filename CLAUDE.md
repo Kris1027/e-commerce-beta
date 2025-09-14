@@ -128,7 +128,7 @@ ORDERS_PER_PAGE = 10  // Pagination for order history
 
 ### Essential Utilities (`/lib/utils.ts`)
 ```typescript
-formatCurrency(value: string | number)     // $99.99
+formatCurrency(value: string | number)     // 99.99 zł (PLN format)
 formatOrderStatus(status: string)          // "Pending"
 getOrderStatusColor(status: string)        // "bg-yellow-100..."
 isActiveOrder(status: string)              // true/false
@@ -137,6 +137,7 @@ formatNumberWithDecimal(num: number)       // "10.00"
 formatPhoneNumber(phone: string)           // "+48 XXX-XXX-XXX" (Polish format, safe handling)
 generatePaginationNumbers(current, total)  // [1, '...', 5, 6, 7, '...', 10]
 calculateCartPrices(itemsPrice: number)    // {shipping, tax, total}
+buildAuthUrl(path: string, callbackUrl: string) // Build auth URL with optional callback
 ```
 
 ### User & Address Actions (`/lib/actions/user-actions.ts`)
@@ -181,6 +182,11 @@ getCategoryDetails(slug)                    // Get category details with top pro
 - `categorySchema` - Category with product count
 - `categoryDetailsSchema` - Category with top products
 - `PASSWORD_REQUIREMENTS` - Configurable password validation settings (min length, character requirements)
+
+### Auth Constants (`/lib/constants/auth.ts`)
+- `DEFAULT_AUTH_REDIRECT` - Default redirect path after authentication ('/dashboard')
+- `AUTH_ROUTES` - Object containing auth route paths
+- `PROTECTED_ROUTES` - Array of protected route patterns
 
 ## Database Models
 
@@ -358,7 +364,27 @@ pnpm db:studio    # Prisma Studio GUI
 ```
 
 ## Recent Updates
-- **Mobile Menu Navigation Fix** (Latest):
+- **Session Updates (Latest - 2025-09-14)**:
+  - **Cart Drawer Spacing Fix**: Removed `pb-0` class from SheetHeader for consistent spacing with shadcn/ui defaults
+  - **Auth URL Utility Function**: Created `buildAuthUrl()` utility to eliminate duplicate URL construction logic in signin/signup pages
+  - **Price Formatting Standardization**:
+    - Fixed floating-point precision issues (e.g., "14.099999999999994")
+    - Replaced all dollar sign ($) formatting with `formatCurrency()` function
+    - Updated cart-drawer.tsx, cart-client.tsx, product-price.tsx, and coupon-form.tsx
+    - All prices now display in proper XX.XX PLN format with Polish locale
+    - Added `useMemo` optimization in cart-drawer for numeric price calculations
+  - **Hero Banner Simplification**:
+    - Removed text overlays (titles, subtitles, CTAs) from banners
+    - Made entire banner clickable with configurable `promoLink` URLs
+    - Simplified configuration to just image path and promo URL
+    - Fixed missing mobile banner image references (banner-1-mobile.jpg, banner-2-mobile.jpg)
+    - Navigation arrows and dots remain functional with proper z-index
+  - **Auth Constants Extraction**:
+    - Created `/lib/constants/auth.ts` for authentication-related constants
+    - Extracted `DEFAULT_AUTH_REDIRECT = '/dashboard'` to eliminate magic strings
+    - Updated buildAuthUrl(), signin, and signup pages to use the constant
+    - Added AUTH_ROUTES and PROTECTED_ROUTES constants for better maintainability
+- **Mobile Menu Navigation Fix**:
   - Fixed Sign In/Sign Up links to point to correct auth routes (/auth/signin and /auth/signup)
   - Fixed My Account link to point to /dashboard instead of non-existent /account
   - Added Profile link to mobile menu for consistency
