@@ -12,38 +12,22 @@ interface BannerSlide {
   image: string;
   mobileImage?: string;
   alt: string;
-  title: string;
-  subtitle: string;
-  ctaText: string;
-  ctaLink: string;
-  overlayColor?: string;
-  textPosition?: 'left' | 'center' | 'right';
+  promoLink: string; // URL where the banner should link to
 }
 
+// Simple configuration - just add image path and promo URL
 const bannerSlides: BannerSlide[] = [
   {
     id: 1,
     image: '/images/banner-1.jpg',
-    mobileImage: '/images/banner-1-mobile.jpg',
-    alt: 'Premium Collection Banner',
-    title: 'Premium Collection',
-    subtitle: 'Discover our exclusive range of high-quality products',
-    ctaText: 'Shop Now',
-    ctaLink: '/products',
-    overlayColor: 'from-black/60 to-black/20',
-    textPosition: 'left',
+    alt: 'Current Promotion 1',
+    promoLink: '/products', // Change this to your promo URL
   },
   {
     id: 2,
     image: '/images/banner-2.jpg',
-    mobileImage: '/images/banner-2-mobile.jpg',
-    alt: 'Summer Sale Banner',
-    title: 'Summer Sale',
-    subtitle: 'Up to 50% off on selected items',
-    ctaText: 'View Deals',
-    ctaLink: '/products',
-    overlayColor: 'from-black/50 to-transparent',
-    textPosition: 'center',
+    alt: 'Current Promotion 2',
+    promoLink: '/products', // Change this to your promo URL
   },
 ];
 
@@ -94,6 +78,15 @@ export function HeroBanner() {
               index === currentSlide ? 'opacity-100' : 'opacity-0'
             )}
           >
+            {/* Clickable Banner Link */}
+            <Link
+              href={slide.promoLink}
+              className="absolute inset-0 z-10"
+              aria-label={slide.alt}
+            >
+              <span className="sr-only">Go to {slide.alt}</span>
+            </Link>
+
             {/* Image with error handling */}
             {!imageLoadError[slide.id] ? (
               <>
@@ -127,52 +120,6 @@ export function HeroBanner() {
               /* Fallback gradient background when image fails to load */
               <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-primary/5" />
             )}
-
-            {/* Gradient Overlay */}
-            <div
-              className={cn(
-                'absolute inset-0 bg-gradient-to-t',
-                slide.overlayColor || 'from-black/50 to-transparent'
-              )}
-            />
-
-            {/* Content Overlay */}
-            <div className="absolute inset-0 flex items-center justify-center px-4 sm:px-8 lg:px-16">
-              <div
-                className={cn(
-                  'w-full max-w-7xl mx-auto',
-                  slide.textPosition === 'left' && 'text-left',
-                  slide.textPosition === 'center' && 'text-center',
-                  slide.textPosition === 'right' && 'text-right'
-                )}
-              >
-                <div className={cn(
-                  'max-w-xl',
-                  slide.textPosition === 'center' && 'mx-auto',
-                  slide.textPosition === 'right' && 'ml-auto'
-                )}>
-                  {/* Title */}
-                  <h2 className="text-2xl sm:text-4xl lg:text-5xl font-bold text-white mb-2 sm:mb-4">
-                    {slide.title}
-                  </h2>
-
-                  {/* Subtitle */}
-                  <p className="text-sm sm:text-lg lg:text-xl text-white/90 mb-4 sm:mb-6">
-                    {slide.subtitle}
-                  </p>
-
-                  {/* CTA Button */}
-                  <Link href={slide.ctaLink}>
-                    <Button
-                      size="lg"
-                      className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold px-6 sm:px-8 py-2 sm:py-3 text-sm sm:text-base cursor-pointer"
-                    >
-                      {slide.ctaText}
-                    </Button>
-                  </Link>
-                </div>
-              </div>
-            </div>
           </div>
         ))}
       </div>
@@ -184,7 +131,7 @@ export function HeroBanner() {
             onClick={goToPrevious}
             variant="ghost"
             size="icon"
-            className="hidden sm:flex absolute left-4 top-1/2 -translate-y-1/2 h-10 w-10 rounded-full bg-black/20 backdrop-blur text-white opacity-0 transition-all duration-300 hover:bg-black/40 hover:scale-110 group-hover:opacity-100 cursor-pointer items-center justify-center"
+            className="hidden sm:flex absolute left-4 top-1/2 -translate-y-1/2 h-10 w-10 rounded-full bg-black/20 backdrop-blur text-white opacity-0 transition-all duration-300 hover:bg-black/40 hover:scale-110 group-hover:opacity-100 cursor-pointer items-center justify-center z-20"
             aria-label="Previous slide"
           >
             <ChevronLeft className="h-5 w-5" />
@@ -193,14 +140,14 @@ export function HeroBanner() {
             onClick={goToNext}
             variant="ghost"
             size="icon"
-            className="hidden sm:flex absolute right-4 top-1/2 -translate-y-1/2 h-10 w-10 rounded-full bg-black/20 backdrop-blur text-white opacity-0 transition-all duration-300 hover:bg-black/40 hover:scale-110 group-hover:opacity-100 cursor-pointer items-center justify-center"
+            className="hidden sm:flex absolute right-4 top-1/2 -translate-y-1/2 h-10 w-10 rounded-full bg-black/20 backdrop-blur text-white opacity-0 transition-all duration-300 hover:bg-black/40 hover:scale-110 group-hover:opacity-100 cursor-pointer items-center justify-center z-20"
             aria-label="Next slide"
           >
             <ChevronRight className="h-5 w-5" />
           </Button>
 
           {/* Dots Indicator - Using Button for better accessibility */}
-          <div className="absolute bottom-3 sm:bottom-4 left-1/2 flex -translate-x-1/2 gap-1.5 sm:gap-2">
+          <div className="absolute bottom-3 sm:bottom-4 left-1/2 flex -translate-x-1/2 gap-1.5 sm:gap-2 z-20">
             {bannerSlides.map((slide, index) => (
               <Button
                 key={slide.id}
