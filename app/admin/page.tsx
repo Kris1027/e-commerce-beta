@@ -16,7 +16,7 @@ import {
   BarChart3,
   MoreHorizontal,
 } from 'lucide-react';
-import { formatCurrency } from '@/lib/utils';
+import { formatCurrency, cn } from '@/lib/utils';
 import prisma from '@/db/prisma';
 import { UserRole } from '@prisma/client';
 import Link from 'next/link';
@@ -464,8 +464,4 @@ export default async function AdminDashboard() {
       </div>
     </div>
   );
-}
-
-function cn(...classes: (string | boolean | undefined)[]) {
-  return classes.filter(Boolean).join(' ');
 }
