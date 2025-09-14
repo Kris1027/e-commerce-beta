@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import NextAuth from 'next-auth';
 import authConfig from './auth.config';
+import { ROLES } from '@/lib/constants/roles';
 
 const { auth } = NextAuth(authConfig);
 
@@ -44,8 +45,8 @@ export default auth(async function middleware(req) {
     return NextResponse.redirect(signInUrl);
   }
 
-  // Protect admin routes - using string literal to avoid heavy imports
-  if (isAdminRoute && (!session || session.user?.role !== 'admin')) {
+  // Protect admin routes - using lightweight ROLES constant for Edge Runtime
+  if (isAdminRoute && (!session || session.user?.role !== ROLES.ADMIN)) {
     return NextResponse.redirect(new URL('/', req.url));
   }
 
