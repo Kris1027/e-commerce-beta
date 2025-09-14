@@ -5,7 +5,7 @@ import { useState } from 'react';
 import { signOutAction } from '@/lib/actions/auth-actions';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
-import { User } from 'lucide-react';
+import { User, Shield } from 'lucide-react';
 
 interface UserNavProps {
   user: {
@@ -75,9 +75,10 @@ export function UserNav({ user }: UserNavProps) {
                 <div className="h-px bg-border" />
                 <Link
                   href="/admin"
-                  className="flex w-full items-center rounded-sm px-2 py-1.5 text-sm hover:bg-accent hover:text-accent-foreground cursor-pointer"
+                  className="flex w-full items-center rounded-sm px-2 py-1.5 text-sm hover:bg-accent hover:text-accent-foreground cursor-pointer font-medium text-red-600"
                   onClick={() => setIsOpen(false)}
                 >
+                  <Shield className="mr-2 h-4 w-4" />
                   Admin Panel
                 </Link>
               </>

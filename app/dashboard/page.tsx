@@ -1,7 +1,7 @@
 import { auth } from '@/auth';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
-import { Package, ShoppingBag, Clock, CheckCircle, Truck, Heart, User, ShoppingCart } from 'lucide-react';
+import { Package, ShoppingBag, Clock, CheckCircle, Truck, Heart, User, ShoppingCart, Shield } from 'lucide-react';
 import { getOrders } from '@/lib/actions/order-actions';
 import { formatCurrency, formatDateTime, formatOrderStatus, getOrderStatusColor, isActiveOrder } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -149,6 +149,19 @@ export default async function DashboardPage() {
           </div>
         </Link>
       </div>
+
+      {/* Admin Panel Link for Admin Users */}
+      {session.user.role === 'admin' && (
+        <div className="mb-8">
+          <Link
+            href="/admin"
+            className="inline-flex items-center gap-2 rounded-lg border-2 border-red-200 bg-red-50 dark:bg-red-900/20 dark:border-red-800 px-6 py-3 hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors"
+          >
+            <Shield className="h-5 w-5 text-red-600 dark:text-red-400" />
+            <span className="font-semibold text-red-600 dark:text-red-400">Access Admin Panel</span>
+          </Link>
+        </div>
+      )}
 
       {/* Active Orders Section */}
       {activeOrders.length > 0 && (

@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Menu } from 'lucide-react'
+import { Menu, Shield } from 'lucide-react'
 import {
   Sheet,
   SheetContent,
@@ -31,7 +31,13 @@ const accountNavItems = [
 // Removed support nav items as these pages don't exist yet
 // They can be added back when the pages are created
 
-export function MobileMenu() {
+interface MobileMenuProps {
+  user?: {
+    role: string;
+  } | null;
+}
+
+export function MobileMenu({ user }: MobileMenuProps) {
   const [open, setOpen] = useState(false)
   const pathname = usePathname()
 
@@ -91,6 +97,26 @@ export function MobileMenu() {
               ))}
             </div>
           </div>
+
+          {user?.role === 'admin' && (
+            <div className="space-y-3">
+              <h3 className="text-sm font-semibold text-muted-foreground">Administration</h3>
+              <div className="space-y-1">
+                <Link
+                  href="/admin"
+                  onClick={() => setOpen(false)}
+                  className={`flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-red-600 transition-colors hover:bg-red-50 cursor-pointer ${
+                    pathname.startsWith('/admin')
+                      ? 'bg-red-50'
+                      : ''
+                  }`}
+                >
+                  <Shield className="h-4 w-4" />
+                  Admin Panel
+                </Link>
+              </div>
+            </div>
+          )}
 
           <div className="border-t pt-4">
             <div className="flex gap-2">
