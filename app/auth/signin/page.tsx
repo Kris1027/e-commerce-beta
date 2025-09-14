@@ -63,7 +63,7 @@ export default function SignInPage() {
         </div>
         
         <form className="mt-8 space-y-6" action={formAction}>
-          <input type="hidden" name="callbackUrl" value={callbackUrl} />
+          <Input type="hidden" name="callbackUrl" value={callbackUrl} />
           <div className="space-y-4">
             <div>
               <Label htmlFor="email">

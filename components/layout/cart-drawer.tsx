@@ -209,7 +209,7 @@ export function CartDrawer() {
                     <span>Subtotal</span>
                     <span>{formatCurrency(itemsPrice)}</span>
                   </div>
-                  {appliedCoupon && numericValues.discountAmount > 0 && (
+                  {appliedCoupon && discountAmount && discountAmount !== '0' && discountAmount !== '0.00' && (
                     <div className="flex justify-between text-sm text-green-600">
                       <span>Discount ({appliedCoupon.code})</span>
                       <span>-{formatCurrency(discountAmount)}</span>
