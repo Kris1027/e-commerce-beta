@@ -6,13 +6,14 @@ import { signOutAction } from '@/lib/actions/auth-actions';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { User, Shield } from 'lucide-react';
+import { UserRole } from '@prisma/client';
 
 interface UserNavProps {
   user: {
     id: string;
     email: string;
     name: string | null;
-    role: string;
+    role: UserRole;
   };
 }
 
@@ -70,7 +71,7 @@ export function UserNav({ user }: UserNavProps) {
               My Orders
             </Link>
 
-            {user.role === 'admin' && (
+            {user.role === UserRole.admin && (
               <>
                 <div className="h-px bg-border" />
                 <Link

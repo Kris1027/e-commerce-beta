@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import NextAuth from 'next-auth';
 import authConfig from './auth.config';
+import { UserRole } from '@prisma/client';
 
 const { auth } = NextAuth(authConfig);
 
@@ -40,7 +41,7 @@ export default auth(async function middleware(req) {
   }
   
   // Redirect to home if accessing admin route without admin role
-  if (isAdminRoute && (!session || session.user?.role !== 'admin')) {
+  if (isAdminRoute && (!session || session.user?.role !== UserRole.admin)) {
     return NextResponse.redirect(new URL('/', req.url));
   }
   
