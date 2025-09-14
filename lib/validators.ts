@@ -2,9 +2,6 @@ import { z } from 'zod';
 import { PAYMENT_METHODS } from './constants';
 import { UserRole } from '@prisma/client';
 
-// Re-export UserRole for convenience
-export { UserRole };
-
 // Password requirements configuration
 export const PASSWORD_REQUIREMENTS = {
   MIN_LENGTH: 8,

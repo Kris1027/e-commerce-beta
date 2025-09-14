@@ -2,7 +2,8 @@
 
 import { signIn, signOut } from '@/auth';
 import { AuthError } from 'next-auth';
-import { signInSchema, signUpSchema, UserRole } from '@/lib/validators';
+import { signInSchema, signUpSchema } from '@/lib/validators';
+import { UserRole } from '@prisma/client';
 import prisma from '@/db/prisma';
 import bcrypt from 'bcryptjs';
 
