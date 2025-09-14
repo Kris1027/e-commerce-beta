@@ -188,6 +188,16 @@ getCategoryDetails(slug)                    // Get category details with top pro
 - `AUTH_ROUTES` - Object containing auth route paths
 - `PROTECTED_ROUTES` - Array of protected route patterns
 
+### Role Management (`/hooks/use-role.ts`)
+```typescript
+useRole()                                   // Hook for client-side role checking
+  .user                                     // Current user object
+  .isAdmin                                  // Boolean: user has admin role
+  .isUser                                   // Boolean: user has user role
+  .isAuthenticated                          // Boolean: user is logged in
+  .hasRole(role: string)                    // Check for specific role
+```
+
 ## Database Models
 
 ### Core Models
@@ -294,6 +304,10 @@ pending → processing → shipped → delivered
   - Automatic callback URL preservation
   - Loading states and error handling with toast notifications
   - Full TypeScript support with proper types
+- Role-based access control:
+  - useRole hook for client-side role checking
+  - Type-safe role comparisons with UserRole enum
+  - Consistent role-based UI rendering across components
 
 ### 🚧 Pending
 - Stripe/PayPal payment integration
@@ -400,6 +414,27 @@ pnpm db:studio    # Prisma Studio GUI
 ```
 
 ## Recent Updates
+- **useRole Hook Implementation (2025-09-14)**:
+  - Created `/hooks/use-role.ts` for consistent client-side role checking
+  - Provides `isAdmin`, `isUser`, `isAuthenticated`, and `hasRole` utilities
+  - Replaced all direct session role comparisons in client components
+  - Updated components to use the hook:
+    - `/components/layout/mobile-menu.tsx` - Admin section visibility
+    - `/components/layout/user-nav.tsx` - Admin panel link in dropdown
+    - `/components/dashboard/admin-section.tsx` - Created client wrapper for admin sections
+  - Dashboard page now uses AdminSection component for cleaner separation
+  - Maintains type safety with UserRole enum integration
+  - Eliminates prop drilling of user/session data through component trees
+- **Middleware Optimization for Vercel Edge (2025-09-14)**:
+  - Fixed Edge Function size limit issue (was exceeding 1MB limit)
+  - Removed Prisma Client import from middleware (not Edge-compatible)
+  - Created lightweight role constants for Edge Runtime
+  - Implemented best practice middleware patterns:
+    - Clear route categorization (PUBLIC, AUTH, PROTECTED, ADMIN)
+    - Optimized matcher configuration
+    - String literal role comparison to avoid heavy imports
+  - Created useRole hook for client-side role checking
+  - Maintains security while keeping bundle size minimal
 - **Reusable Authentication Components (2025-09-14)**:
   - Created `SignInButton`, `SignUpButton`, and `SignOutButton` components in `/components/auth/`
   - All authentication components now centralized and reusable

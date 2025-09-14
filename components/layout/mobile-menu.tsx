@@ -13,9 +13,9 @@ import {
 } from '@/components/ui/sheet'
 import { Button } from '@/components/ui/button'
 import { APP_NAME } from '@/lib/constants'
-import { UserRole } from '@prisma/client'
 import { SignInButton } from '@/components/auth/sign-in-button'
 import { SignUpButton } from '@/components/auth/sign-up-button'
+import { useRole } from '@/hooks/use-role'
 
 const mainNavItems = [
   { href: '/', label: 'Home' },
@@ -34,15 +34,10 @@ const accountNavItems = [
 // Removed support nav items as these pages don't exist yet
 // They can be added back when the pages are created
 
-interface MobileMenuProps {
-  user?: {
-    role: UserRole;
-  } | null;
-}
-
-export function MobileMenu({ user }: MobileMenuProps) {
+export function MobileMenu() {
   const [open, setOpen] = useState(false)
   const pathname = usePathname()
+  const { isAdmin, isAuthenticated } = useRole()
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
@@ -101,7 +96,7 @@ export function MobileMenu({ user }: MobileMenuProps) {
             </div>
           </div>
 
-          {user?.role === UserRole.admin && (
+          {isAdmin && (
             <div className="space-y-3">
               <h3 className="text-sm font-semibold text-muted-foreground">Administration</h3>
               <div className="space-y-1">
@@ -121,16 +116,18 @@ export function MobileMenu({ user }: MobileMenuProps) {
             </div>
           )}
 
-          <div className="border-t pt-4">
-            <div className="flex gap-2">
-              <div className="flex-1" onClick={() => setOpen(false)}>
-                <SignInButton asChild className="w-full" />
-              </div>
-              <div className="flex-1" onClick={() => setOpen(false)}>
-                <SignUpButton asChild className="w-full" />
+          {!isAuthenticated && (
+            <div className="border-t pt-4">
+              <div className="flex gap-2">
+                <div className="flex-1" onClick={() => setOpen(false)}>
+                  <SignInButton asChild className="w-full" />
+                </div>
+                <div className="flex-1" onClick={() => setOpen(false)}>
+                  <SignUpButton asChild className="w-full" />
+                </div>
               </div>
             </div>
-          </div>
+          )}
         </nav>
       </SheetContent>
     </Sheet>

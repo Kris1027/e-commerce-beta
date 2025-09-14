@@ -4,20 +4,12 @@ import Link from 'next/link';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { User, Shield } from 'lucide-react';
-import { UserRole } from '@prisma/client';
 import { SignOutButton } from '@/components/auth/sign-out-button';
+import { useRole } from '@/hooks/use-role';
 
-interface UserNavProps {
-  user: {
-    id: string;
-    email: string;
-    name: string | null;
-    role: UserRole;
-  };
-}
-
-export function UserNav({ user }: UserNavProps) {
+export function UserNav() {
   const [isOpen, setIsOpen] = useState(false);
+  const { user, isAdmin } = useRole();
 
   return (
     <div className="relative">
@@ -39,10 +31,10 @@ export function UserNav({ user }: UserNavProps) {
           />
           <div className="absolute right-0 z-50 mt-2 w-56 rounded-md border bg-popover p-1 text-popover-foreground shadow-md">
             <div className="px-2 py-1.5 text-sm font-semibold">
-              {user.name || user.email}
+              {user?.name || user?.email}
             </div>
             <div className="px-2 pb-1.5 text-xs text-muted-foreground">
-              {user.email}
+              {user?.email}
             </div>
             <div className="h-px bg-border" />
             
@@ -70,7 +62,7 @@ export function UserNav({ user }: UserNavProps) {
               My Orders
             </Link>
 
-            {user.role === UserRole.admin && (
+            {isAdmin && (
               <>
                 <div className="h-px bg-border" />
                 <Link

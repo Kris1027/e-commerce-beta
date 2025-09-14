@@ -1,12 +1,12 @@
 import { auth } from '@/auth';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
-import { Package, ShoppingBag, Clock, CheckCircle, Truck, Heart, User, ShoppingCart, Shield } from 'lucide-react';
+import { Package, ShoppingBag, Clock, CheckCircle, Truck, Heart, User, ShoppingCart } from 'lucide-react';
 import { getOrders } from '@/lib/actions/order-actions';
 import { formatCurrency, formatDateTime, formatOrderStatus, getOrderStatusColor, isActiveOrder } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { ORDER_STATUS } from '@/lib/validators';
-import { UserRole } from '@prisma/client';
+import { AdminSection } from '@/components/dashboard/admin-section';
 
 export default async function DashboardPage() {
   const session = await auth();
@@ -152,17 +152,7 @@ export default async function DashboardPage() {
       </div>
 
       {/* Admin Panel Link for Admin Users */}
-      {session.user.role === UserRole.admin && (
-        <div className="mb-8">
-          <Link
-            href="/admin"
-            className="inline-flex items-center gap-2 rounded-lg border-2 border-red-200 bg-red-50 dark:bg-red-900/20 dark:border-red-800 px-6 py-3 hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors"
-          >
-            <Shield className="h-5 w-5 text-red-600 dark:text-red-400" />
-            <span className="font-semibold text-red-600 dark:text-red-400">Access Admin Panel</span>
-          </Link>
-        </div>
-      )}
+      <AdminSection />
 
       {/* Active Orders Section */}
       {activeOrders.length > 0 && (
@@ -297,17 +287,6 @@ export default async function DashboardPage() {
         )}
       </div>
 
-      {/* Admin Access */}
-      {session.user.role === UserRole.admin && (
-        <div className="mt-8 p-6 rounded-lg border bg-primary/5">
-          <h2 className="text-xl font-semibold mb-4">Admin Access</h2>
-          <Button asChild>
-            <Link href="/admin">
-              Go to Admin Panel
-            </Link>
-          </Button>
-        </div>
-      )}
     </div>
   );
 }
