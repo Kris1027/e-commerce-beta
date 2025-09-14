@@ -1,9 +1,8 @@
-import { cn, formatNumberWithDecimal } from '@/lib/utils';
+import { cn, formatCurrency } from '@/lib/utils';
 
 interface ProductPriceProps {
   price: number | string;
   originalPrice?: number | string;
-  currency?: string;
   className?: string;
   size?: 'sm' | 'md' | 'lg';
 }
@@ -11,7 +10,6 @@ interface ProductPriceProps {
 export function ProductPrice({
   price,
   originalPrice,
-  currency = 'zł',
   className,
   size = 'md',
 }: ProductPriceProps) {
@@ -31,7 +29,7 @@ export function ProductPrice({
   return (
     <div className={cn('flex items-center gap-2', className)}>
       <span className={cn('font-semibold', sizeClasses[size])}>
-        {formatNumberWithDecimal(numPrice)} {currency}
+        {formatCurrency(numPrice)}
       </span>
       {numOriginalPrice && numOriginalPrice > numPrice && (
         <>
@@ -39,7 +37,7 @@ export function ProductPrice({
             'text-muted-foreground line-through',
             size === 'sm' ? 'text-xs' : 'text-sm'
           )}>
-            {formatNumberWithDecimal(numOriginalPrice)} {currency}
+            {formatCurrency(numOriginalPrice)}
           </span>
           {discount > 0 && (
             <span className="text-xs font-medium text-green-600 dark:text-green-400">

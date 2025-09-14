@@ -7,7 +7,7 @@ import { X, ShoppingBag, Minus, Plus } from 'lucide-react';
 import { toast } from 'sonner';
 import { useCartStore } from '@/lib/store/cart-store';
 import { updateCartItem, removeFromCart } from '@/lib/actions/cart-actions';
-import { formatNumberWithDecimal } from '@/lib/utils';
+import { formatCurrency } from '@/lib/utils';
 import { CART_CONSTANTS } from '@/lib/constants/cart';
 import { CouponForm } from '@/components/cart/coupon-form';
 import {
@@ -147,7 +147,7 @@ export function CartDrawer() {
                             {item.name}
                           </Link>
                           <p className="mt-1 text-sm text-muted-foreground">
-                            ${item.price} each
+                            {formatCurrency(item.price)} each
                           </p>
                         </div>
                         <Button
@@ -186,7 +186,7 @@ export function CartDrawer() {
                           </Button>
                         </div>
                         <p className="text-sm font-medium">
-                          ${formatNumberWithDecimal(parseFloat(item.price) * item.qty)}
+                          {formatCurrency(parseFloat(item.price) * item.qty)}
                         </p>
                       </div>
                     </div>
@@ -207,12 +207,12 @@ export function CartDrawer() {
                 <div className="space-y-2">
                   <div className="flex justify-between text-sm">
                     <span>Subtotal</span>
-                    <span>${itemsPrice}</span>
+                    <span>{formatCurrency(itemsPrice)}</span>
                   </div>
                   {appliedCoupon && numericValues.discountAmount > 0 && (
                     <div className="flex justify-between text-sm text-green-600">
                       <span>Discount ({appliedCoupon.code})</span>
-                      <span>-${discountAmount}</span>
+                      <span>-{formatCurrency(discountAmount)}</span>
                     </div>
                   )}
                   <div className="flex justify-between text-sm">
@@ -221,18 +221,18 @@ export function CartDrawer() {
                       {numericValues.shippingPrice === 0 ? (
                         <span className="text-green-600">Free</span>
                       ) : (
-                        `$${shippingPrice}`
+                        formatCurrency(shippingPrice)
                       )}
                     </span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span>Tax</span>
-                    <span>${taxPrice}</span>
+                    <span>{formatCurrency(taxPrice)}</span>
                   </div>
                   <div className="my-2 h-px bg-border" />
                   <div className="flex justify-between font-semibold">
                     <span>Total</span>
-                    <span>${totalPrice}</span>
+                    <span>{formatCurrency(totalPrice)}</span>
                   </div>
                 </div>
               </div>
@@ -266,7 +266,7 @@ export function CartDrawer() {
               {numericValues.itemsPrice < CART_CONSTANTS.FREE_SHIPPING_THRESHOLD && (
                 <div className="mt-4 rounded-md bg-muted/50 p-3">
                   <p className="text-center text-xs text-muted-foreground">
-                    Add ${formatNumberWithDecimal(CART_CONSTANTS.FREE_SHIPPING_THRESHOLD - numericValues.itemsPrice)}{' '}
+                    Add {formatCurrency(CART_CONSTANTS.FREE_SHIPPING_THRESHOLD - numericValues.itemsPrice)}{' '}
                     more for free shipping
                   </p>
                 </div>

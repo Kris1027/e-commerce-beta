@@ -7,7 +7,7 @@ import { Trash2, Minus, Plus, ShoppingBag } from 'lucide-react';
 import { toast } from 'sonner';
 import { useCartStore } from '@/lib/store/cart-store';
 import { updateCartItem, removeFromCart } from '@/lib/actions/cart-actions';
-import { formatNumberWithDecimal, validateQuantity } from '@/lib/utils';
+import { formatCurrency, validateQuantity } from '@/lib/utils';
 import { z } from 'zod';
 import { cartItemSchema } from '@/lib/validators';
 import { CART_CONSTANTS } from '@/lib/constants/cart';
@@ -165,7 +165,7 @@ export default function CartClient({ initialCart, isAuthenticated }: CartClientP
                         {item.name}
                       </Link>
                       <p className="mt-1 text-sm text-muted-foreground">
-                        ${item.price} each
+                        {formatCurrency(item.price)} each
                       </p>
                     </div>
                     
@@ -238,7 +238,7 @@ export default function CartClient({ initialCart, isAuthenticated }: CartClientP
                     </div>
                     
                     <p className="font-medium">
-                      ${formatNumberWithDecimal(parseFloat(item.price) * item.qty)}
+                      {formatCurrency(parseFloat(item.price) * item.qty)}
                     </p>
                   </div>
                 </div>
@@ -261,13 +261,13 @@ export default function CartClient({ initialCart, isAuthenticated }: CartClientP
           <div className="space-y-2">
             <div className="flex justify-between text-sm">
               <span>Subtotal</span>
-              <span>${itemsPrice}</span>
+              <span>{formatCurrency(itemsPrice)}</span>
             </div>
             
             {appliedCoupon && parseFloat(discountAmount) > 0 && (
               <div className="flex justify-between text-sm text-green-600">
                 <span>Discount ({appliedCoupon.code})</span>
-                <span>-${discountAmount}</span>
+                <span>-{formatCurrency(discountAmount)}</span>
               </div>
             )}
             
@@ -277,21 +277,21 @@ export default function CartClient({ initialCart, isAuthenticated }: CartClientP
                 {parseFloat(shippingPrice) === 0 ? (
                   <span className="text-green-600">Free</span>
                 ) : (
-                  `$${shippingPrice}`
+                  formatCurrency(shippingPrice)
                 )}
               </span>
             </div>
             
             <div className="flex justify-between text-sm">
               <span>Tax</span>
-              <span>${taxPrice}</span>
+              <span>{formatCurrency(taxPrice)}</span>
             </div>
             
             <div className="my-3 h-px bg-border" />
             
             <div className="flex justify-between font-semibold">
               <span>Total</span>
-              <span>${totalPrice}</span>
+              <span>{formatCurrency(totalPrice)}</span>
             </div>
           </div>
           
@@ -322,7 +322,7 @@ export default function CartClient({ initialCart, isAuthenticated }: CartClientP
           
           {parseFloat(itemsPrice) < CART_CONSTANTS.FREE_SHIPPING_THRESHOLD && (
             <p className="mt-4 text-xs text-muted-foreground">
-              Add ${formatNumberWithDecimal(CART_CONSTANTS.FREE_SHIPPING_THRESHOLD - parseFloat(itemsPrice))} more for free shipping
+              Add {formatCurrency(CART_CONSTANTS.FREE_SHIPPING_THRESHOLD - parseFloat(itemsPrice))} more for free shipping
             </p>
           )}
         </div>
