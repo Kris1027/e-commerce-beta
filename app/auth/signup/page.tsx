@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
+import { buildAuthUrl } from '@/lib/utils';
 
 function SubmitButton() {
   const { pending } = useFormStatus();
@@ -52,7 +53,7 @@ export default function SignUpPage() {
           <p className="mt-2 text-center text-sm text-muted-foreground">
             Or{' '}
             <Link
-              href={`/auth/signin${callbackUrl !== '/dashboard' ? `?callbackUrl=${encodeURIComponent(callbackUrl)}` : ''}`}
+              href={buildAuthUrl('/auth/signin', callbackUrl)}
               className="font-medium text-primary hover:text-primary/80"
             >
               sign in to existing account

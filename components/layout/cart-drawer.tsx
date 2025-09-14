@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { X, ShoppingBag, Minus, Plus } from 'lucide-react';
@@ -33,6 +33,13 @@ export function CartDrawer() {
     updateItem,
     removeItem: removeFromStore,
   } = useCartStore();
+
+  // Parse numeric values once and memoize them
+  const numericValues = useMemo(() => ({
+    itemsPrice: parseFloat(itemsPrice),
+    shippingPrice: parseFloat(shippingPrice),
+    discountAmount: parseFloat(discountAmount),
+  }), [itemsPrice, shippingPrice, discountAmount]);
 
   // Hydrate on mount
   useEffect(() => {
@@ -80,7 +87,7 @@ export function CartDrawer() {
   return (
     <Sheet open={isOpen} onOpenChange={setOpen}>
       <SheetContent className="flex w-full flex-col sm:max-w-lg">
-        <SheetHeader className="pb-0">
+        <SheetHeader>
           <SheetTitle className="flex items-center gap-2">
             <ShoppingBag className="h-5 w-5" />
             Shopping Cart ({items.length})
@@ -202,7 +209,7 @@ export function CartDrawer() {
                     <span>Subtotal</span>
                     <span>${itemsPrice}</span>
                   </div>
-                  {appliedCoupon && parseFloat(discountAmount) > 0 && (
+                  {appliedCoupon && numericValues.discountAmount > 0 && (
                     <div className="flex justify-between text-sm text-green-600">
                       <span>Discount ({appliedCoupon.code})</span>
                       <span>-${discountAmount}</span>
@@ -211,7 +218,7 @@ export function CartDrawer() {
                   <div className="flex justify-between text-sm">
                     <span>Shipping</span>
                     <span>
-                      {parseFloat(shippingPrice) === 0 ? (
+                      {numericValues.shippingPrice === 0 ? (
                         <span className="text-green-600">Free</span>
                       ) : (
                         `$${shippingPrice}`
@@ -256,10 +263,10 @@ export function CartDrawer() {
                 </Button>
               </div>
 
-              {parseFloat(itemsPrice) < CART_CONSTANTS.FREE_SHIPPING_THRESHOLD && (
+              {numericValues.itemsPrice < CART_CONSTANTS.FREE_SHIPPING_THRESHOLD && (
                 <div className="mt-4 rounded-md bg-muted/50 p-3">
                   <p className="text-center text-xs text-muted-foreground">
-                    Add ${formatNumberWithDecimal(CART_CONSTANTS.FREE_SHIPPING_THRESHOLD - parseFloat(itemsPrice))}{' '}
+                    Add ${formatNumberWithDecimal(CART_CONSTANTS.FREE_SHIPPING_THRESHOLD - numericValues.itemsPrice)}{' '}
                     more for free shipping
                   </p>
                 </div>

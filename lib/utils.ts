@@ -285,3 +285,15 @@ export function slugToTitle(slug: string): string {
     .map(word => word.charAt(0).toUpperCase() + word.slice(1))
     .join(' ');
 }
+
+// Build auth URL with optional callback URL parameter
+export function buildAuthUrl(path: string, callbackUrl: string): string {
+  const defaultCallbackUrl = '/dashboard';
+
+  // Only append callbackUrl if it's different from the default
+  if (callbackUrl !== defaultCallbackUrl) {
+    return `${path}?callbackUrl=${encodeURIComponent(callbackUrl)}`;
+  }
+
+  return path;
+}
