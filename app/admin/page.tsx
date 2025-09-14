@@ -21,6 +21,7 @@ import prisma from '@/db/prisma';
 import { UserRole } from '@prisma/client';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
+import { getPercentageChanges } from '@/lib/services/analytics-service';
 
 async function getAdminStats() {
   try {
@@ -107,49 +108,14 @@ async function getAdminStats() {
   }
 }
 
-// TODO: Implement these functions to calculate percentage changes based on historical data
-// Compare current period (e.g., last 30 days) with previous period (e.g., previous 30 days)
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-function calculateRevenueChange(_currentRevenue: number): number {
-  // TODO: Fetch previous period revenue and calculate percentage change
-  // Formula: ((current - previous) / previous) * 100
-  // const previousRevenue = await fetchPreviousPeriodRevenue();
-  // return ((currentRevenue - previousRevenue) / previousRevenue) * 100;
-  return 12.5; // Mock value - replace with actual calculation
-}
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-function calculateOrdersChange(_currentOrders: number): number {
-  // TODO: Fetch previous period order count and calculate percentage change
-  // const previousOrders = await fetchPreviousPeriodOrders();
-  // return ((currentOrders - previousOrders) / previousOrders) * 100;
-  return 8.2; // Mock value - replace with actual calculation
-}
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-function calculateCustomersChange(_currentCustomers: number): number {
-  // TODO: Fetch previous period customer count and calculate percentage change
-  // const previousCustomers = await fetchPreviousPeriodCustomers();
-  // return ((currentCustomers - previousCustomers) / previousCustomers) * 100;
-  return 5.2; // Mock value - replace with actual calculation
-}
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-function calculateProductsChange(_currentProducts: number): number {
-  // TODO: Fetch previous period product count and calculate percentage change
-  // const previousProducts = await fetchPreviousPeriodProducts();
-  // return ((currentProducts - previousProducts) / previousProducts) * 100;
-  return -2.1; // Mock value - replace with actual calculation
-}
-
 export default async function AdminDashboard() {
-  const stats = await getAdminStats();
+  const [stats, percentageChanges] = await Promise.all([
+    getAdminStats(),
+    getPercentageChanges()
+  ]);
 
-  // Calculate percentage changes - using mock data until historical comparison is implemented
-  const revenueChange = calculateRevenueChange(Number(stats.totalRevenue));
-  const ordersChange = calculateOrdersChange(stats.totalOrders);
-  const customersChange = calculateCustomersChange(stats.totalCustomers);
-  const productsChange = calculateProductsChange(stats.totalProducts);
+  // Use analytics service for percentage changes
+  const { revenueChange, ordersChange, customersChange, productsChange } = percentageChanges;
 
   const statsCards = [
     {
