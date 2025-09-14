@@ -8,7 +8,6 @@ import {
   TrendingUp,
   TrendingDown,
   DollarSign,
-  Eye,
   Star,
   AlertCircle,
   ArrowUpRight,
@@ -186,13 +185,8 @@ export default async function AdminDashboard() {
       color: 'text-blue-600 dark:text-blue-500',
       bgColor: 'bg-blue-100 dark:bg-blue-900/20',
     },
-    {
-      title: 'Page Views',
-      value: '12.5K',
-      icon: Eye,
-      color: 'text-purple-600 dark:text-purple-500',
-      bgColor: 'bg-purple-100 dark:bg-purple-900/20',
-    },
+    // TODO: Add Page Views metric once analytics tracking is implemented
+    // Requires integration with analytics service (Google Analytics, Plausible, etc.)
   ];
 
   return (
@@ -277,7 +271,7 @@ export default async function AdminDashboard() {
       </div>
 
       {/* Quick Action Stats */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 md:grid-cols-3">
         {quickStats.map((stat) => {
           const Icon = stat.icon;
           return (
