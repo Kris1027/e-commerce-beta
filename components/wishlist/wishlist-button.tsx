@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
+import { buildAuthUrl } from '@/lib/utils';
 
 interface WishlistButtonProps {
   productId: string;
@@ -39,7 +40,7 @@ export function WishlistButton({
         } else {
           if (result.message?.includes('sign in')) {
             toast.error('Please sign in to use wishlist');
-            router.push('/auth/signin?callbackUrl=' + window.location.pathname);
+            router.push(buildAuthUrl('/auth/signin', window.location.pathname));
           } else {
             toast.error(result.message || 'Failed to update wishlist');
           }

@@ -14,6 +14,8 @@ import {
 import { Button } from '@/components/ui/button'
 import { APP_NAME } from '@/lib/constants'
 import { UserRole } from '@prisma/client'
+import { SignInButton } from '@/components/auth/sign-in-button'
+import { SignUpButton } from '@/components/auth/sign-up-button'
 
 const mainNavItems = [
   { href: '/', label: 'Home' },
@@ -121,20 +123,12 @@ export function MobileMenu({ user }: MobileMenuProps) {
 
           <div className="border-t pt-4">
             <div className="flex gap-2">
-              <Link
-                href="/auth/signin"
-                onClick={() => setOpen(false)}
-                className="flex-1 inline-flex items-center justify-center rounded-md border border-input bg-background px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground cursor-pointer"
-              >
-                Sign In
-              </Link>
-              <Link
-                href="/auth/signup"
-                onClick={() => setOpen(false)}
-                className="flex-1 inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 cursor-pointer"
-              >
-                Sign Up
-              </Link>
+              <div className="flex-1" onClick={() => setOpen(false)}>
+                <SignInButton asChild className="w-full" />
+              </div>
+              <div className="flex-1" onClick={() => setOpen(false)}>
+                <SignUpButton asChild className="w-full" />
+              </div>
             </div>
           </div>
         </nav>

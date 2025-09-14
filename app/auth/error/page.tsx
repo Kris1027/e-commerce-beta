@@ -3,6 +3,8 @@
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { Suspense } from 'react';
+import { SignInButton } from '@/components/auth/sign-in-button';
+import { Button } from '@/components/ui/button';
 
 function AuthErrorContent() {
   const searchParams = useSearchParams();
@@ -66,18 +68,14 @@ function AuthErrorContent() {
         </div>
 
         <div className="space-y-3">
-          <Link
-            href="/auth/signin"
-            className="w-full inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-primary-foreground bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
-          >
+          <SignInButton className="w-full" preserveCallbackUrl={false}>
             Try Again
-          </Link>
-          <Link
-            href="/"
-            className="w-full inline-flex justify-center items-center px-4 py-2 border border-input text-sm font-medium rounded-md hover:bg-accent hover:text-accent-foreground focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
-          >
-            Go to Homepage
-          </Link>
+          </SignInButton>
+          <Button variant="outline" className="w-full" asChild>
+            <Link href="/">
+              Go to Homepage
+            </Link>
+          </Button>
         </div>
 
         {error && (

@@ -6,6 +6,8 @@ import { auth } from '@/auth'
 import { UserNav } from '@/components/layout/user-nav'
 import { CartButton } from '@/components/layout/cart-button'
 import { UserRole } from '@prisma/client'
+import { SignInButton } from '@/components/auth/sign-in-button'
+import { SignUpButton } from '@/components/auth/sign-up-button'
 
 export async function Header() {
   const session = await auth();
@@ -71,18 +73,8 @@ export async function Header() {
               <UserNav user={{ ...session.user, role: session.user.role as UserRole }} />
             ) : (
               <div className="hidden sm:flex items-center gap-2">
-                <Link
-                  href="/auth/signin"
-                  className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground h-9 px-3"
-                >
-                  Sign In
-                </Link>
-                <Link
-                  href="/auth/signup"
-                  className="inline-flex items-center justify-center rounded-md bg-primary text-primary-foreground hover:bg-primary/90 h-9 px-3 text-sm font-medium transition-colors"
-                >
-                  Sign Up
-                </Link>
+                <SignInButton variant="ghost" size="sm" />
+                <SignUpButton size="sm" />
               </div>
             )}
             <ThemeToggle />

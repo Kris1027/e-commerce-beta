@@ -2,11 +2,10 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
-import { signOutAction } from '@/lib/actions/auth-actions';
-import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { User, Shield } from 'lucide-react';
 import { UserRole } from '@prisma/client';
+import { SignOutButton } from '@/components/auth/sign-out-button';
 
 interface UserNavProps {
   user: {
@@ -86,25 +85,8 @@ export function UserNav({ user }: UserNavProps) {
             )}
             
             <div className="h-px bg-border" />
-            
-            <form 
-              action={async () => {
-                try {
-                  await signOutAction();
-                  toast.success('Signed out successfully');
-                } catch (error) {
-                  console.error('Sign out failed:', error);
-                  toast.error('Sign out failed');
-                }
-              }}
-            >
-              <button
-                type="submit"
-                className="flex w-full items-center rounded-sm px-2 py-1.5 text-sm hover:bg-accent hover:text-accent-foreground cursor-pointer"
-              >
-                Sign Out
-              </button>
-            </form>
+
+            <SignOutButton asChild />
           </div>
         </>
       )}

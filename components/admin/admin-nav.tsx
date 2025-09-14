@@ -11,14 +11,13 @@ import {
   Users,
   Tags,
   Settings,
-  LogOut,
   ChevronLeft,
   ChevronRight,
   Star,
   BarChart,
 } from 'lucide-react';
 import { useState } from 'react';
-import { signOut } from 'next-auth/react';
+import { SignOutButton } from '@/components/auth/sign-out-button';
 
 const navItems = [
   {
@@ -67,9 +66,6 @@ export default function AdminNav() {
   const pathname = usePathname();
   const [isCollapsed, setIsCollapsed] = useState(false);
 
-  const handleSignOut = async () => {
-    await signOut({ callbackUrl: '/' });
-  };
 
   return (
     <aside
@@ -124,17 +120,15 @@ export default function AdminNav() {
       </nav>
 
       <div className="p-4 border-t">
-        <Button
+        <SignOutButton
           variant="ghost"
-          onClick={handleSignOut}
           className={cn(
-            'w-full justify-start gap-3 text-muted-foreground hover:text-accent-foreground cursor-pointer',
+            'w-full justify-start gap-3 text-muted-foreground hover:text-accent-foreground',
             isCollapsed && 'justify-center px-0'
           )}
-        >
-          <LogOut className="h-5 w-5 flex-shrink-0" />
-          {!isCollapsed && <span>Sign Out</span>}
-        </Button>
+          showText={!isCollapsed}
+          iconClassName="h-5 w-5"
+        />
       </div>
     </aside>
   );
