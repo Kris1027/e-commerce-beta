@@ -1,5 +1,9 @@
 import { z } from 'zod';
 import { PAYMENT_METHODS } from './constants';
+import { UserRole } from '@prisma/client';
+
+// Re-export UserRole for convenience
+export { UserRole };
 
 // Password requirements configuration
 export const PASSWORD_REQUIREMENTS = {
@@ -132,7 +136,7 @@ export const insertUserSchema = signUpFormSchema
     id: z.string().uuid().optional(),
     emailVerified: z.date().nullable().optional(),
     image: z.string().nullable().optional(),
-    role: z.enum(['user', 'admin']).default('user'),
+    role: z.nativeEnum(UserRole).default(UserRole.user),
     address: z.object({
       street: z.string(),
       city: z.string(),

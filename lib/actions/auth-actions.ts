@@ -2,7 +2,7 @@
 
 import { signIn, signOut } from '@/auth';
 import { AuthError } from 'next-auth';
-import { signInSchema, signUpSchema } from '@/lib/validators';
+import { signInSchema, signUpSchema, UserRole } from '@/lib/validators';
 import prisma from '@/db/prisma';
 import bcrypt from 'bcryptjs';
 
@@ -91,7 +91,7 @@ export async function signUpAction(
         name,
         email: email.toLowerCase(),
         password: hashedPassword,
-        role: 'customer',
+        role: UserRole.user,
       },
     });
 

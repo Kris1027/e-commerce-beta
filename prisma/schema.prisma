@@ -14,6 +14,11 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum UserRole {
+  user
+  admin
+}
+
 model Product {
   id          String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   name        String
@@ -41,7 +46,7 @@ model User {
   emailVerified DateTime? @db.Timestamp(6)
   image         String?
   password      String?
-  role          String    @default("user")
+  role          UserRole  @default(user)
   address       Json?     @db.Json
   paymentMethod String?
   createdAt     DateTime  @default(now()) @db.Timestamp(6)

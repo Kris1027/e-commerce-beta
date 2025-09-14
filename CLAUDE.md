@@ -191,7 +191,7 @@ getCategoryDetails(slug)                    // Get category details with top pro
 ## Database Models
 
 ### Core Models
-- **User**: Authentication, roles (admin/customer)
+- **User**: Authentication, roles (admin/user)
 - **Product**: Stock, price, images, featured flag
 - **Cart**: Session-based, user-linked
 - **Order**: Status tracking, payment info
@@ -264,10 +264,23 @@ pending → processing → shipped → delivered
   - Uses shadcn/ui pagination components
   - Consistent pagination across all pages (products, orders, categories)
   - Smart ellipsis with generatePaginationNumbers utility
+- Admin dashboard (Initial implementation):
+  - Admin-only layout with sidebar navigation
+  - Collapsible sidebar for better space management
+  - Dashboard overview with key statistics
+  - Recent orders and low stock alerts
+  - Protected routes with role-based access control
+  - Admin navigation with sections for Products, Orders, Customers, Categories, Reviews, Analytics
 
 ### 🚧 Pending
 - Stripe/PayPal payment integration
-- Admin dashboard (product/order management)
+- Admin dashboard features:
+  - Product management (CRUD operations)
+  - Order management and status updates
+  - Customer management
+  - Category management
+  - Review moderation
+  - Analytics and reports
 - Password reset via email
 - Email notifications
 - Product search and filters
@@ -364,7 +377,14 @@ pnpm db:studio    # Prisma Studio GUI
 ```
 
 ## Recent Updates
-- **Session Updates (Latest - 2025-09-14)**:
+- **User Role Enum Implementation (2025-09-14)**:
+  - Created database-level UserRole enum with values 'user' and 'admin'
+  - Migrated from string-based roles to strongly-typed enum
+  - Updated Prisma schema to enforce role values at database level
+  - Updated validators to use Prisma's native enum type
+  - All role comparisons now use UserRole enum (UserRole.user, UserRole.admin)
+  - Provides type safety and prevents invalid role assignments
+- **Session Updates (2025-09-14)**:
   - **Cart Drawer Spacing Fix**: Removed `pb-0` class from SheetHeader for consistent spacing with shadcn/ui defaults
   - **Auth URL Utility Function**: Created `buildAuthUrl()` utility to eliminate duplicate URL construction logic in signin/signup pages
   - **Price Formatting Standardization**:

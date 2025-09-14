@@ -148,7 +148,7 @@ export default async function ProfilePage() {
               <div className="space-y-3">
                 <div>
                   <p className="text-sm text-muted-foreground">Account Type</p>
-                  <p className="font-medium capitalize">{user.role === 'admin' ? 'Administrator' : 'Customer'}</p>
+                  <p className="font-medium capitalize">{user.role}</p>
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Member Since</p>
