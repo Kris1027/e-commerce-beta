@@ -401,7 +401,9 @@ export default async function AdminDashboard() {
                   .filter(p => p.stock <= 10)
                   .slice(0, 5)
                   .map((product) => {
-                    const stockPercentage = (product.stock / 100) * 100;
+                    // Consider 20 items as optimal stock level for progress visualization
+                    const OPTIMAL_STOCK_LEVEL = 20;
+                    const stockPercentage = Math.min((product.stock / OPTIMAL_STOCK_LEVEL) * 100, 100);
                     const isLow = product.stock <= 5;
                     const isCritical = product.stock <= 2;
 
