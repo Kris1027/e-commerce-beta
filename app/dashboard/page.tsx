@@ -6,6 +6,7 @@ import { getOrders } from '@/lib/actions/order-actions';
 import { formatCurrency, formatDateTime, formatOrderStatus, getOrderStatusColor, isActiveOrder } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { ORDER_STATUS } from '@/lib/validators';
+import { AdminSection } from '@/components/dashboard/admin-section';
 
 export default async function DashboardPage() {
   const session = await auth();
@@ -150,6 +151,9 @@ export default async function DashboardPage() {
         </Link>
       </div>
 
+      {/* Admin Panel Link for Admin Users */}
+      <AdminSection />
+
       {/* Active Orders Section */}
       {activeOrders.length > 0 && (
         <div className="mb-8">
@@ -283,17 +287,6 @@ export default async function DashboardPage() {
         )}
       </div>
 
-      {/* Admin Access */}
-      {session.user.role === 'admin' && (
-        <div className="mt-8 p-6 rounded-lg border bg-primary/5">
-          <h2 className="text-xl font-semibold mb-4">Admin Access</h2>
-          <Button asChild>
-            <Link href="/admin">
-              Go to Admin Panel
-            </Link>
-          </Button>
-        </div>
-      )}
     </div>
   );
 }

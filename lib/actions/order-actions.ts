@@ -7,6 +7,7 @@ import { clearCart } from './cart-actions';
 import { clearCheckoutSession } from './checkout-actions';
 import { revalidatePath } from 'next/cache';
 import { formatNumberWithDecimal } from '@/lib/utils';
+import { UserRole } from '@prisma/client';
 
 interface PlaceOrderParams {
   cart: CartResponse;
@@ -196,7 +197,7 @@ export async function updateOrderStatus(orderId: string, status: string) {
     const session = await auth();
     
     // Check if user is admin
-    if (!session?.user?.role || session.user.role !== 'admin') {
+    if (!session?.user?.role || session.user.role !== UserRole.admin) {
       return { success: false, message: 'Unauthorized' };
     }
     

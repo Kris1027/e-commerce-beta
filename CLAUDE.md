@@ -188,10 +188,20 @@ getCategoryDetails(slug)                    // Get category details with top pro
 - `AUTH_ROUTES` - Object containing auth route paths
 - `PROTECTED_ROUTES` - Array of protected route patterns
 
+### Role Management (`/hooks/use-role.ts`)
+```typescript
+useRole()                                   // Hook for client-side role checking
+  .user                                     // Current user object
+  .isAdmin                                  // Boolean: user has admin role
+  .isUser                                   // Boolean: user has user role
+  .isAuthenticated                          // Boolean: user is logged in
+  .hasRole(role: string)                    // Check for specific role
+```
+
 ## Database Models
 
 ### Core Models
-- **User**: Authentication, roles (admin/customer)
+- **User**: Authentication, roles (admin/user)
 - **Product**: Stock, price, images, featured flag
 - **Cart**: Session-based, user-linked
 - **Order**: Status tracking, payment info
@@ -264,10 +274,50 @@ pending → processing → shipped → delivered
   - Uses shadcn/ui pagination components
   - Consistent pagination across all pages (products, orders, categories)
   - Smart ellipsis with generatePaginationNumbers utility
+- Admin dashboard (Complete Modern UI/UX Implementation):
+  - **Layout & Navigation**:
+    - Admin-only layout with glass morphism sidebar
+    - Collapsible sidebar with smooth animations
+    - Dark mode fully supported with proper color schemes
+    - Rounded corners and modern shadows throughout
+  - **Dashboard Features**:
+    - Gradient header with grid pattern overlay
+    - 4 main stats cards with gradients and trend indicators
+    - Quick action stats with hover-reveal menus
+    - Recent orders with status badges and empty states
+    - Inventory alerts with progress bars and stock levels
+    - All cards are clickable and link to relevant sections
+  - **Modern UI Components**:
+    - Shadcn Badge for status indicators
+    - Shadcn Progress for visual stock levels
+    - Micro-interactions on all interactive elements
+    - Hover animations with scale and shadow effects
+    - Empty states with helpful icons and messages
+  - **Access & Security**:
+    - Protected routes with role-based access control
+    - Admin panel accessible from user dropdown, mobile menu, and dashboard
+    - UserRole enum for type-safe role management
+    - Admin users see special red-themed admin links
+- Authentication components:
+  - Reusable SignInButton, SignUpButton, and SignOutButton components
+  - Consistent authentication UI/UX across the application
+  - Automatic callback URL preservation
+  - Loading states and error handling with toast notifications
+  - Full TypeScript support with proper types
+- Role-based access control:
+  - useRole hook for client-side role checking
+  - Type-safe role comparisons with UserRole enum
+  - Consistent role-based UI rendering across components
 
 ### 🚧 Pending
 - Stripe/PayPal payment integration
-- Admin dashboard (product/order management)
+- Admin dashboard features:
+  - Product management (CRUD operations)
+  - Order management and status updates
+  - Customer management
+  - Category management
+  - Review moderation
+  - Analytics and reports
 - Password reset via email
 - Email notifications
 - Product search and filters
@@ -340,8 +390,8 @@ AUTH_SECRET="[generate with: openssl rand -base64 32]"
 ```
 
 ## Sample Users
-- Admin: admin@example.com / 123456
-- User: user@example.com / 123456
+- Admin: admin@example.com / Zaq12wsx
+- User: user@example.com / Zaq12wsx
 
 ## Polish Localization
 - All addresses configured for Poland only
@@ -364,7 +414,68 @@ pnpm db:studio    # Prisma Studio GUI
 ```
 
 ## Recent Updates
-- **Session Updates (Latest - 2025-09-14)**:
+- **useRole Hook Implementation (2025-09-14)**:
+  - Created `/hooks/use-role.ts` for consistent client-side role checking
+  - Provides `isAdmin`, `isUser`, `isAuthenticated`, and `hasRole` utilities
+  - Replaced all direct session role comparisons in client components
+  - Updated components to use the hook:
+    - `/components/layout/mobile-menu.tsx` - Admin section visibility
+    - `/components/layout/user-nav.tsx` - Admin panel link in dropdown
+    - `/components/dashboard/admin-section.tsx` - Created client wrapper for admin sections
+  - Dashboard page now uses AdminSection component for cleaner separation
+  - Maintains type safety with UserRole enum integration
+  - Eliminates prop drilling of user/session data through component trees
+- **Middleware Optimization for Vercel Edge (2025-09-14)**:
+  - Fixed Edge Function size limit issue (was exceeding 1MB limit)
+  - Removed Prisma Client import from middleware (not Edge-compatible)
+  - Created lightweight role constants for Edge Runtime
+  - Implemented best practice middleware patterns:
+    - Clear route categorization (PUBLIC, AUTH, PROTECTED, ADMIN)
+    - Optimized matcher configuration
+    - String literal role comparison to avoid heavy imports
+  - Created useRole hook for client-side role checking
+  - Maintains security while keeping bundle size minimal
+- **Reusable Authentication Components (2025-09-14)**:
+  - Created `SignInButton`, `SignUpButton`, and `SignOutButton` components in `/components/auth/`
+  - All authentication components now centralized and reusable
+  - Support for custom styling, variants, sizes, and icon configurations
+  - Automatic callback URL preservation for seamless auth flows
+  - Consistent error handling with toast notifications
+  - Replaced all inline auth implementations with reusable components
+  - Updated header, mobile menu, user nav, and admin nav to use new components
+  - Added proper TypeScript types and best practices (useTransition for async operations)
+  - Fixed UserRole enum usage across all components for type safety
+- **Admin Dashboard Complete Redesign (2025-09-14)**:
+  - **Modern UI/UX Implementation**:
+    - Gradient backgrounds with glass morphism effects
+    - Enhanced stats cards with trend indicators and gradients
+    - Progress bars for inventory management
+    - Status badges using shadcn Badge component
+    - Empty states with actionable CTAs and helpful icons
+    - Micro-interactions and hover animations throughout
+  - **Dark Mode Support**:
+    - Fixed white background issue in dark mode
+    - All components now use semantic colors (muted, foreground, etc.)
+    - Proper contrast in both light and dark themes
+  - **Navigation Improvements**:
+    - Admin panel links in user dropdown with Shield icon
+    - Mobile menu admin section for mobile users
+    - Dashboard quick access button for admin users
+    - All admin links use red theme for distinction
+  - **Data Visualization**:
+    - Stock levels shown with Progress component
+    - Color-coded alerts (critical: red, low: orange)
+    - Percentage indicators and trend arrows
+    - Recent orders with time formatting in Polish locale
+- **User Role Enum Implementation (2025-09-14)**:
+  - Created database-level UserRole enum with values 'user' and 'admin'
+  - Migrated from string-based roles to strongly-typed enum
+  - Updated Prisma schema to enforce role values at database level
+  - Updated validators to use Prisma's native enum type
+  - All role comparisons now use UserRole enum (UserRole.user, UserRole.admin)
+  - Provides type safety and prevents invalid role assignments
+  - Updated seed data to use enum values
+- **Session Updates (2025-09-14)**:
   - **Cart Drawer Spacing Fix**: Removed `pb-0` class from SheetHeader for consistent spacing with shadcn/ui defaults
   - **Auth URL Utility Function**: Created `buildAuthUrl()` utility to eliminate duplicate URL construction logic in signin/signup pages
   - **Price Formatting Standardization**:

@@ -1,16 +1,18 @@
+import { UserRole } from '@prisma/client'
+
 const sampleData = {
   users: [
     {
       name: 'John',
       email: 'admin@example.com',
-      password: '123456',
-      role: 'admin',
+      password: 'Zaq12wsx',
+      role: UserRole.admin,
     },
     {
       name: 'Jane',
       email: 'user@example.com',
-      password: '123456',
-      role: 'user',
+      password: 'Zaq12wsx',
+      role: UserRole.user,
     },
   ],
   products: [

@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Menu } from 'lucide-react'
+import { Menu, Shield } from 'lucide-react'
 import {
   Sheet,
   SheetContent,
@@ -13,6 +13,9 @@ import {
 } from '@/components/ui/sheet'
 import { Button } from '@/components/ui/button'
 import { APP_NAME } from '@/lib/constants'
+import { SignInButton } from '@/components/auth/sign-in-button'
+import { SignUpButton } from '@/components/auth/sign-up-button'
+import { useRole } from '@/hooks/use-role'
 
 const mainNavItems = [
   { href: '/', label: 'Home' },
@@ -34,6 +37,7 @@ const accountNavItems = [
 export function MobileMenu() {
   const [open, setOpen] = useState(false)
   const pathname = usePathname()
+  const { isAdmin, isAuthenticated } = useRole()
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
@@ -92,24 +96,38 @@ export function MobileMenu() {
             </div>
           </div>
 
-          <div className="border-t pt-4">
-            <div className="flex gap-2">
-              <Link
-                href="/auth/signin"
-                onClick={() => setOpen(false)}
-                className="flex-1 inline-flex items-center justify-center rounded-md border border-input bg-background px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground cursor-pointer"
-              >
-                Sign In
-              </Link>
-              <Link
-                href="/auth/signup"
-                onClick={() => setOpen(false)}
-                className="flex-1 inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 cursor-pointer"
-              >
-                Sign Up
-              </Link>
+          {isAdmin && (
+            <div className="space-y-3">
+              <h3 className="text-sm font-semibold text-muted-foreground">Administration</h3>
+              <div className="space-y-1">
+                <Link
+                  href="/admin"
+                  onClick={() => setOpen(false)}
+                  className={`flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-red-600 transition-colors hover:bg-red-50 cursor-pointer ${
+                    pathname.startsWith('/admin')
+                      ? 'bg-red-50'
+                      : ''
+                  }`}
+                >
+                  <Shield className="h-4 w-4" />
+                  Admin Panel
+                </Link>
+              </div>
             </div>
-          </div>
+          )}
+
+          {!isAuthenticated && (
+            <div className="border-t pt-4">
+              <div className="flex gap-2">
+                <div className="flex-1" onClick={() => setOpen(false)}>
+                  <SignInButton asChild className="w-full" />
+                </div>
+                <div className="flex-1" onClick={() => setOpen(false)}>
+                  <SignUpButton asChild className="w-full" />
+                </div>
+              </div>
+            </div>
+          )}
         </nav>
       </SheetContent>
     </Sheet>
