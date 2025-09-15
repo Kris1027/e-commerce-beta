@@ -34,8 +34,6 @@ import {
   Mail,
   Crown,
   ShoppingBag,
-  Clock,
-  TrendingUp,
   Trash2,
   AlertTriangle,
   Filter,
@@ -472,19 +470,19 @@ export function CustomersTable({ data, statistics }: CustomersTableProps) {
           </div>
         )}
         <CardContent className="p-0">
-          <div className="overflow-x-auto min-w-0">
-            <Table className="table-fixed min-w-[1200px]">
+          <div className="w-full">
+            <Table>
               <TableHeader>
                 <TableRow className="hover:bg-transparent">
-                  <TableHead className="w-[140px]">ID</TableHead>
-                  <TableHead className="w-[280px]">Customer</TableHead>
-                  <TableHead className="w-[100px]">Role</TableHead>
-                  <TableHead className="w-[120px]">Joined</TableHead>
-                  <TableHead className="text-center w-[100px]">Orders</TableHead>
-                  <TableHead className="text-center w-[100px]">Wishlist</TableHead>
-                  <TableHead className="text-right w-[150px]">Total Spent</TableHead>
-                  <TableHead className="w-[130px]">Last Order</TableHead>
-                  <TableHead className="w-[80px]">Actions</TableHead>
+                  <TableHead className="w-[10%] min-w-[80px]">ID</TableHead>
+                  <TableHead className="w-[25%] min-w-[180px]">Customer</TableHead>
+                  <TableHead className="w-[8%] min-w-[70px]">Role</TableHead>
+                  <TableHead className="w-[10%] min-w-[90px]">Joined</TableHead>
+                  <TableHead className="text-center w-[8%] min-w-[60px]">Orders</TableHead>
+                  <TableHead className="text-center w-[8%] min-w-[60px]">Wishlist</TableHead>
+                  <TableHead className="text-right w-[11%] min-w-[80px]">Spent</TableHead>
+                  <TableHead className="w-[12%] min-w-[90px]">Last Order</TableHead>
+                  <TableHead className="w-[8%] min-w-[60px]">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -499,7 +497,7 @@ export function CustomersTable({ data, statistics }: CustomersTableProps) {
                 ) : (
                   <TooltipProvider>
                     {data.users.map((user) => (
-                      <TableRow key={user.id} className="group hover:bg-muted/50 transition-colors">
+                      <TableRow key={user.id} className="group hover:bg-muted/50 transition-colors h-12">
                         <TableCell>
                           <Tooltip>
                             <TooltipTrigger asChild>
@@ -509,7 +507,7 @@ export function CustomersTable({ data, statistics }: CustomersTableProps) {
                                   handleCopyId(user.id);
                                 }}
                                 className={cn(
-                                  "inline-flex items-center gap-1.5 font-mono text-xs px-2 py-1 rounded-md transition-all cursor-pointer",
+                                  "inline-flex items-center gap-1 font-mono text-xs px-1.5 py-0.5 rounded transition-all cursor-pointer",
                                   "hover:bg-primary/10 hover:text-primary",
                                   copiedId === user.id && "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400"
                                 )}
@@ -522,7 +520,7 @@ export function CustomersTable({ data, statistics }: CustomersTableProps) {
                                 ) : (
                                   <>
                                     <Copy className="h-3 w-3 opacity-70" />
-                                    <span>{user.id.slice(0, 8)}...</span>
+                                    <span>{user.id.slice(0, 6)}...</span>
                                   </>
                                 )}
                               </button>
@@ -536,15 +534,12 @@ export function CustomersTable({ data, statistics }: CustomersTableProps) {
                         <TableCell>
                           <div className="space-y-1">
                             <div className="flex items-center gap-2">
-                              <div className="h-8 w-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white text-xs font-semibold flex-shrink-0">
+                              <div className="h-7 w-7 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white text-xs font-semibold flex-shrink-0">
                                 {(user.name || 'A').charAt(0).toUpperCase()}
                               </div>
                               <div className="min-w-0 flex-1">
-                                <div className="font-medium truncate">{user.name || 'Anonymous'}</div>
-                                <div className="text-sm text-muted-foreground flex items-center gap-1">
-                                  <Mail className="h-3 w-3 flex-shrink-0" />
-                                  <span className="truncate">{user.email}</span>
-                                </div>
+                                <div className="font-medium truncate text-sm">{user.name || 'Anonymous'}</div>
+                                <div className="text-xs text-muted-foreground truncate">{user.email}</div>
                               </div>
                             </div>
                           </div>
@@ -564,9 +559,8 @@ export function CustomersTable({ data, statistics }: CustomersTableProps) {
                         <TableCell>
                           <Tooltip>
                             <TooltipTrigger asChild>
-                              <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
-                                <Clock className="h-3.5 w-3.5" />
-                                <span>{user.formattedCreatedAt.dateOnly}</span>
+                              <div className="text-xs text-muted-foreground">
+                                {user.formattedCreatedAt.dateOnly}
                               </div>
                             </TooltipTrigger>
                             <TooltipContent>
@@ -614,36 +608,20 @@ export function CustomersTable({ data, statistics }: CustomersTableProps) {
                           </Tooltip>
                         </TableCell>
                         <TableCell className="text-right">
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <div className={cn(
-                                "inline-flex items-center gap-1 px-2 py-1 rounded-md font-medium",
-                                Number(user.totalSpent) > 0 && "bg-green-50 dark:bg-green-950/30 text-green-700 dark:text-green-400"
-                              )}>
-                                {Number(user.totalSpent) > 1000 && <TrendingUp className="h-3.5 w-3.5" />}
-                                {formatCurrency(user.totalSpent)}
-                              </div>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              <p>Lifetime value: {formatCurrency(user.totalSpent)}</p>
-                            </TooltipContent>
-                          </Tooltip>
+                          <span className={cn(
+                            "text-sm font-medium",
+                            Number(user.totalSpent) > 0 ? "text-foreground" : "text-muted-foreground"
+                          )}>
+                            {formatCurrency(user.totalSpent)}
+                          </span>
                         </TableCell>
                         <TableCell>
-                          {user.formattedLastOrderDate ? (
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <div className="text-sm font-medium">
-                                  {user.formattedLastOrderDate.dateOnly}
-                                </div>
-                              </TooltipTrigger>
-                              <TooltipContent>
-                                <p>Last order: {user.formattedLastOrderDate.dateTime}</p>
-                              </TooltipContent>
-                            </Tooltip>
-                          ) : (
-                            <span className="text-sm text-muted-foreground italic">No orders</span>
-                          )}
+                          <span className={cn(
+                            "text-xs",
+                            user.formattedLastOrderDate ? "text-foreground" : "text-muted-foreground"
+                          )}>
+                            {user.formattedLastOrderDate?.dateOnly || "Never"}
+                          </span>
                         </TableCell>
                         <TableCell>
                           <DropdownMenu>
@@ -651,9 +629,9 @@ export function CustomersTable({ data, statistics }: CustomersTableProps) {
                               <Button
                                 variant="ghost"
                                 size="icon"
-                                className="h-8 w-8 hover:bg-muted"
+                                className="h-7 w-7 hover:bg-muted"
                               >
-                                <MoreVertical className="h-4 w-4" />
+                                <MoreVertical className="h-3.5 w-3.5" />
                                 <span className="sr-only">Open menu</span>
                               </Button>
                             </DropdownMenuTrigger>

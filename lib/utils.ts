@@ -229,7 +229,6 @@ export const formatDateTime = (dateString: Date) => {
     hour12: false, // use 24-hour clock for Polish locale
   };
   const dateOptions: Intl.DateTimeFormatOptions = {
-    weekday: 'short', // abbreviated weekday name (e.g., 'Mon')
     month: 'short', // abbreviated month name (e.g., 'Oct')
     year: 'numeric', // numeric year (e.g., '2023')
     day: 'numeric', // numeric day of the month (e.g., '25')

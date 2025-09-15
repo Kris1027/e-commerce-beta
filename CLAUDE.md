@@ -223,7 +223,6 @@ Reusable real-time search input component with advanced UX features:
   showClear={true}                        // Show clear button (default: true)
   disabled={false}                        // Disabled state
   autoFocus={false}                       // Auto-focus on mount
-  isSearching={false}                     // Show loading state
   minChars={0}                            // Minimum characters to trigger search
   maxLength={100}                         // Maximum input length
   onClear={() => {}}                      // Optional clear callback
@@ -233,17 +232,21 @@ Reusable real-time search input component with advanced UX features:
 />
 ```
 Features:
-- **Visual Feedback**: Loading spinner during search, focus states
+- **No Flickering**: Stable input value while typing, no disappearing text
+- **Visual Feedback**: Loading spinner replaces search icon during pending searches
 - **Keyboard Support**: ESC to clear, proper search input type
+- **Smart State Management**:
+  - Internal value tracking prevents external sync issues
+  - Proper debouncing with cleanup
+  - Maintains focus during all operations
 - **Accessibility**: ARIA labels, keyboard navigation, focus management
-- **Performance**: Debounced search, minimum character threshold
+- **Performance**: Optimized with useCallback hooks, proper cleanup
 - **User Experience**:
   - Auto-refocus after clear
-  - Visual hover/focus states
-  - "Searching..." indicator
-  - Minimum character hints
-  - Smooth transitions
-- **Browser Integration**: Disabled autocomplete/autocorrect for better control
+  - Smooth transitions and hover states
+  - Compact clear button with hover background
+  - Focus ring indicators
+- **Browser Integration**: Disabled autocomplete/autocorrect for cleaner UX
 - **TypeScript**: Full type safety with comprehensive props
 
 ## Database Models
@@ -358,7 +361,12 @@ pending → processing → shipped → delivered
   - Consistent role-based UI rendering across components
 - Admin customer management:
   - Customer list view at `/admin/customers`
-  - **Real-time search** - Live filtering as you type with 300ms debounce
+  - **Real-time search** - Live filtering as you type with improved UX:
+    - Debounced search (300ms) for optimal performance
+    - Maintains input focus during searches
+    - No flickering or value disappearing while typing
+    - Visual loading indicator in search icon
+    - Clear button with keyboard support (ESC to clear)
   - **Advanced filtering and sorting**:
     - Role filter: All Users, Customers Only, Admins Only
     - Activity filter: All Activity, With Orders, Without Orders, High Value (100+ PLN)
@@ -371,18 +379,23 @@ pending → processing → shipped → delivered
     - Admin Users count
     - Active Buyers (customers with orders)
     - Total Revenue from all customers
-    - Statistics always show overall totals
+    - Statistics remain constant during filtering
+  - **Responsive table design**:
+    - 100% viewport width without horizontal scrolling
+    - Percentage-based column widths with minimum sizes
+    - Compact layout with optimized spacing
+    - Simplified date format (no day names)
+    - Streamlined data display (numbers only for stats)
   - **Loading states**:
     - Loading overlay with blur effect on table during transitions
     - Spinner indicators in Filter and Sort buttons when active
-    - Loading spinners in statistics cards during data fetch
     - Skeleton loading screen for initial page load
   - Display user details with modern UI:
-    - User avatars with initials
-    - Click-to-copy user IDs with tooltips
+    - Compact user avatars with initials (7x7)
+    - Click-to-copy user IDs (6-char preview)
     - Role badges with crown icon for admins
-    - Visual indicators for orders, wishlist, and spending
-    - Hover tooltips showing detailed information
+    - Simplified stats display without backgrounds
+    - Minimal action dropdown (7x7 button)
   - User editing functionality:
     - Edit user modal with form validation
     - Update user name, email, and role
@@ -508,6 +521,7 @@ AUTH_SECRET="[generate with: openssl rand -base64 32]"
 - Currency: PLN (Polish Złoty)
 - VAT rate: 23%
 - Date/time locale: pl-PL (24-hour format, Polish month names)
+- Date format: "15 wrz 2025" (no day names for cleaner display)
 - LOCALE constant available in `/lib/constants/cart.ts`
 
 ## Commands
