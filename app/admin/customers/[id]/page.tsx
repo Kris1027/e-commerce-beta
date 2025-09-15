@@ -18,7 +18,8 @@ import {
   AlertCircle,
   Home,
   Building,
-  Crown
+  Crown,
+  Phone
 } from 'lucide-react';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
@@ -278,7 +279,12 @@ export default async function UserDetailsPage({
                         <p>{address.street}</p>
                         <p>{address.zipCode} {address.city}</p>
                         <p>{address.state}, {address.country}</p>
-                        {address.phone && <p>📞 {address.phone}</p>}
+                        {address.phone && (
+                          <p className="flex items-center gap-1">
+                            <Phone className="h-3 w-3" />
+                            {address.phone}
+                          </p>
+                        )}
                       </div>
                     </div>
                   ))}
