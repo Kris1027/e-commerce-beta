@@ -42,14 +42,12 @@ export default function SignInPage() {
       toast.success('Signed in successfully!');
 
       // Merge the anonymous cart and then get the updated cart
-      Promise.all([
-        mergeAnonymousCart(),
-        new Promise(resolve => setTimeout(resolve, 100)) // Small delay to ensure merge completes
-      ]).then(async () => {
+      (async () => {
+        await mergeAnonymousCart();
         const updatedCart = await getCart();
         syncWithServer(updatedCart);
         router.replace(callbackUrl);
-      });
+      })();
     } else if (state?.error) {
       toast.error(state.error);
     }
