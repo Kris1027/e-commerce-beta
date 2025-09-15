@@ -50,7 +50,8 @@ import {
   Edit2,
   ChevronsLeft,
   ChevronsRight,
-  CheckCircle2
+  CheckCircle2,
+  Loader2
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useTransition } from 'react';
@@ -193,7 +194,9 @@ export function CustomersTable({ data, statistics }: CustomersTableProps) {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold">{statistics.totalCustomers}</div>
+            <div className="text-3xl font-bold">
+              {statistics.totalCustomers}
+            </div>
             <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
               <Activity className="h-3 w-3" />
               All registered users
@@ -274,8 +277,19 @@ export function CustomersTable({ data, statistics }: CustomersTableProps) {
                 {searchTerm && (
                   <button
                     type="button"
-                    onClick={() => setSearchTerm('')}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                    onClick={() => {
+                      setSearchTerm('');
+                      // Also clear search from URL if it exists
+                      if (searchParams.get('search')) {
+                        startTransition(() => {
+                          const params = new URLSearchParams(searchParams);
+                          params.delete('search');
+                          params.delete('page');
+                          router.push(`/admin/customers?${params.toString()}`);
+                        });
+                      }
+                    }}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
                   >
                     <X className="h-4 w-4" />
                   </button>
@@ -290,21 +304,6 @@ export function CustomersTable({ data, statistics }: CustomersTableProps) {
                 <Search className="h-4 w-4" />
                 Search
               </Button>
-              {(searchParams.get('search') || searchParams.get('role') || searchParams.get('activity') || searchParams.get('sort')) && (
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => {
-                    setSearchTerm('');
-                    startTransition(() => {
-                      router.push('/admin/customers');
-                    });
-                  }}
-                  disabled={isPending}
-                >
-                  Clear All
-                </Button>
-              )}
             </form>
 
             <div className="flex items-center gap-2">
@@ -313,12 +312,17 @@ export function CustomersTable({ data, statistics }: CustomersTableProps) {
                   <Button
                     variant="outline"
                     size="default"
+                    disabled={isPending}
                     className={cn(
                       "gap-2",
                       (currentRole !== 'all' || currentActivity !== 'all') && "border-primary"
                     )}
                   >
-                    <Filter className="h-4 w-4" />
+                    {isPending ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Filter className="h-4 w-4" />
+                    )}
                     Filters
                     {(currentRole !== 'all' || currentActivity !== 'all') && (
                       <Badge variant="secondary" className="ml-1 h-5 px-1">
@@ -404,12 +408,17 @@ export function CustomersTable({ data, statistics }: CustomersTableProps) {
                   <Button
                     variant="outline"
                     size="default"
+                    disabled={isPending}
                     className={cn(
                       "gap-2",
                       currentSort !== 'newest' && "border-primary"
                     )}
                   >
-                    <ArrowUpDown className="h-4 w-4" />
+                    {isPending ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <ArrowUpDown className="h-4 w-4" />
+                    )}
                     Sort
                     {currentSort !== 'newest' && (
                       <Badge variant="secondary" className="ml-1">
@@ -487,7 +496,16 @@ export function CustomersTable({ data, statistics }: CustomersTableProps) {
       </Card>
 
       {/* Users Table */}
-      <Card className="overflow-hidden">
+      <Card className="overflow-hidden relative">
+        {/* Loading overlay */}
+        {isPending && (
+          <div className="absolute inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center">
+            <div className="flex flex-col items-center gap-2">
+              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+              <p className="text-sm text-muted-foreground">Loading...</p>
+            </div>
+          </div>
+        )}
         <CardContent className="p-0">
           <div className="overflow-x-auto min-w-0">
             <Table className="table-fixed min-w-[1200px]">

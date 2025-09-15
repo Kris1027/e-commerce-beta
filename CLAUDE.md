@@ -153,10 +153,14 @@ updateAddress(id, data)                     // Update existing address
 deleteAddress(id)                           // Remove address
 setDefaultAddress(id)                       // Set default shipping address
 getOrderStats()                             // User order statistics
-getUsersForAdmin(page, search?)            // Admin: Get paginated users with search
+getUsersForAdmin(page, search?, roleFilter?, activityFilter?, sortBy?) // Admin: Get paginated users with filters
 updateUserAsAdmin(userId, data)            // Admin: Update user details (name, email, role)
 deleteUser(userId)                         // Admin: Delete user account (with validation)
 getCustomerStatistics()                    // Admin: Get customer stats (total, admins, buyers, revenue)
+// Filter Types:
+// UserFilterRole: 'all' | 'customers' | 'admins'
+// UserFilterActivity: 'all' | 'with-orders' | 'without-orders' | 'high-value'
+// UserSortBy: 'newest' | 'oldest' | 'name-asc' | 'name-desc' | 'most-orders' | 'highest-spent'
 ```
 
 ### Wishlist Actions (`/lib/actions/wishlist-actions.ts`)
@@ -317,7 +321,25 @@ pending → processing → shipped → delivered
   - Consistent role-based UI rendering across components
 - Admin customer management:
   - Customer list view at `/admin/customers`
-  - Search functionality by name or email
+  - **Search functionality** - Independent search by name or email
+  - **Advanced filtering and sorting**:
+    - Role filter: All Users, Customers Only, Admins Only
+    - Activity filter: All Activity, With Orders, Without Orders, High Value (100+ PLN)
+    - Sort options: Newest First, Oldest First, Name (A-Z), Name (Z-A), Most Orders, Highest Spent
+    - Filters and sorting operate independently from search
+    - Filters/sorting only affect table data (not statistics)
+    - URL-based state management for shareable filtered views
+  - **Real-time statistics dashboard**:
+    - Total Customers count (unaffected by filters)
+    - Admin Users count
+    - Active Buyers (customers with orders)
+    - Total Revenue from all customers
+    - Statistics always show overall totals
+  - **Loading states**:
+    - Loading overlay with blur effect on table during transitions
+    - Spinner indicators in Filter and Sort buttons when active
+    - Loading spinners in statistics cards during data fetch
+    - Skeleton loading screen for initial page load
   - Display user details with modern UI:
     - User avatars with initials
     - Click-to-copy user IDs with tooltips
@@ -339,11 +361,14 @@ pending → processing → shipped → delivered
     - Validation for active orders before deletion
     - Warning messages for users with order history
     - Success/error toast notifications
-  - Pagination support (10 users per page) with shadcn/ui components
+  - **Pagination with shadcn/ui**:
+    - 10 users per page
+    - First and last page navigation buttons
+    - Smart ellipsis for large page ranges
+    - Page numbers with active state indication
   - Modern table UI with shadcn/ui components
-  - Real-time customer statistics from database
+  - Customer statistics cards with gradient designs
   - Responsive design with horizontal scrolling
-  - Loading states for smooth page transitions
   - Consistent admin layout width across all pages
   - Persistent sidebar state with localStorage
 
@@ -459,6 +484,33 @@ pnpm db:studio    # Prisma Studio GUI
 ```
 
 ## Recent Updates
+- **Admin Customer Management Filters & Sorting (2025-09-15)**:
+  - **Advanced Filtering System**:
+    - Role-based filtering: All Users, Customers Only, Admins Only
+    - Activity-based filtering: With Orders, Without Orders, High Value (>1000 zł)
+    - Filters are independent from search functionality
+    - URL parameter-based state management for persistence
+    - Visual indicators with CheckCircle2 icons for active filters
+    - Filter count badges on filter button
+  - **Comprehensive Sorting Options**:
+    - Newest/Oldest by creation date
+    - Name alphabetically (A-Z, Z-A)
+    - Most Orders (by order count)
+    - Highest Spent (by total revenue)
+    - Sort indicator badge shows current sort option
+  - **Improved UI/UX**:
+    - Clean interface with only X icon in search input for clearing
+    - No unnecessary reset buttons - users can select defaults directly
+    - Search functionality independent from filters/sorting
+    - All filters preserve other parameters when changing
+    - Automatic page reset to 1 when filters change
+    - Active filters highlighted with primary border color
+    - Defaults: "All Users", "All Activity", "Newest First"
+  - **Server-Side Implementation**:
+    - Updated `getUsersForAdmin()` with filter types: `UserFilterRole`, `UserFilterActivity`, `UserSortBy`
+    - Efficient database-level filtering for role and activity
+    - Post-fetch filtering for high-value customers
+    - Optimized sorting with database queries where possible
 - **Admin Dashboard Improvements (2025-09-15)**:
   - **Customer Statistics Integration**:
     - Added `getCustomerStatistics()` function for real-time database stats

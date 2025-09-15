@@ -7,7 +7,7 @@ import { revalidatePath } from 'next/cache';
 import bcrypt from 'bcryptjs';
 import { z } from 'zod';
 import { shippingAddressSchema, PASSWORD_REGEX, PASSWORD_ERROR_MESSAGE, adminUpdateUserSchema, AdminUpdateUserInput } from '@/lib/validators';
-import { UserRole, User } from '@prisma/client';
+import { UserRole, User, Prisma } from '@prisma/client';
 import { ORDERS_PER_PAGE } from '@/lib/constants/cart';
 import { ActionResult, ListResult, createListErrorResult, createErrorResult } from '@/lib/types/action-results';
 import type { Address } from '@prisma/client';
@@ -953,11 +953,11 @@ export async function getUsersForAdmin(
     const skip = (page - 1) * USERS_PER_PAGE;
 
     // Build filter conditions
-    const filters: any = {};
+    const filters: Record<string, unknown> = {};
 
     // Search condition
     if (search) {
-      filters.OR = [
+      filters['OR'] = [
         { email: { contains: search, mode: 'insensitive' as const } },
         { name: { contains: search, mode: 'insensitive' as const } },
       ];
@@ -965,16 +965,16 @@ export async function getUsersForAdmin(
 
     // Role filter
     if (roleFilter === 'customers') {
-      filters.role = UserRole.user;
+      filters['role'] = UserRole.user;
     } else if (roleFilter === 'admins') {
-      filters.role = UserRole.admin;
+      filters['role'] = UserRole.admin;
     }
 
     // Activity filter
     if (activityFilter === 'with-orders') {
-      filters.Order = { some: {} };
+      filters['Order'] = { some: {} };
     } else if (activityFilter === 'without-orders') {
-      filters.Order = { none: {} };
+      filters['Order'] = { none: {} };
     }
 
     // Get total count for pagination
@@ -985,7 +985,7 @@ export async function getUsersForAdmin(
     const totalPages = Math.ceil(totalUsers / USERS_PER_PAGE);
 
     // Determine sort order
-    let orderBy: any = { createdAt: 'desc' }; // default: newest
+    let orderBy: Prisma.UserOrderByWithRelationInput = { createdAt: 'desc' }; // default: newest
 
     switch (sortBy) {
       case 'oldest':
