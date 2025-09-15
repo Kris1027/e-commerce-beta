@@ -95,8 +95,8 @@ Production-ready e-commerce template built with Next.js 15.5.2, TypeScript (stri
 
 ```
 /app                    # Pages (App Router)
-/components            
-  /ui                  # shadcn/ui components
+/components
+  /ui                  # shadcn/ui components (including custom SearchInput)
   /layout              # Header, Footer
   /cart                # Cart drawer, components
   /categories          # Category grid, category cards
@@ -208,6 +208,43 @@ useRole()                                   // Hook for client-side role checkin
   .isAuthenticated                          // Boolean: user is logged in
   .hasRole(role: string)                    // Check for specific role
 ```
+
+### Custom UI Components
+
+#### SearchInput (`/components/ui/search-input.tsx`)
+Reusable real-time search input component with advanced UX features:
+```typescript
+<SearchInput
+  value={searchValue}                      // Current search value
+  onValueChange={(value) => handleSearch(value)} // Callback for value changes
+  placeholder="Search..."                  // Optional placeholder text
+  debounceDelay={300}                     // Debounce delay in ms (default: 300)
+  showIcon={true}                         // Show search icon (default: true)
+  showClear={true}                        // Show clear button (default: true)
+  disabled={false}                        // Disabled state
+  autoFocus={false}                       // Auto-focus on mount
+  isSearching={false}                     // Show loading state
+  minChars={0}                            // Minimum characters to trigger search
+  maxLength={100}                         // Maximum input length
+  onClear={() => {}}                      // Optional clear callback
+  onFocus={() => {}}                      // Focus callback
+  onBlur={() => {}}                       // Blur callback
+  className="custom-class"                // Additional CSS classes
+/>
+```
+Features:
+- **Visual Feedback**: Loading spinner during search, focus states
+- **Keyboard Support**: ESC to clear, proper search input type
+- **Accessibility**: ARIA labels, keyboard navigation, focus management
+- **Performance**: Debounced search, minimum character threshold
+- **User Experience**:
+  - Auto-refocus after clear
+  - Visual hover/focus states
+  - "Searching..." indicator
+  - Minimum character hints
+  - Smooth transitions
+- **Browser Integration**: Disabled autocomplete/autocorrect for better control
+- **TypeScript**: Full type safety with comprehensive props
 
 ## Database Models
 
@@ -321,7 +358,7 @@ pending → processing → shipped → delivered
   - Consistent role-based UI rendering across components
 - Admin customer management:
   - Customer list view at `/admin/customers`
-  - **Search functionality** - Independent search by name or email
+  - **Real-time search** - Live filtering as you type with 300ms debounce
   - **Advanced filtering and sorting**:
     - Role filter: All Users, Customers Only, Admins Only
     - Activity filter: All Activity, With Orders, Without Orders, High Value (100+ PLN)

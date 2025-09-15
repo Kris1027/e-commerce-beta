@@ -12,7 +12,7 @@ import {
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { SearchInput } from '@/components/ui/search-input';
 import { formatCurrency, copyToClipboard, cn, generatePaginationNumbers } from '@/lib/utils';
 import { AdminUsersResult, deleteUser, CustomerStatistics } from '@/lib/actions/user-actions';
 import { UpdateUserModal } from '@/components/admin/update-user-modal';
@@ -27,7 +27,6 @@ import {
   PaginationPrevious,
 } from '@/components/ui/pagination';
 import {
-  Search,
   User,
   Heart,
   Copy,
@@ -46,7 +45,6 @@ import {
   Activity,
   DollarSign,
   Shield,
-  X,
   Edit2,
   ChevronsLeft,
   ChevronsRight,
@@ -90,22 +88,21 @@ interface CustomersTableProps {
 export function CustomersTable({ data, statistics }: CustomersTableProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [searchTerm, setSearchTerm] = useState(searchParams.get('search') || '');
   const [isPending, startTransition] = useTransition();
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [deletingUserId, setDeletingUserId] = useState<string | null>(null);
 
   // Get current filter values from URL
+  const currentSearch = searchParams.get('search') || '';
   const currentRole = searchParams.get('role') || 'all';
   const currentActivity = searchParams.get('activity') || 'all';
   const currentSort = searchParams.get('sort') || 'newest';
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSearchChange = (value: string) => {
     startTransition(() => {
       const params = new URLSearchParams(searchParams);
-      if (searchTerm) {
-        params.set('search', searchTerm);
+      if (value) {
+        params.set('search', value);
         params.delete('page'); // Reset to first page on new search
       } else {
         params.delete('search');
@@ -263,50 +260,18 @@ export function CustomersTable({ data, statistics }: CustomersTableProps) {
       {/* Search and Filters Bar */}
       <Card className="border-0 shadow-sm">
         <CardContent className="p-4">
-          <div className="flex flex-col lg:flex-row gap-4">
-            <form onSubmit={handleSearch} className="flex-1 flex gap-2">
-              <div className="relative flex-1 max-w-md">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
-                <Input
-                  placeholder="Search customers by name or email..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 pr-10 h-10 cursor-text bg-background/50 border-muted-foreground/20 focus:bg-background transition-colors"
-                  disabled={isPending}
-                />
-                {searchTerm && (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setSearchTerm('');
-                      // Also clear search from URL if it exists
-                      if (searchParams.get('search')) {
-                        startTransition(() => {
-                          const params = new URLSearchParams(searchParams);
-                          params.delete('search');
-                          params.delete('page');
-                          router.push(`/admin/customers?${params.toString()}`);
-                        });
-                      }
-                    }}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
-                  >
-                    <X className="h-4 w-4" />
-                  </button>
-                )}
-              </div>
-              <Button
-                type="submit"
-                disabled={isPending}
-                size="default"
-                className="gap-2"
-              >
-                <Search className="h-4 w-4" />
-                Search
-              </Button>
-            </form>
+          <div className="flex flex-col lg:flex-row gap-4 justify-between">
+            <div className="w-full lg:max-w-md">
+              <SearchInput
+                value={currentSearch}
+                onValueChange={handleSearchChange}
+                placeholder="Search customers by name or email..."
+                minChars={0}
+                maxLength={50}
+              />
+            </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 justify-end">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button
