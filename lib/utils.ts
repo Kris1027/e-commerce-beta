@@ -124,18 +124,32 @@ export function round2(value: number | string) {
   }
 }
 
-const CURRENCY_FORMATTER = new Intl.NumberFormat(LOCALE, {
-  currency: 'PLN',
-  style: 'currency',
-  minimumFractionDigits: 2,
-});
+// Custom currency formatter that uses spaces for thousands and commas for decimals
+// Example: 1 100,00 zł (standard Polish format)
+function formatWithCustomSeparators(amount: number): string {
+  // Split into integer and decimal parts
+  const parts = amount.toFixed(2).split('.');
+  const integerPart = parts[0] || '0';
+  const decimalPart = parts[1] || '00';
 
-// Format currency using the formatter above
+  // Add thousand separators (spaces) to integer part
+  const formattedInteger = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+
+  // Combine with comma as decimal separator (Polish style)
+  return `${formattedInteger},${decimalPart} zł`;
+}
+
+// Format currency with custom thousand separators
+// Uses spaces for thousands and commas for decimals: 1 100,00 zł
 export function formatCurrency(amount: number | string | null) {
   if (typeof amount === 'number') {
-    return CURRENCY_FORMATTER.format(amount);
+    return formatWithCustomSeparators(amount);
   } else if (typeof amount === 'string') {
-    return CURRENCY_FORMATTER.format(Number(amount));
+    const numAmount = Number(amount);
+    if (!isNaN(numAmount)) {
+      return formatWithCustomSeparators(numAmount);
+    }
+    return 'NaN';
   } else {
     return 'NaN';
   }
