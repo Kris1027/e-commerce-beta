@@ -86,6 +86,17 @@ export function CustomersTable({ data, statistics }: CustomersTableProps) {
   const currentActivity = searchParams.get('activity') || 'all';
   const currentSort = searchParams.get('sort') || 'newest';
 
+  // Calculate active filter count
+  const getActiveFilterCount = () => {
+    let count = 0;
+    if (currentRole !== 'all') count++;
+    if (currentActivity !== 'all') count++;
+    return count;
+  };
+
+  const activeFilterCount = getActiveFilterCount();
+  const hasActiveFilters = activeFilterCount > 0;
+
   const handleSearchChange = (value: string) => {
     startTransition(() => {
       const params = new URLSearchParams(searchParams);
@@ -268,7 +279,7 @@ export function CustomersTable({ data, statistics }: CustomersTableProps) {
                     disabled={isPending}
                     className={cn(
                       "gap-2",
-                      (currentRole !== 'all' || currentActivity !== 'all') && "border-primary"
+                      hasActiveFilters && "border-primary"
                     )}
                   >
                     {isPending ? (
@@ -277,9 +288,9 @@ export function CustomersTable({ data, statistics }: CustomersTableProps) {
                       <Filter className="h-4 w-4" />
                     )}
                     Filters
-                    {(currentRole !== 'all' || currentActivity !== 'all') && (
+                    {hasActiveFilters && (
                       <Badge variant="secondary" className="ml-1 h-5 px-1">
-                        {[currentRole !== 'all' && 1, currentActivity !== 'all' && 1].filter(Boolean).length}
+                        {activeFilterCount}
                       </Badge>
                     )}
                   </Button>
