@@ -10,6 +10,11 @@ export const CART_CONSTANTS = {
 // Pagination constants
 export const ORDERS_PER_PAGE = 10;
 
+// Customer management constants
+export const CUSTOMER_CONSTANTS = {
+  HIGH_VALUE_THRESHOLD: 1000, // PLN - Customers who have spent more than this amount
+} as const;
+
 // Shipping configuration
 export const SHIPPING_CONFIG = {
   DEFAULT_COUNTRY: 'Poland', // Currently supporting Poland-only shipping

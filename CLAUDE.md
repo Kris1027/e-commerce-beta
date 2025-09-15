@@ -124,6 +124,7 @@ TAX_RATE = 0.23                // Polish VAT rate
 MAX_QUANTITY_PER_ITEM = 99
 CART_SESSION_DURATION = 30 days
 ORDERS_PER_PAGE = 10  // Pagination for order history
+HIGH_VALUE_THRESHOLD = 1000  // PLN - High-value customer threshold
 ```
 
 ### Essential Utilities (`/lib/utils.ts`)
@@ -370,7 +371,7 @@ pending → processing → shipped → delivered
     - Clear button with keyboard support (ESC to clear)
   - **Advanced filtering and sorting**:
     - Role filter: All Users, Customers Only, Admins Only
-    - Activity filter: All Activity, With Orders, Without Orders, High Value (100+ PLN)
+    - Activity filter: All Activity, With Orders, Without Orders, High Value (1000+ PLN)
     - Sort options: Newest First, Oldest First, Name (A-Z), Name (Z-A), Most Orders, Highest Spent
     - Filters and sorting operate independently from search
     - Filters/sorting only affect table data (not statistics)

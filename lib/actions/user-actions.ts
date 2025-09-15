@@ -8,7 +8,7 @@ import bcrypt from 'bcryptjs';
 import { z } from 'zod';
 import { shippingAddressSchema, PASSWORD_REGEX, PASSWORD_ERROR_MESSAGE, adminUpdateUserSchema, AdminUpdateUserInput } from '@/lib/validators';
 import { UserRole, User, Prisma } from '@prisma/client';
-import { ORDERS_PER_PAGE } from '@/lib/constants/cart';
+import { ORDERS_PER_PAGE, CUSTOMER_CONSTANTS } from '@/lib/constants/cart';
 import { ActionResult, ListResult, createListErrorResult, createErrorResult } from '@/lib/types/action-results';
 import type { Address } from '@prisma/client';
 
@@ -1078,7 +1078,7 @@ export async function getUsersForAdmin(
 
     // Apply post-fetch filters and sorting
     if (activityFilter === 'high-value') {
-      formattedUsers = formattedUsers.filter(user => parseFloat(user.totalSpent) > 1000);
+      formattedUsers = formattedUsers.filter(user => parseFloat(user.totalSpent) > CUSTOMER_CONSTANTS.HIGH_VALUE_THRESHOLD);
     }
 
     // Sort by most orders or highest spent if needed

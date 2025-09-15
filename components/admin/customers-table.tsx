@@ -16,6 +16,7 @@ import { Button } from '@/components/ui/button';
 import { SearchInput } from '@/components/ui/search-input';
 import { formatCurrency, copyToClipboard, cn, generatePaginationNumbers } from '@/lib/utils';
 import { AdminUsersResult, deleteUser, CustomerStatistics } from '@/lib/actions/user-actions';
+import { CUSTOMER_CONSTANTS } from '@/lib/constants/cart';
 import { UpdateUserModal } from '@/components/admin/update-user-modal';
 import { UserRole } from '@prisma/client';
 import {
@@ -360,7 +361,7 @@ export function CustomersTable({ data, statistics }: CustomersTableProps) {
                     className="cursor-pointer"
                   >
                     <div className="flex items-center justify-between w-full">
-                      <span>High Value (&gt; 1000 zł)</span>
+                      <span>High Value (&gt; {CUSTOMER_CONSTANTS.HIGH_VALUE_THRESHOLD} zł)</span>
                       {currentActivity === 'high-value' && <CheckCircle2 className="h-4 w-4 text-primary" />}
                     </div>
                   </DropdownMenuItem>

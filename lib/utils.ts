@@ -229,9 +229,10 @@ export const formatDateTime = (dateString: Date) => {
     hour12: false, // use 24-hour clock for Polish locale
   };
   const dateOptions: Intl.DateTimeFormatOptions = {
-    month: 'short', // abbreviated month name (e.g., 'Oct')
-    year: 'numeric', // numeric year (e.g., '2023')
-    day: 'numeric', // numeric day of the month (e.g., '25')
+    // Weekday excluded for cleaner display (shows "15 wrz 2025" instead of "pon, 15 wrz 2025")
+    month: 'short', // abbreviated month name (e.g., 'wrz')
+    year: 'numeric', // numeric year (e.g., '2025')
+    day: 'numeric', // numeric day of the month (e.g., '15')
   };
   const timeOptions: Intl.DateTimeFormatOptions = {
     hour: 'numeric', // numeric hour (e.g., '8')
