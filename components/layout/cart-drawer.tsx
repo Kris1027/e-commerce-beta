@@ -10,6 +10,7 @@ import { updateCartItem, removeFromCart } from '@/lib/actions/cart-actions';
 import { formatCurrency } from '@/lib/utils';
 import { CART_CONSTANTS } from '@/lib/constants/cart';
 import { CouponForm } from '@/components/cart/coupon-form';
+import { useRole } from '@/hooks/use-role';
 import {
   Sheet,
   SheetContent,
@@ -20,6 +21,7 @@ import {
 import { Button } from '@/components/ui/button';
 
 export function CartDrawer() {
+  const { isAuthenticated } = useRole();
   const {
     items,
     itemsPrice,
@@ -255,10 +257,10 @@ export function CartDrawer() {
                   className="w-full"
                 >
                   <Link
-                    href="/checkout"
+                    href={isAuthenticated ? "/checkout" : "/auth/signin?callbackUrl=/checkout"}
                     onClick={() => setOpen(false)}
                   >
-                    Checkout
+                    {isAuthenticated ? "Checkout" : "Sign in to Checkout"}
                   </Link>
                 </Button>
               </div>

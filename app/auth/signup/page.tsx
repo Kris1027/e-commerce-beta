@@ -3,6 +3,7 @@
 import { useActionState } from 'react';
 import { useFormStatus } from 'react-dom';
 import { signUpAction } from '@/lib/actions/auth-actions';
+import { mergeAnonymousCart, getCart } from '@/lib/actions/cart-actions';
 import Link from 'next/link';
 import { useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -13,6 +14,7 @@ import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { buildAuthUrl } from '@/lib/utils';
 import { DEFAULT_AUTH_REDIRECT } from '@/lib/constants/auth';
+import { useCartStore } from '@/lib/store/cart-store';
 
 function SubmitButton() {
   const { pending } = useFormStatus();
@@ -33,16 +35,23 @@ export default function SignUpPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get('callbackUrl') || DEFAULT_AUTH_REDIRECT;
+  const syncWithServer = useCartStore((state) => state.syncWithServer);
 
   useEffect(() => {
     if (state?.success) {
       toast.success('Account created successfully! Welcome aboard!');
-      router.push(callbackUrl);
-      router.refresh();
+
+      // Merge the anonymous cart and then get the updated cart
+      (async () => {
+        await mergeAnonymousCart();
+        const updatedCart = await getCart();
+        syncWithServer(updatedCart);
+        router.replace(callbackUrl);
+      })();
     } else if (state?.error) {
       toast.error(state.error);
     }
-  }, [state, router, callbackUrl]);
+  }, [state, router, callbackUrl, syncWithServer]);
 
   return (
     <div className="w-full max-w-md mx-auto">

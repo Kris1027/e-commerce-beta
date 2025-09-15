@@ -34,11 +34,11 @@ export async function getCart() {
   try {
     const session = await auth();
     const sessionCartId = await getSessionCartId();
-    
+
     const cart = await prisma.cart.findFirst({
       where: session?.user?.id
         ? { userId: session.user.id }
-        : { sessionCartId },
+        : { sessionCartId, userId: null },
     });
 
     if (!cart) {
@@ -91,7 +91,7 @@ export async function addToCart(
     const existingCart = await prisma.cart.findFirst({
       where: session?.user?.id
         ? { userId: session.user.id }
-        : { sessionCartId },
+        : { sessionCartId, userId: null },
     });
 
     let items: z.infer<typeof cartItemSchema>[] = [];
@@ -170,11 +170,11 @@ export async function updateCartItem(productId: string, qty: number) {
   try {
     const session = await auth();
     const sessionCartId = await getSessionCartId();
-    
+
     const cart = await prisma.cart.findFirst({
       where: session?.user?.id
         ? { userId: session.user.id }
-        : { sessionCartId },
+        : { sessionCartId, userId: null },
     });
 
     if (!cart) {
@@ -229,11 +229,11 @@ export async function clearCart() {
   try {
     const session = await auth();
     const sessionCartId = await getSessionCartId();
-    
+
     await prisma.cart.deleteMany({
       where: session?.user?.id
         ? { userId: session.user.id }
-        : { sessionCartId },
+        : { sessionCartId, userId: null },
     });
 
     revalidatePath('/');
