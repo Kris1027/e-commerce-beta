@@ -139,6 +139,7 @@ formatPhoneNumber(phone: string)           // "+48 XXX-XXX-XXX" (Polish format, 
 generatePaginationNumbers(current, total)  // [1, '...', 5, 6, 7, '...', 10]
 calculateCartPrices(itemsPrice: number)    // {shipping, tax, total}
 buildAuthUrl(path: string, callbackUrl: string) // Build auth URL with optional callback
+copyToClipboard(text: string)              // Copy text to clipboard, returns Promise<boolean>
 ```
 
 ### User & Address Actions (`/lib/actions/user-actions.ts`)
@@ -152,6 +153,7 @@ updateAddress(id, data)                     // Update existing address
 deleteAddress(id)                           // Remove address
 setDefaultAddress(id)                       // Set default shipping address
 getOrderStats()                             // User order statistics
+getUsersForAdmin(page, search?)            // Admin: Get paginated users with search
 ```
 
 ### Wishlist Actions (`/lib/actions/wishlist-actions.ts`)
@@ -309,13 +311,26 @@ pending → processing → shipped → delivered
   - useRole hook for client-side role checking
   - Type-safe role comparisons with UserRole enum
   - Consistent role-based UI rendering across components
+- Admin customer management:
+  - Customer list view at `/admin/customers`
+  - Search functionality by name or email
+  - Display user details with modern UI:
+    - User avatars with initials
+    - Click-to-copy user IDs with tooltips
+    - Role badges with crown icon for admins
+    - Visual indicators for orders, wishlist, and spending
+    - Hover tooltips showing detailed information
+  - Pagination support (10 users per page)
+  - Modern table UI with shadcn/ui components
+  - Customer statistics card with gradient design
+  - Responsive design with horizontal scrolling
 
 ### 🚧 Pending
 - Stripe/PayPal payment integration
 - Admin dashboard features:
   - Product management (CRUD operations)
   - Order management and status updates
-  - Customer management
+  - Customer management (edit/delete users)
   - Category management
   - Review moderation
   - Analytics and reports

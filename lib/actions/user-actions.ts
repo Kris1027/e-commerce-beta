@@ -603,7 +603,7 @@ export async function updateProfile(data: UpdateProfileData) {
 export async function getOrderStats() {
   try {
     const session = await auth();
-    
+
     if (!session?.user?.id) {
       return {
         totalOrders: 0,
@@ -615,7 +615,7 @@ export async function getOrderStats() {
         totalSpent: '0.00',
       };
     }
-    
+
     const [orders, totalSpent] = await Promise.all([
       prisma.order.groupBy({
         by: ['status'],
@@ -638,7 +638,7 @@ export async function getOrderStats() {
         },
       }),
     ]);
-    
+
     const stats = {
       totalOrders: 0,
       pendingOrders: 0,
@@ -648,7 +648,7 @@ export async function getOrderStats() {
       cancelledOrders: 0,
       totalSpent: formatNumberWithDecimal(Number(totalSpent._sum.totalPrice || 0)),
     };
-    
+
     orders.forEach((order) => {
       stats.totalOrders += order._count.status;
       switch (order.status) {
@@ -669,7 +669,7 @@ export async function getOrderStats() {
           break;
       }
     });
-    
+
     return stats;
   } catch (error) {
     console.error('Error fetching order stats:', error);
@@ -681,6 +681,162 @@ export async function getOrderStats() {
       deliveredOrders: 0,
       cancelledOrders: 0,
       totalSpent: '0.00',
+    };
+  }
+}
+
+// Admin functions for user management
+export interface AdminUser {
+  id: string;
+  name: string | null;
+  email: string | null;
+  role: string;
+  createdAt: Date;
+  updatedAt: Date;
+  formattedCreatedAt: ReturnType<typeof formatDateTime>;
+  formattedUpdatedAt: ReturnType<typeof formatDateTime>;
+  ordersCount: number;
+  totalSpent: string;
+  wishlistCount: number;
+  lastOrderDate: Date | null;
+  formattedLastOrderDate: ReturnType<typeof formatDateTime> | null;
+}
+
+export interface AdminUsersResult {
+  users: AdminUser[];
+  currentPage: number;
+  totalPages: number;
+  totalUsers: number;
+  hasMore: boolean;
+}
+
+const USERS_PER_PAGE = 10;
+
+export async function getUsersForAdmin(
+  page: number = 1,
+  search?: string
+): Promise<AdminUsersResult> {
+  try {
+    const session = await auth();
+
+    // Check if user is admin
+    if (!session?.user?.id || session.user.role !== 'admin') {
+      return {
+        users: [],
+        currentPage: 1,
+        totalPages: 0,
+        totalUsers: 0,
+        hasMore: false,
+      };
+    }
+
+    const skip = (page - 1) * USERS_PER_PAGE;
+
+    // Build search condition
+    const searchCondition = search
+      ? {
+          OR: [
+            { email: { contains: search, mode: 'insensitive' as const } },
+            { name: { contains: search, mode: 'insensitive' as const } },
+          ],
+        }
+      : {};
+
+    // Get total count for pagination
+    const totalUsers = await prisma.user.count({
+      where: searchCondition,
+    });
+
+    const totalPages = Math.ceil(totalUsers / USERS_PER_PAGE);
+
+    // Get paginated users with related data
+    const users = await prisma.user.findMany({
+      where: searchCondition,
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+        createdAt: true,
+        updatedAt: true,
+        _count: {
+          select: {
+            Order: true,
+            Wishlist: true,
+          },
+        },
+        Order: {
+          select: {
+            totalPrice: true,
+            createdAt: true,
+          },
+          orderBy: {
+            createdAt: 'desc',
+          },
+          take: 1,
+        },
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+      skip,
+      take: USERS_PER_PAGE,
+    });
+
+    // Calculate total spent for each user
+    const userIds = users.map(u => u.id);
+    const orderTotals = await prisma.order.groupBy({
+      by: ['userId'],
+      where: {
+        userId: { in: userIds },
+        status: { not: 'cancelled' },
+      },
+      _sum: {
+        totalPrice: true,
+      },
+    });
+
+    const totalsMap = new Map(
+      orderTotals.map(total => [
+        total.userId,
+        formatNumberWithDecimal(Number(total._sum.totalPrice || 0)),
+      ])
+    );
+
+    // Format users with additional data
+    const formattedUsers: AdminUser[] = users.map(user => ({
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
+      formattedCreatedAt: formatDateTime(user.createdAt),
+      formattedUpdatedAt: formatDateTime(user.updatedAt),
+      ordersCount: user._count.Order,
+      totalSpent: totalsMap.get(user.id) || '0.00',
+      wishlistCount: user._count.Wishlist,
+      lastOrderDate: user.Order[0]?.createdAt || null,
+      formattedLastOrderDate: user.Order[0]?.createdAt
+        ? formatDateTime(user.Order[0].createdAt)
+        : null,
+    }));
+
+    return {
+      users: formattedUsers,
+      currentPage: page,
+      totalPages,
+      totalUsers,
+      hasMore: page < totalPages,
+    };
+  } catch (error) {
+    console.error('Error fetching users for admin:', error);
+    return {
+      users: [],
+      currentPage: 1,
+      totalPages: 0,
+      totalUsers: 0,
+      hasMore: false,
     };
   }
 }
