@@ -165,16 +165,18 @@ export function formatCurrency(amount: number | string | null, forceZloty: boole
       }
       return formatWithCustomSeparators(numAmount);
     }
-    return 'NaN';
+    // Return default formatted value for invalid input
+    return '0,00 zł';
   } else {
-    return 'NaN';
+    // Return default formatted value for null/undefined
+    return '0,00 zł';
   }
 }
 
 // Export separate groszy formatter for direct use when needed
 export function formatGroszy(amount: number | string): string {
   const numAmount = typeof amount === 'string' ? Number(amount) : amount;
-  if (isNaN(numAmount)) return 'NaN';
+  if (isNaN(numAmount)) return '0 gr';
   return formatAsGroszy(numAmount);
 }
 

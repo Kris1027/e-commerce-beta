@@ -438,6 +438,12 @@ pnpm db:studio    # Prisma Studio GUI
   - Created `formatGroszy()` utility for direct groszy formatting
   - Added `forceZloty` parameter to override automatic groszy conversion
   - Follows standard Polish currency formatting conventions
+- **Sign Out Error Toast Fix (2025-09-15)**:
+  - Fixed false error message "Failed to sign out" that appeared on successful sign out
+  - Issue was caused by Next.js redirect throwing internal NEXT_REDIRECT error
+  - Updated `/components/auth/sign-out-button.tsx` to properly handle redirect errors
+  - Now shows "Signing out..." toast and filters out redirect-related errors
+  - Only displays error toast for actual sign out failures
 - **useRole Hook Implementation (2025-09-14)**:
   - Created `/hooks/use-role.ts` for consistent client-side role checking
   - Provides `isAdmin`, `isUser`, `isAuthenticated`, and `hasRole` utilities
