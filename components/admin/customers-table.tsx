@@ -701,8 +701,9 @@ export function CustomersTable({ data, statistics }: CustomersTableProps) {
                                       This action cannot be undone. All user data including wishlists and order history will be permanently deleted.
                                     </p>
                                     {user.ordersCount > 0 && (
-                                      <p className="text-sm text-amber-600 dark:text-amber-400 font-medium">
-                                        ⚠️ This user has {user.ordersCount} order(s). Make sure all active orders are completed or cancelled before deletion.
+                                      <p className="text-sm text-amber-600 dark:text-amber-400 font-medium flex items-center gap-1">
+                                        <AlertTriangle className="h-4 w-4 flex-shrink-0" />
+                                        This user has {user.ordersCount} order(s). Make sure all active orders are completed or cancelled before deletion.
                                       </p>
                                     )}
                                   </div>
