@@ -36,11 +36,19 @@ export function SignOutButton({
   const [isPending, startTransition] = useTransition();
 
   const handleSignOut = () => {
+    // Show success toast before the redirect happens
+    toast.success('Signing out...');
+
     startTransition(async () => {
       try {
         await signOutAction();
-        toast.success('Signed out successfully');
       } catch (error) {
+        // Next.js throws a NEXT_REDIRECT error when redirecting - this is expected
+        // Only show error if it's not a redirect
+        if (error && typeof error === 'object' && 'digest' in error) {
+          // This is likely a Next.js redirect, which is expected
+          return;
+        }
         console.error('Sign out failed:', error);
         toast.error('Failed to sign out. Please try again.');
       }
