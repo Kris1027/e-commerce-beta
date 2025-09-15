@@ -953,7 +953,7 @@ export async function getUsersForAdmin(
     const skip = (page - 1) * USERS_PER_PAGE;
 
     // Build filter conditions
-    const filters: Prisma.UserWhereInput = {};
+    let filters: Prisma.UserWhereInput = {};
 
     // Search condition
     if (search) {
@@ -975,6 +975,34 @@ export async function getUsersForAdmin(
       filters.Order = { some: {} };
     } else if (activityFilter === 'without-orders') {
       filters.Order = { none: {} };
+    }
+
+    // For high-value filter, we need to use a different approach
+    if (activityFilter === 'high-value') {
+      // Build the WHERE clause for the raw query
+      const searchCondition = search
+        ? Prisma.sql` AND (LOWER(u.email) LIKE LOWER(${`%${search}%`}) OR LOWER(u.name) LIKE LOWER(${`%${search}%`}))`
+        : Prisma.sql``;
+
+      const roleCondition = roleFilter === 'customers'
+        ? Prisma.sql` AND u.role = 'user'`
+        : roleFilter === 'admins'
+        ? Prisma.sql` AND u.role = 'admin'`
+        : Prisma.sql``;
+
+      // Get all users with their total spent
+      const usersWithTotals = await prisma.$queryRaw<{ userId: string; totalSpent: number }[]>`
+        SELECT u.id as "userId", COALESCE(SUM(o."totalPrice"), 0) as "totalSpent"
+        FROM "User" u
+        LEFT JOIN "Order" o ON u.id = o."userId" AND o.status != 'cancelled'
+        WHERE 1=1 ${searchCondition} ${roleCondition}
+        GROUP BY u.id
+        HAVING COALESCE(SUM(o."totalPrice"), 0) > ${CUSTOMER_CONSTANTS.HIGH_VALUE_THRESHOLD}
+      `;
+      const userIdsToInclude = usersWithTotals.map(u => u.userId);
+
+      // Override filters to only include high-value users
+      filters = { id: { in: userIdsToInclude.length > 0 ? userIdsToInclude : ['no-match'] } };
     }
 
     // Get total count for pagination
@@ -1032,9 +1060,7 @@ export async function getUsersForAdmin(
           take: 1, // Only fetch the most recent order for last order date display
         },
       },
-      // Note: When sortBy is 'most-orders', Prisma's Order._count sorting doesn't work as expected,
-      // so we use undefined here and sort the results manually after fetching
-      orderBy: sortBy === 'most-orders' ? undefined : orderBy,
+      orderBy,
       skip,
       take: USERS_PER_PAGE,
     });
@@ -1060,7 +1086,7 @@ export async function getUsersForAdmin(
     );
 
     // Format users with additional data
-    let formattedUsers: AdminUser[] = users.map(user => ({
+    const formattedUsers: AdminUser[] = users.map(user => ({
       id: user.id,
       name: user.name,
       email: user.email,
@@ -1078,20 +1104,13 @@ export async function getUsersForAdmin(
         : null,
     }));
 
-    // Apply post-fetch filters and sorting
-    if (activityFilter === 'high-value') {
-      formattedUsers = formattedUsers.filter(user => parseFloat(user.totalSpent) > CUSTOMER_CONSTANTS.HIGH_VALUE_THRESHOLD);
-    }
-
-    // Sort by most orders or highest spent if needed
-    if (sortBy === 'most-orders') {
-      formattedUsers.sort((a, b) => b.ordersCount - a.ordersCount);
-    } else if (sortBy === 'highest-spent') {
-      formattedUsers.sort((a, b) => parseFloat(b.totalSpent) - parseFloat(a.totalSpent));
-    }
+    // Sort by highest spent if needed (this requires post-fetch sorting due to aggregation complexity)
+    const sortedUsers = sortBy === 'highest-spent'
+      ? [...formattedUsers].sort((a, b) => parseFloat(b.totalSpent) - parseFloat(a.totalSpent))
+      : formattedUsers;
 
     return {
-      users: formattedUsers,
+      users: sortedUsers,
       currentPage: page,
       totalPages,
       totalUsers,

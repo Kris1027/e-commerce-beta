@@ -14,7 +14,7 @@ const sampleData = {
       password: 'Zaq12wsx',
       role: UserRole.user,
     },
-    // Additional 30 example users
+    // Additional 31 users (3 admins + 28 regular users) for testing
     {
       name: 'Robert Johnson',
       email: 'robert.johnson@example.com',
