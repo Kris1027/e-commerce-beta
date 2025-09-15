@@ -349,7 +349,7 @@ export function CustomersTable({ data, statistics }: CustomersTableProps) {
                     className="cursor-pointer"
                   >
                     <div className="flex items-center justify-between w-full">
-                      <span>High Value ({'>'} {CUSTOMER_CONSTANTS.HIGH_VALUE_THRESHOLD} zł)</span>
+                      <span>High Value ({'>'} {formatCurrency(CUSTOMER_CONSTANTS.HIGH_VALUE_THRESHOLD)})</span>
                       {currentActivity === 'high-value' && <CheckCircle2 className="h-4 w-4 text-primary" />}
                     </div>
                   </DropdownMenuItem>
