@@ -29,7 +29,7 @@ export default async function OrderConfirmationPage({ params }: OrderConfirmatio
           <CheckCircle className="mx-auto h-16 w-16 text-green-500 mb-4" />
           <h1 className="text-3xl font-bold mb-2">Order Confirmed!</h1>
           <p className="text-muted-foreground">
-            Thank you for your order. We&apos;ve received it and will process it soon.
+            {"Thank you for your order. We've received it and will process it soon."}
           </p>
         </div>
         
@@ -113,14 +113,14 @@ export default async function OrderConfirmationPage({ params }: OrderConfirmatio
         
         {/* What's Next */}
         <div className="rounded-lg border bg-card p-6 mb-6">
-          <h2 className="text-lg font-semibold mb-4">What&apos;s Next?</h2>
+          <h2 className="text-lg font-semibold mb-4">{"What's Next?"}</h2>
           <ul className="space-y-3">
             <li className="flex items-start gap-3">
               <Package className="h-5 w-5 text-muted-foreground mt-0.5" />
               <div>
                 <p className="font-medium">Order Processing</p>
                 <p className="text-sm text-muted-foreground">
-                  We&apos;re preparing your order for shipment
+                  {"We're preparing your order for shipment"}
                 </p>
               </div>
             </li>
@@ -129,7 +129,7 @@ export default async function OrderConfirmationPage({ params }: OrderConfirmatio
               <div>
                 <p className="font-medium">Confirmation Email</p>
                 <p className="text-sm text-muted-foreground">
-                  You&apos;ll receive an email with your order details
+                  {"You'll receive an email with your order details"}
                 </p>
               </div>
             </li>

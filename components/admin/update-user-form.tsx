@@ -85,7 +85,7 @@ export function UpdateUserForm({ user, onSuccess, onCancel }: UpdateUserFormProp
                 />
               </FormControl>
               <FormDescription className="text-xs">
-                The user&apos;s display name across the platform
+                {"The user's display name across the platform"}
               </FormDescription>
               <FormMessage />
             </FormItem>

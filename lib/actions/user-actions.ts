@@ -953,28 +953,28 @@ export async function getUsersForAdmin(
     const skip = (page - 1) * USERS_PER_PAGE;
 
     // Build filter conditions
-    const filters: Record<string, unknown> = {};
+    const filters: Prisma.UserWhereInput = {};
 
     // Search condition
     if (search) {
-      filters['OR'] = [
-        { email: { contains: search, mode: 'insensitive' as const } },
-        { name: { contains: search, mode: 'insensitive' as const } },
+      filters.OR = [
+        { email: { contains: search, mode: 'insensitive' } },
+        { name: { contains: search, mode: 'insensitive' } },
       ];
     }
 
     // Role filter
     if (roleFilter === 'customers') {
-      filters['role'] = UserRole.user;
+      filters.role = UserRole.user;
     } else if (roleFilter === 'admins') {
-      filters['role'] = UserRole.admin;
+      filters.role = UserRole.admin;
     }
 
     // Activity filter
     if (activityFilter === 'with-orders') {
-      filters['Order'] = { some: {} };
+      filters.Order = { some: {} };
     } else if (activityFilter === 'without-orders') {
-      filters['Order'] = { none: {} };
+      filters.Order = { none: {} };
     }
 
     // Get total count for pagination
@@ -1029,9 +1029,11 @@ export async function getUsersForAdmin(
           orderBy: {
             createdAt: 'desc',
           },
-          take: 1,
+          take: 1, // Only fetch the most recent order for last order date display
         },
       },
+      // Note: When sortBy is 'most-orders', Prisma's Order._count sorting doesn't work as expected,
+      // so we use undefined here and sort the results manually after fetching
       orderBy: sortBy === 'most-orders' ? undefined : orderBy,
       skip,
       take: USERS_PER_PAGE,
