@@ -154,6 +154,7 @@ deleteAddress(id)                           // Remove address
 setDefaultAddress(id)                       // Set default shipping address
 getOrderStats()                             // User order statistics
 getUsersForAdmin(page, search?)            // Admin: Get paginated users with search
+updateUserAsAdmin(userId, data)            // Admin: Update user details (name, email, role)
 deleteUser(userId)                         // Admin: Delete user account (with validation)
 ```
 
@@ -179,6 +180,7 @@ getCategoryDetails(slug)                    // Get category details with top pro
 - `cartItemSchema` - Cart item validation
 - `shippingAddressSchema` - Address validation
 - `signInSchema` / `signUpSchema` - Auth validation
+- `adminUpdateUserSchema` - Admin user update validation (name, email, role)
 - `ORDER_STATUS` constant - Order states
 - `CartResponse` type - API responses
 - `wishlistItemSchema` - Wishlist item validation
@@ -321,6 +323,14 @@ pending → processing → shipped → delivered
     - Role badges with crown icon for admins
     - Visual indicators for orders, wishlist, and spending
     - Hover tooltips showing detailed information
+  - User editing functionality:
+    - Edit user modal with form validation
+    - Update user name, email, and role
+    - Real-time form validation with Zod
+    - Protection against removing own admin role
+    - Email uniqueness validation
+    - Success/error toast notifications
+    - Modern UI with shadcn/ui Form components
   - User deletion functionality:
     - Delete button with trash icon for each user
     - Confirmation dialog with user details
@@ -438,6 +448,28 @@ pnpm db:studio    # Prisma Studio GUI
 ```
 
 ## Recent Updates
+- **Admin User Management Enhancement (2025-09-15)**:
+  - **Added User Edit Functionality**:
+    - Created `updateUserAsAdmin` server action in `/lib/actions/user-actions.ts`
+    - Added `adminUpdateUserSchema` validation schema with Zod
+    - Created `UpdateUserForm` component with React Hook Form
+    - Created `UpdateUserModal` component with modern UI
+    - Integrated edit functionality into customers table dropdown menu
+  - **Security Features**:
+    - Prevents admins from removing their own admin role
+    - Email uniqueness validation on updates
+    - Proper role-based access control
+  - **UI/UX Improvements**:
+    - Modern modal design with user avatar and current info display
+    - Real-time form validation with helpful error messages
+    - Loading states during form submission
+    - Success/error toast notifications
+    - Form component from shadcn/ui with proper field descriptions
+  - **Technical Implementation**:
+    - Uses React Hook Form with zodResolver for form management
+    - TypeScript strict mode compliance
+    - ActionResult type for consistent error handling
+    - Proper error handling with optional chaining
 - **Session Provider & Cart Persistence Fixes (2025-09-15)**:
   - **Fixed `useSession` Error**:
     - Created `SessionProvider` wrapper component at `/components/providers/session-provider.tsx`

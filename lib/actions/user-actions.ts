@@ -6,7 +6,8 @@ import { formatNumberWithDecimal, formatDateTime, formatOrderStatus, getOrderSta
 import { revalidatePath } from 'next/cache';
 import bcrypt from 'bcryptjs';
 import { z } from 'zod';
-import { shippingAddressSchema, PASSWORD_REGEX, PASSWORD_ERROR_MESSAGE } from '@/lib/validators';
+import { shippingAddressSchema, PASSWORD_REGEX, PASSWORD_ERROR_MESSAGE, adminUpdateUserSchema, AdminUpdateUserInput } from '@/lib/validators';
+import { UserRole, User } from '@prisma/client';
 import { ORDERS_PER_PAGE } from '@/lib/constants/cart';
 import { ActionResult, ListResult, createListErrorResult, createErrorResult } from '@/lib/types/action-results';
 import type { Address } from '@prisma/client';
@@ -711,6 +712,88 @@ export interface AdminUsersResult {
 }
 
 const USERS_PER_PAGE = 10;
+
+export async function updateUserAsAdmin(
+  userId: string,
+  data: AdminUpdateUserInput
+): Promise<ActionResult<User>> {
+  try {
+    const session = await auth();
+
+    if (!session?.user || session.user.role !== UserRole.admin) {
+      return {
+        success: false,
+        error: 'Unauthorized access',
+      };
+    }
+
+    // Validate input data
+    const validatedData = adminUpdateUserSchema.parse(data);
+
+    // Check if the user exists
+    const existingUser = await prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!existingUser) {
+      return {
+        success: false,
+        error: 'User not found',
+      };
+    }
+
+    // Prevent admin from removing their own admin role
+    if (userId === session.user.id && validatedData.role !== UserRole.admin) {
+      return {
+        success: false,
+        error: 'You cannot remove your own admin role',
+      };
+    }
+
+    // Check if email is being changed and if it's already taken
+    if (validatedData.email !== existingUser.email) {
+      const emailExists = await prisma.user.findUnique({
+        where: { email: validatedData.email },
+      });
+
+      if (emailExists) {
+        return {
+          success: false,
+          error: 'Email is already in use',
+        };
+      }
+    }
+
+    // Update the user
+    const updatedUser = await prisma.user.update({
+      where: { id: userId },
+      data: {
+        name: validatedData.name,
+        email: validatedData.email,
+        role: validatedData.role,
+      },
+    });
+
+    revalidatePath('/admin/customers');
+
+    return {
+      success: true,
+      data: updatedUser,
+    };
+  } catch (error) {
+    console.error('Error updating user:', error);
+    if (error instanceof z.ZodError) {
+      return {
+        success: false,
+        error: error.issues[0]?.message || 'Validation error',
+      };
+    }
+    return {
+      success: false,
+      error: 'Failed to update user',
+    };
+  }
+}
 
 export async function deleteUser(userId: string) {
   try {

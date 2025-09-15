@@ -15,6 +15,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { formatCurrency, copyToClipboard, cn } from '@/lib/utils';
 import { AdminUsersResult, deleteUser } from '@/lib/actions/user-actions';
+import { UpdateUserModal } from '@/components/admin/update-user-modal';
+import { UserRole } from '@prisma/client';
 import {
   Search,
   User,
@@ -37,7 +39,8 @@ import {
   Activity,
   DollarSign,
   Shield,
-  X
+  X,
+  Edit2
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useTransition } from 'react';
@@ -506,6 +509,27 @@ export function CustomersTable({ data }: CustomersTableProps) {
                             <DropdownMenuContent align="end" className="w-[200px]">
                               <DropdownMenuLabel>Actions</DropdownMenuLabel>
                               <DropdownMenuSeparator />
+                              <UpdateUserModal
+                                user={{
+                                  id: user.id,
+                                  name: user.name || 'Anonymous',
+                                  email: user.email || '',
+                                  role: user.role as UserRole,
+                                }}
+                                onSuccess={() => {
+                                  router.refresh();
+                                  toast.success('User updated successfully');
+                                }}
+                                trigger={
+                                  <DropdownMenuItem
+                                    className="cursor-pointer"
+                                    onSelect={(e) => e.preventDefault()}
+                                  >
+                                    <Edit2 className="h-4 w-4 mr-2" />
+                                    Edit User
+                                  </DropdownMenuItem>
+                                }
+                              />
                               <DropdownMenuItem className="cursor-pointer">
                                 <User className="h-4 w-4 mr-2" />
                                 View Details
