@@ -979,26 +979,35 @@ export async function getUsersForAdmin(
 
     // For high-value filter, we need to use a different approach
     if (activityFilter === 'high-value') {
-      // Build the WHERE clause for the raw query
-      const searchCondition = search
-        ? Prisma.sql` AND (LOWER(u.email) LIKE LOWER(${`%${search}%`}) OR LOWER(u.name) LIKE LOWER(${`%${search}%`}))`
-        : Prisma.sql``;
-
-      const roleCondition = roleFilter === 'customers'
-        ? Prisma.sql` AND u.role = 'user'`
-        : roleFilter === 'admins'
-        ? Prisma.sql` AND u.role = 'admin'`
-        : Prisma.sql``;
-
-      // Get all users with their total spent
-      const usersWithTotals = await prisma.$queryRaw<{ userId: string; totalSpent: number }[]>`
+      // Build the WHERE clause for the raw query using safe SQL construction
+      let query = Prisma.sql`
         SELECT u.id as "userId", COALESCE(SUM(o."totalPrice"), 0) as "totalSpent"
         FROM "User" u
         LEFT JOIN "Order" o ON u.id = o."userId" AND o.status != 'cancelled'
-        WHERE 1=1 ${searchCondition} ${roleCondition}
+        WHERE 1=1
+      `;
+
+      // Add search condition if present
+      if (search) {
+        const searchPattern = `%${search}%`;
+        query = Prisma.sql`${query} AND (LOWER(u.email) LIKE LOWER(${searchPattern}) OR LOWER(u.name) LIKE LOWER(${searchPattern}))`;
+      }
+
+      // Add role condition if present
+      if (roleFilter === 'customers') {
+        query = Prisma.sql`${query} AND u.role = ${UserRole.user}`;
+      } else if (roleFilter === 'admins') {
+        query = Prisma.sql`${query} AND u.role = ${UserRole.admin}`;
+      }
+
+      // Add GROUP BY and HAVING clauses
+      query = Prisma.sql`${query}
         GROUP BY u.id
         HAVING COALESCE(SUM(o."totalPrice"), 0) > ${CUSTOMER_CONSTANTS.HIGH_VALUE_THRESHOLD}
       `;
+
+      // Execute the query
+      const usersWithTotals = await prisma.$queryRaw<{ userId: string; totalSpent: number }[]>(query);
       const userIdsToInclude = usersWithTotals.map(u => u.userId);
 
       // Override filters to only include high-value users
