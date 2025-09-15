@@ -156,6 +156,7 @@ getOrderStats()                             // User order statistics
 getUsersForAdmin(page, search?)            // Admin: Get paginated users with search
 updateUserAsAdmin(userId, data)            // Admin: Update user details (name, email, role)
 deleteUser(userId)                         // Admin: Delete user account (with validation)
+getCustomerStatistics()                    // Admin: Get customer stats (total, admins, buyers, revenue)
 ```
 
 ### Wishlist Actions (`/lib/actions/wishlist-actions.ts`)
@@ -338,10 +339,13 @@ pending → processing → shipped → delivered
     - Validation for active orders before deletion
     - Warning messages for users with order history
     - Success/error toast notifications
-  - Pagination support (10 users per page)
+  - Pagination support (10 users per page) with shadcn/ui components
   - Modern table UI with shadcn/ui components
-  - Customer statistics card with gradient design
+  - Real-time customer statistics from database
   - Responsive design with horizontal scrolling
+  - Loading states for smooth page transitions
+  - Consistent admin layout width across all pages
+  - Persistent sidebar state with localStorage
 
 ### 🚧 Pending
 - Stripe/PayPal payment integration
@@ -455,6 +459,34 @@ pnpm db:studio    # Prisma Studio GUI
 ```
 
 ## Recent Updates
+- **Admin Dashboard Improvements (2025-09-15)**:
+  - **Customer Statistics Integration**:
+    - Added `getCustomerStatistics()` function for real-time database stats
+    - Displays total customers, admin users, active buyers, and total revenue
+    - Statistics fetched directly from database, not calculated from paginated data
+  - **Enhanced Pagination with shadcn/ui**:
+    - Replaced custom pagination with shadcn/ui Pagination components
+    - Added first/last page navigation buttons with double chevron icons
+    - Includes previous/next buttons for sequential navigation
+    - Smart ellipsis for large page ranges using `generatePaginationNumbers`
+    - Preserves search parameters during pagination
+    - Proper accessibility with aria-labels and disabled states
+  - **Fixed Layout Width Consistency**:
+    - Standardized admin layout with `container mx-auto` for consistent width
+    - Fixed table layout with `table-fixed` and explicit column widths
+    - Added `overflow-x-hidden` to prevent horizontal scrolling
+    - Sidebar state persists in localStorage across sessions
+    - Added `flex-shrink-0` to sidebar to prevent layout shifts
+  - **Added Loading States**:
+    - Created `/app/admin/loading.tsx` for general admin loading skeleton
+    - Created `/app/admin/customers/loading.tsx` for customer page loading
+    - Uses shadcn/ui Skeleton components for consistent loading UI
+    - Shows skeleton screens during page navigation
+  - **Table Improvements**:
+    - Fixed column widths to prevent content shifting
+    - Added `truncate` classes for long text overflow handling
+    - Improved customer cell layout with proper flex properties
+    - Consistent 1200px minimum table width
 - **Sample Data Enhancement (2025-09-15)**:
   - **Users**: Added 30 additional example users to sample-data.ts
     - Total of 33 users now available for testing (4 admins, 29 regular users)

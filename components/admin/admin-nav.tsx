@@ -16,7 +16,7 @@ import {
   Star,
   BarChart,
 } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { SignOutButton } from '@/components/auth/sign-out-button';
 
 const navItems = [
@@ -66,11 +66,24 @@ export default function AdminNav() {
   const pathname = usePathname();
   const [isCollapsed, setIsCollapsed] = useState(false);
 
+  // Persist sidebar state in localStorage
+  useEffect(() => {
+    const savedState = localStorage.getItem('adminSidebarCollapsed');
+    if (savedState !== null) {
+      setIsCollapsed(JSON.parse(savedState));
+    }
+  }, []);
+
+  const toggleSidebar = () => {
+    const newState = !isCollapsed;
+    setIsCollapsed(newState);
+    localStorage.setItem('adminSidebarCollapsed', JSON.stringify(newState));
+  };
 
   return (
     <aside
       className={cn(
-        'relative flex flex-col bg-card/50 backdrop-blur border-r transition-all duration-300',
+        'relative flex flex-col bg-card/50 backdrop-blur border-r transition-all duration-300 flex-shrink-0',
         isCollapsed ? 'w-16' : 'w-64'
       )}
     >
@@ -81,7 +94,7 @@ export default function AdminNav() {
         <Button
           variant="ghost"
           size="icon"
-          onClick={() => setIsCollapsed(!isCollapsed)}
+          onClick={toggleSidebar}
           className="cursor-pointer"
         >
           {isCollapsed ? (

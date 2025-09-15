@@ -17,7 +17,7 @@ export default async function AdminCustomersPage({
   ]);
 
   return (
-    <div className="p-6">
+    <>
       <div className="mb-8">
         <div className="flex items-center gap-3 mb-2">
           <div className="p-2 bg-gradient-to-br from-blue-500/10 to-purple-500/10 rounded-xl">
@@ -35,6 +35,6 @@ export default async function AdminCustomersPage({
       </div>
 
       <CustomersTable data={data} statistics={statistics} />
-    </div>
+    </>
   );
 }
