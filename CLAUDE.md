@@ -424,8 +424,15 @@ AUTH_SECRET="[generate with: openssl rand -base64 32]"
 ```
 
 ## Sample Users
-- Admin: admin@example.com / Zaq12wsx
-- User: user@example.com / Zaq12wsx
+- **Admin accounts (4 total):**
+  - admin@example.com / Zaq12wsx (Primary admin)
+  - jennifer.davis@example.com / Zaq12wsx
+  - susan.martin@example.com / Zaq12wsx
+  - kenneth.green@example.com / Zaq12wsx
+- **Regular users (29 total):**
+  - user@example.com / Zaq12wsx (Primary user)
+  - Plus 28 additional test users with format: firstname.lastname@example.com / Zaq12wsx
+- **Total: 33 sample users in database**
 
 ## Polish Localization
 - All addresses configured for Poland only
@@ -448,6 +455,19 @@ pnpm db:studio    # Prisma Studio GUI
 ```
 
 ## Recent Updates
+- **Sample Data Enhancement (2025-09-15)**:
+  - **Users**: Added 30 additional example users to sample-data.ts
+    - Total of 33 users now available for testing (4 admins, 29 regular users)
+    - All users have consistent password: Zaq12wsx
+    - Diverse set of names for realistic testing scenarios
+  - **Products**: Added 30 new diverse products to sample-data.ts
+    - Total of 36 products now in database
+    - Wide variety of categories: T-Shirts, Sportswear, Jackets, Formal Wear, Casual Wear, Sweatshirts, Sweaters, Workwear, Pants, Swimwear, Eco-Friendly, Thermals, Luxury, Outerwear, Golf Wear, Jeans, Vests, Underwear, Accessories, Blazers, Footwear
+    - Reuses existing product images from public folder (p1-1.jpg through p6-2.jpg)
+    - Various price ranges from $24.99 to $299.99
+    - Mix of featured and regular products
+    - Different brands for variety: EcoWear, SportMax, Executive, Heritage, Elegance, Coastal, TechWear, Nordic, WorkPro, ModernFit, Aviation, AquaFit, GreenLife, WarmTech, ArtWear, Tactical, Luxe, WeatherGuard, Lumberjack, ProGolf, DenimCo, Alpine, FreshTech, Essentials, PowerFit, Arctic, Walkman, Expedition, ComfortPlus
+  - Database successfully seeded with all new data
 - **Admin User Management Enhancement (2025-09-15)**:
   - **Added User Edit Functionality**:
     - Created `updateUserAsAdmin` server action in `/lib/actions/user-actions.ts`
