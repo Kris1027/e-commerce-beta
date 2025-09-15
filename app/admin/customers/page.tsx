@@ -1,18 +1,33 @@
-import { getUsersForAdmin, getCustomerStatistics } from '@/lib/actions/user-actions';
+import {
+  getUsersForAdmin,
+  getCustomerStatistics,
+  type UserFilterRole,
+  type UserFilterActivity,
+  type UserSortBy
+} from '@/lib/actions/user-actions';
 import { CustomersTable } from '@/components/admin/customers-table';
 import { Users } from 'lucide-react';
 
 export default async function AdminCustomersPage({
   searchParams,
 }: {
-  searchParams: Promise<{ page?: string; search?: string }>;
+  searchParams: Promise<{
+    page?: string;
+    search?: string;
+    role?: string;
+    activity?: string;
+    sort?: string;
+  }>;
 }) {
   const params = await searchParams;
   const page = Number(params.page) || 1;
   const search = params.search || '';
+  const roleFilter = (params.role || 'all') as UserFilterRole;
+  const activityFilter = (params.activity || 'all') as UserFilterActivity;
+  const sortBy = (params.sort || 'newest') as UserSortBy;
 
   const [data, statistics] = await Promise.all([
-    getUsersForAdmin(page, search),
+    getUsersForAdmin(page, search, roleFilter, activityFilter, sortBy),
     getCustomerStatistics(),
   ]);
 

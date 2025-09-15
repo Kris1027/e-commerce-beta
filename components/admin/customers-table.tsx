@@ -49,7 +49,8 @@ import {
   X,
   Edit2,
   ChevronsLeft,
-  ChevronsRight
+  ChevronsRight,
+  CheckCircle2
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useTransition } from 'react';
@@ -93,15 +94,21 @@ export function CustomersTable({ data, statistics }: CustomersTableProps) {
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [deletingUserId, setDeletingUserId] = useState<string | null>(null);
 
+  // Get current filter values from URL
+  const currentRole = searchParams.get('role') || 'all';
+  const currentActivity = searchParams.get('activity') || 'all';
+  const currentSort = searchParams.get('sort') || 'newest';
+
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     startTransition(() => {
       const params = new URLSearchParams(searchParams);
       if (searchTerm) {
         params.set('search', searchTerm);
-        params.set('page', '1'); // Reset to first page on new search
+        params.delete('page'); // Reset to first page on new search
       } else {
         params.delete('search');
+        params.delete('page');
       }
       router.push(`/admin/customers?${params.toString()}`);
     });
@@ -111,6 +118,24 @@ export function CustomersTable({ data, statistics }: CustomersTableProps) {
     startTransition(() => {
       const params = new URLSearchParams(searchParams);
       params.set('page', page.toString());
+      router.push(`/admin/customers?${params.toString()}`);
+    });
+  };
+
+  const handleFilterChange = (type: 'role' | 'activity' | 'sort', value: string) => {
+    startTransition(() => {
+      const params = new URLSearchParams(searchParams);
+
+      // Remove page parameter to reset to page 1
+      params.delete('page');
+
+      // Handle filter value
+      if (value === 'all' || (type === 'sort' && value === 'newest')) {
+        params.delete(type);
+      } else {
+        params.set(type, value);
+      }
+
       router.push(`/admin/customers?${params.toString()}`);
     });
   };
@@ -265,7 +290,7 @@ export function CustomersTable({ data, statistics }: CustomersTableProps) {
                 <Search className="h-4 w-4" />
                 Search
               </Button>
-              {searchParams.get('search') && (
+              {(searchParams.get('search') || searchParams.get('role') || searchParams.get('activity') || searchParams.get('sort')) && (
                 <Button
                   type="button"
                   variant="outline"
@@ -277,7 +302,7 @@ export function CustomersTable({ data, statistics }: CustomersTableProps) {
                   }}
                   disabled={isPending}
                 >
-                  Reset
+                  Clear All
                 </Button>
               )}
             </form>
@@ -285,42 +310,175 @@ export function CustomersTable({ data, statistics }: CustomersTableProps) {
             <div className="flex items-center gap-2">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="outline" size="default" className="gap-2">
+                  <Button
+                    variant="outline"
+                    size="default"
+                    className={cn(
+                      "gap-2",
+                      (currentRole !== 'all' || currentActivity !== 'all') && "border-primary"
+                    )}
+                  >
                     <Filter className="h-4 w-4" />
                     Filters
+                    {(currentRole !== 'all' || currentActivity !== 'all') && (
+                      <Badge variant="secondary" className="ml-1 h-5 px-1">
+                        {[currentRole !== 'all' && 1, currentActivity !== 'all' && 1].filter(Boolean).length}
+                      </Badge>
+                    )}
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-[200px]">
                   <DropdownMenuLabel>Filter by Role</DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem>All Users</DropdownMenuItem>
-                  <DropdownMenuItem>Customers Only</DropdownMenuItem>
-                  <DropdownMenuItem>Admins Only</DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => handleFilterChange('role', 'all')}
+                    className="cursor-pointer"
+                  >
+                    <div className="flex items-center justify-between w-full">
+                      <span>All Users</span>
+                      {currentRole === 'all' && <CheckCircle2 className="h-4 w-4 text-primary" />}
+                    </div>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => handleFilterChange('role', 'customers')}
+                    className="cursor-pointer"
+                  >
+                    <div className="flex items-center justify-between w-full">
+                      <span>Customers Only</span>
+                      {currentRole === 'customers' && <CheckCircle2 className="h-4 w-4 text-primary" />}
+                    </div>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => handleFilterChange('role', 'admins')}
+                    className="cursor-pointer"
+                  >
+                    <div className="flex items-center justify-between w-full">
+                      <span>Admins Only</span>
+                      {currentRole === 'admins' && <CheckCircle2 className="h-4 w-4 text-primary" />}
+                    </div>
+                  </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuLabel>Filter by Activity</DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem>With Orders</DropdownMenuItem>
-                  <DropdownMenuItem>Without Orders</DropdownMenuItem>
-                  <DropdownMenuItem>High Value (&gt; 1000 zł)</DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => handleFilterChange('activity', 'all')}
+                    className="cursor-pointer"
+                  >
+                    <div className="flex items-center justify-between w-full">
+                      <span>All Activity</span>
+                      {currentActivity === 'all' && <CheckCircle2 className="h-4 w-4 text-primary" />}
+                    </div>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => handleFilterChange('activity', 'with-orders')}
+                    className="cursor-pointer"
+                  >
+                    <div className="flex items-center justify-between w-full">
+                      <span>With Orders</span>
+                      {currentActivity === 'with-orders' && <CheckCircle2 className="h-4 w-4 text-primary" />}
+                    </div>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => handleFilterChange('activity', 'without-orders')}
+                    className="cursor-pointer"
+                  >
+                    <div className="flex items-center justify-between w-full">
+                      <span>Without Orders</span>
+                      {currentActivity === 'without-orders' && <CheckCircle2 className="h-4 w-4 text-primary" />}
+                    </div>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => handleFilterChange('activity', 'high-value')}
+                    className="cursor-pointer"
+                  >
+                    <div className="flex items-center justify-between w-full">
+                      <span>High Value (&gt; 1000 zł)</span>
+                      {currentActivity === 'high-value' && <CheckCircle2 className="h-4 w-4 text-primary" />}
+                    </div>
+                  </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
 
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="outline" size="default" className="gap-2">
+                  <Button
+                    variant="outline"
+                    size="default"
+                    className={cn(
+                      "gap-2",
+                      currentSort !== 'newest' && "border-primary"
+                    )}
+                  >
                     <ArrowUpDown className="h-4 w-4" />
                     Sort
+                    {currentSort !== 'newest' && (
+                      <Badge variant="secondary" className="ml-1">
+                        {currentSort === 'oldest' && 'Oldest'}
+                        {currentSort === 'name-asc' && 'A-Z'}
+                        {currentSort === 'name-desc' && 'Z-A'}
+                        {currentSort === 'most-orders' && 'Orders'}
+                        {currentSort === 'highest-spent' && 'Spent'}
+                      </Badge>
+                    )}
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-[200px]">
                   <DropdownMenuLabel>Sort by</DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem>Newest First</DropdownMenuItem>
-                  <DropdownMenuItem>Oldest First</DropdownMenuItem>
-                  <DropdownMenuItem>Name (A-Z)</DropdownMenuItem>
-                  <DropdownMenuItem>Name (Z-A)</DropdownMenuItem>
-                  <DropdownMenuItem>Most Orders</DropdownMenuItem>
-                  <DropdownMenuItem>Highest Spent</DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => handleFilterChange('sort', 'newest')}
+                    className="cursor-pointer"
+                  >
+                    <div className="flex items-center justify-between w-full">
+                      <span>Newest First</span>
+                      {currentSort === 'newest' && <CheckCircle2 className="h-4 w-4 text-primary" />}
+                    </div>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => handleFilterChange('sort', 'oldest')}
+                    className="cursor-pointer"
+                  >
+                    <div className="flex items-center justify-between w-full">
+                      <span>Oldest First</span>
+                      {currentSort === 'oldest' && <CheckCircle2 className="h-4 w-4 text-primary" />}
+                    </div>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => handleFilterChange('sort', 'name-asc')}
+                    className="cursor-pointer"
+                  >
+                    <div className="flex items-center justify-between w-full">
+                      <span>Name (A-Z)</span>
+                      {currentSort === 'name-asc' && <CheckCircle2 className="h-4 w-4 text-primary" />}
+                    </div>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => handleFilterChange('sort', 'name-desc')}
+                    className="cursor-pointer"
+                  >
+                    <div className="flex items-center justify-between w-full">
+                      <span>Name (Z-A)</span>
+                      {currentSort === 'name-desc' && <CheckCircle2 className="h-4 w-4 text-primary" />}
+                    </div>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => handleFilterChange('sort', 'most-orders')}
+                    className="cursor-pointer"
+                  >
+                    <div className="flex items-center justify-between w-full">
+                      <span>Most Orders</span>
+                      {currentSort === 'most-orders' && <CheckCircle2 className="h-4 w-4 text-primary" />}
+                    </div>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => handleFilterChange('sort', 'highest-spent')}
+                    className="cursor-pointer"
+                  >
+                    <div className="flex items-center justify-between w-full">
+                      <span>Highest Spent</span>
+                      {currentSort === 'highest-spent' && <CheckCircle2 className="h-4 w-4 text-primary" />}
+                    </div>
+                  </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>

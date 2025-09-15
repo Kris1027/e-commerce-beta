@@ -925,9 +925,16 @@ export async function deleteUser(userId: string) {
   }
 }
 
+export type UserFilterRole = 'all' | 'customers' | 'admins';
+export type UserFilterActivity = 'all' | 'with-orders' | 'without-orders' | 'high-value';
+export type UserSortBy = 'newest' | 'oldest' | 'name-asc' | 'name-desc' | 'most-orders' | 'highest-spent';
+
 export async function getUsersForAdmin(
   page: number = 1,
-  search?: string
+  search?: string,
+  roleFilter: UserFilterRole = 'all',
+  activityFilter: UserFilterActivity = 'all',
+  sortBy: UserSortBy = 'newest'
 ): Promise<AdminUsersResult> {
   try {
     const session = await auth();
@@ -945,26 +952,62 @@ export async function getUsersForAdmin(
 
     const skip = (page - 1) * USERS_PER_PAGE;
 
-    // Build search condition
-    const searchCondition = search
-      ? {
-          OR: [
-            { email: { contains: search, mode: 'insensitive' as const } },
-            { name: { contains: search, mode: 'insensitive' as const } },
-          ],
-        }
-      : {};
+    // Build filter conditions
+    const filters: any = {};
+
+    // Search condition
+    if (search) {
+      filters.OR = [
+        { email: { contains: search, mode: 'insensitive' as const } },
+        { name: { contains: search, mode: 'insensitive' as const } },
+      ];
+    }
+
+    // Role filter
+    if (roleFilter === 'customers') {
+      filters.role = UserRole.user;
+    } else if (roleFilter === 'admins') {
+      filters.role = UserRole.admin;
+    }
+
+    // Activity filter
+    if (activityFilter === 'with-orders') {
+      filters.Order = { some: {} };
+    } else if (activityFilter === 'without-orders') {
+      filters.Order = { none: {} };
+    }
 
     // Get total count for pagination
     const totalUsers = await prisma.user.count({
-      where: searchCondition,
+      where: filters,
     });
 
     const totalPages = Math.ceil(totalUsers / USERS_PER_PAGE);
 
+    // Determine sort order
+    let orderBy: any = { createdAt: 'desc' }; // default: newest
+
+    switch (sortBy) {
+      case 'oldest':
+        orderBy = { createdAt: 'asc' };
+        break;
+      case 'name-asc':
+        orderBy = { name: 'asc' };
+        break;
+      case 'name-desc':
+        orderBy = { name: 'desc' };
+        break;
+      case 'most-orders':
+        orderBy = { Order: { _count: 'desc' } };
+        break;
+      case 'highest-spent':
+        // Will sort after fetching due to aggregation complexity
+        break;
+    }
+
     // Get paginated users with related data
     const users = await prisma.user.findMany({
-      where: searchCondition,
+      where: filters,
       select: {
         id: true,
         name: true,
@@ -989,9 +1032,7 @@ export async function getUsersForAdmin(
           take: 1,
         },
       },
-      orderBy: {
-        createdAt: 'desc',
-      },
+      orderBy: sortBy === 'most-orders' ? undefined : orderBy,
       skip,
       take: USERS_PER_PAGE,
     });
@@ -1017,7 +1058,7 @@ export async function getUsersForAdmin(
     );
 
     // Format users with additional data
-    const formattedUsers: AdminUser[] = users.map(user => ({
+    let formattedUsers: AdminUser[] = users.map(user => ({
       id: user.id,
       name: user.name,
       email: user.email,
@@ -1034,6 +1075,18 @@ export async function getUsersForAdmin(
         ? formatDateTime(user.Order[0].createdAt)
         : null,
     }));
+
+    // Apply post-fetch filters and sorting
+    if (activityFilter === 'high-value') {
+      formattedUsers = formattedUsers.filter(user => parseFloat(user.totalSpent) > 1000);
+    }
+
+    // Sort by most orders or highest spent if needed
+    if (sortBy === 'most-orders') {
+      formattedUsers.sort((a, b) => b.ordersCount - a.ordersCount);
+    } else if (sortBy === 'highest-spent') {
+      formattedUsers.sort((a, b) => parseFloat(b.totalSpent) - parseFloat(a.totalSpent));
+    }
 
     return {
       users: formattedUsers,
