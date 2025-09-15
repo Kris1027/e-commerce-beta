@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import Link from 'next/link';
 import {
   Table,
   TableBody,
@@ -659,17 +660,15 @@ export function CustomersTable({ data, statistics }: CustomersTableProps) {
                                   </DropdownMenuItem>
                                 }
                               />
-                              <DropdownMenuItem className="cursor-pointer">
-                                <User className="h-4 w-4 mr-2" />
-                                View Details
+                              <DropdownMenuItem className="cursor-pointer" asChild>
+                                <Link href={`/admin/customers/${user.id}`}>
+                                  <User className="h-4 w-4 mr-2" />
+                                  View Details
+                                </Link>
                               </DropdownMenuItem>
                               <DropdownMenuItem className="cursor-pointer">
                                 <Mail className="h-4 w-4 mr-2" />
                                 Send Email
-                              </DropdownMenuItem>
-                              <DropdownMenuItem className="cursor-pointer">
-                                <ShoppingBag className="h-4 w-4 mr-2" />
-                                View Orders
                               </DropdownMenuItem>
                               <DropdownMenuSeparator />
                               <AlertDialog>

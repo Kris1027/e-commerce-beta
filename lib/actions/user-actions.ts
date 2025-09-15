@@ -1106,3 +1106,118 @@ export async function getUsersForAdmin(
     };
   }
 }
+
+export async function getUserDetailsForAdmin(userId: string) {
+  try {
+    const session = await auth();
+
+    if (!session || session.user.role !== UserRole.admin) {
+      throw new Error('Unauthorized');
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      include: {
+        addresses: {
+          orderBy: {
+            isDefault: 'desc'
+          }
+        },
+        Order: {
+          orderBy: {
+            createdAt: 'desc'
+          },
+          take: 10, // Last 10 orders
+          select: {
+            id: true,
+            status: true,
+            totalPrice: true,
+            createdAt: true,
+            orderitems: {
+              select: {
+                qty: true
+              }
+            }
+          }
+        },
+        Wishlist: {
+          include: {
+            product: {
+              select: {
+                id: true,
+                name: true,
+                slug: true,
+                price: true,
+                images: true
+              }
+            }
+          }
+        },
+        _count: {
+          select: {
+            Order: true,
+            Wishlist: true,
+            addresses: true,
+            Review: true
+          }
+        }
+      }
+    });
+
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    // Calculate total spent
+    const totalSpent = await prisma.order.aggregate({
+      where: { userId },
+      _sum: {
+        totalPrice: true
+      }
+    });
+
+    // Get order statistics
+    const orderStats = await prisma.order.groupBy({
+      by: ['status'],
+      where: { userId },
+      _count: true
+    });
+
+    // Format the data
+    return {
+      id: user.id,
+      name: user.name || 'Anonymous',
+      email: user.email,
+      role: user.role,
+      emailVerified: user.emailVerified,
+      image: user.image,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
+      addresses: user.addresses,
+      recentOrders: user.Order.map(order => ({
+        ...order,
+        itemCount: order.orderitems.reduce((sum, item) => sum + item.qty, 0),
+        formattedDate: formatDateTime(order.createdAt),
+        formattedStatus: formatOrderStatus(order.status),
+        statusColor: getOrderStatusColor(order.status)
+      })),
+      wishlistItems: user.Wishlist,
+      stats: {
+        totalOrders: user._count.Order,
+        totalWishlistItems: user._count.Wishlist,
+        totalAddresses: user._count.addresses,
+        totalReviews: user._count.Review,
+        totalSpent: totalSpent._sum.totalPrice || '0',
+        orderStatusBreakdown: orderStats.reduce((acc, stat) => {
+          acc[stat.status] = stat._count;
+          return acc;
+        }, {} as Record<string, number>)
+      },
+      formattedCreatedAt: formatDateTime(user.createdAt),
+      formattedUpdatedAt: formatDateTime(user.updatedAt)
+    };
+  } catch (error) {
+    console.error('Error fetching user details:', error);
+    throw error;
+  }
+}

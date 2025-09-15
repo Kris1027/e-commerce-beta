@@ -154,6 +154,7 @@ deleteAddress(id)                           // Remove address
 setDefaultAddress(id)                       // Set default shipping address
 getOrderStats()                             // User order statistics
 getUsersForAdmin(page, search?, roleFilter?, activityFilter?, sortBy?) // Admin: Get paginated users with filters
+getUserDetailsForAdmin(userId)             // Admin: Get comprehensive user details with orders, addresses, wishlist
 updateUserAsAdmin(userId, data)            // Admin: Update user details (name, email, role)
 deleteUser(userId)                         // Admin: Delete user account (with validation)
 getCustomerStatistics()                    // Admin: Get customer stats (total, admins, buyers, revenue)
@@ -411,6 +412,18 @@ pending → processing → shipped → delivered
     - Validation for active orders before deletion
     - Warning messages for users with order history
     - Success/error toast notifications
+  - **User Details Page** (`/admin/customers/[id]`):
+    - Comprehensive user information view
+    - User overview with avatar, role badge, verification status
+    - Statistics cards: Total Orders, Total Spent, Wishlist Items, Saved Addresses
+    - **Tabbed sections**:
+      - Recent Orders: Last 10 orders with status, items, and pricing
+      - Addresses: All saved shipping addresses with labels and default indicator
+      - Wishlist: Grid view of wishlist items with images and prices
+      - Activity: Account creation, updates, verification status, reviews count
+    - Order status breakdown visualization
+    - Back navigation to customers list
+    - Accessible via "View Details" in dropdown menu
   - **Pagination with shadcn/ui**:
     - 10 users per page
     - First and last page navigation buttons
@@ -535,6 +548,26 @@ pnpm db:studio    # Prisma Studio GUI
 ```
 
 ## Recent Updates
+- **Admin User Details Page (2025-09-15)**:
+  - **Created comprehensive user details view** at `/admin/customers/[id]`
+  - **Server Action**: Added `getUserDetailsForAdmin(userId)` to fetch complete user data
+  - **User Overview Section**:
+    - User avatar with initial, name, email, role badge
+    - Email verification status indicator
+    - Account creation and last update timestamps
+    - User ID display for reference
+  - **Statistics Dashboard**:
+    - Total Orders count
+    - Total Spent (lifetime value)
+    - Wishlist Items count
+    - Saved Addresses count
+  - **Tabbed Content Areas**:
+    - Recent Orders: Last 10 orders with status badges, item counts, and pricing
+    - Addresses: All saved addresses with type icons (Home/Work/Other) and default indicator
+    - Wishlist: Grid view of wishlist products with images and prices
+    - Activity: Account timeline, verification status, and review count
+  - **Order Status Breakdown**: Visual representation of order distribution by status
+  - **Navigation**: Back button to customers list, accessible via "View Details" in dropdown
 - **Admin Customer Management Filters & Sorting (2025-09-15)**:
   - **Advanced Filtering System**:
     - Role-based filtering: All Users, Customers Only, Admins Only
