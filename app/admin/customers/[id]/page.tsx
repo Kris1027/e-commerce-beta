@@ -37,7 +37,7 @@ export default async function UserDetailsPage({
   try {
     user = await getUserDetailsForAdmin(id);
   } catch (error) {
-    console.error('Error fetching user details:', error);
+    console.error(`Error fetching user details for user ID ${id}:`, error);
     notFound();
   }
 
