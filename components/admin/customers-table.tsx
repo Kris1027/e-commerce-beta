@@ -13,16 +13,23 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { formatCurrency, copyToClipboard, cn } from '@/lib/utils';
+import { formatCurrency, copyToClipboard, cn, generatePaginationNumbers } from '@/lib/utils';
 import { AdminUsersResult, deleteUser, CustomerStatistics } from '@/lib/actions/user-actions';
 import { UpdateUserModal } from '@/components/admin/update-user-modal';
 import { UserRole } from '@prisma/client';
 import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from '@/components/ui/pagination';
+import {
   Search,
   User,
   Heart,
-  ChevronLeft,
-  ChevronRight,
   Copy,
   Check,
   Mail,
@@ -40,7 +47,9 @@ import {
   DollarSign,
   Shield,
   X,
-  Edit2
+  Edit2,
+  ChevronsLeft,
+  ChevronsRight
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useTransition } from 'react';
@@ -604,32 +613,92 @@ export function CustomersTable({ data, statistics }: CustomersTableProps) {
 
           {/* Pagination */}
           {data.totalPages > 1 && (
-            <div className="flex items-center justify-between px-4 py-4">
-              <div className="text-sm text-muted-foreground">
-                Page {data.currentPage} of {data.totalPages} ({data.totalUsers} total)
+            <div className="flex flex-col gap-4 px-4 py-4 border-t">
+              <div className="text-sm text-muted-foreground text-center">
+                Page {data.currentPage} of {data.totalPages} ({data.totalUsers} total customers)
               </div>
-              <div className="flex gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => handlePageChange(data.currentPage - 1)}
-                  disabled={data.currentPage === 1 || isPending}
-                  className="cursor-pointer"
-                >
-                  <ChevronLeft className="h-4 w-4" />
-                  Previous
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => handlePageChange(data.currentPage + 1)}
-                  disabled={!data.hasMore || isPending}
-                  className="cursor-pointer"
-                >
-                  Next
-                  <ChevronRight className="h-4 w-4" />
-                </Button>
-              </div>
+              <Pagination>
+                <PaginationContent>
+                  {/* First Page Button */}
+                  <PaginationItem>
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      onClick={() => handlePageChange(1)}
+                      disabled={data.currentPage === 1 || isPending}
+                      className="h-9 w-9 cursor-pointer"
+                      aria-label="Go to first page"
+                    >
+                      <ChevronsLeft className="h-4 w-4" />
+                    </Button>
+                  </PaginationItem>
+
+                  {/* Previous Page Button */}
+                  <PaginationItem>
+                    <PaginationPrevious
+                      onClick={() => handlePageChange(data.currentPage - 1)}
+                      className={cn(
+                        "cursor-pointer",
+                        (data.currentPage === 1 || isPending) && "pointer-events-none opacity-50"
+                      )}
+                      aria-disabled={data.currentPage === 1 || isPending}
+                    />
+                  </PaginationItem>
+
+                  {/* Page Numbers */}
+                  {generatePaginationNumbers(data.currentPage, data.totalPages).map((page, index) => {
+                    if (typeof page === 'string') {
+                      return (
+                        <PaginationItem key={`ellipsis-${index}`}>
+                          <PaginationEllipsis />
+                        </PaginationItem>
+                      );
+                    }
+
+                    return (
+                      <PaginationItem key={`page-${page}`}>
+                        <PaginationLink
+                          onClick={() => handlePageChange(page)}
+                          isActive={page === data.currentPage}
+                          className={cn(
+                            "cursor-pointer",
+                            isPending && "pointer-events-none opacity-50"
+                          )}
+                          aria-disabled={isPending}
+                        >
+                          {page}
+                        </PaginationLink>
+                      </PaginationItem>
+                    );
+                  })}
+
+                  {/* Next Page Button */}
+                  <PaginationItem>
+                    <PaginationNext
+                      onClick={() => handlePageChange(data.currentPage + 1)}
+                      className={cn(
+                        "cursor-pointer",
+                        (!data.hasMore || isPending) && "pointer-events-none opacity-50"
+                      )}
+                      aria-disabled={!data.hasMore || isPending}
+                    />
+                  </PaginationItem>
+
+                  {/* Last Page Button */}
+                  <PaginationItem>
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      onClick={() => handlePageChange(data.totalPages)}
+                      disabled={data.currentPage === data.totalPages || isPending}
+                      className="h-9 w-9 cursor-pointer"
+                      aria-label="Go to last page"
+                    >
+                      <ChevronsRight className="h-4 w-4" />
+                    </Button>
+                  </PaginationItem>
+                </PaginationContent>
+              </Pagination>
             </div>
           )}
         </CardContent>
