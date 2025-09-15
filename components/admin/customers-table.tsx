@@ -14,7 +14,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { formatCurrency, copyToClipboard, cn } from '@/lib/utils';
-import { AdminUsersResult, deleteUser } from '@/lib/actions/user-actions';
+import { AdminUsersResult, deleteUser, CustomerStatistics } from '@/lib/actions/user-actions';
 import { UpdateUserModal } from '@/components/admin/update-user-modal';
 import { UserRole } from '@prisma/client';
 import {
@@ -73,9 +73,10 @@ import {
 
 interface CustomersTableProps {
   data: AdminUsersResult;
+  statistics: CustomerStatistics;
 }
 
-export function CustomersTable({ data }: CustomersTableProps) {
+export function CustomersTable({ data, statistics }: CustomersTableProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [searchTerm, setSearchTerm] = useState(searchParams.get('search') || '');
@@ -158,7 +159,7 @@ export function CustomersTable({ data }: CustomersTableProps) {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold">{data.totalUsers}</div>
+            <div className="text-3xl font-bold">{statistics.totalCustomers}</div>
             <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
               <Activity className="h-3 w-3" />
               All registered users
@@ -176,7 +177,7 @@ export function CustomersTable({ data }: CustomersTableProps) {
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold">
-              {data.users.filter(u => u.role === 'admin').length}
+              {statistics.adminUsers}
             </div>
             <p className="text-xs text-muted-foreground mt-1">
               System administrators
@@ -194,7 +195,7 @@ export function CustomersTable({ data }: CustomersTableProps) {
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold">
-              {data.users.filter(u => u.ordersCount > 0).length}
+              {statistics.activeBuyers}
             </div>
             <p className="text-xs text-muted-foreground mt-1">
               Customers with orders
@@ -212,7 +213,7 @@ export function CustomersTable({ data }: CustomersTableProps) {
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold">
-              {formatCurrency(data.users.reduce((sum, u) => sum + Number(u.totalSpent), 0).toString())}
+              {formatCurrency(statistics.totalRevenue)}
             </div>
             <p className="text-xs text-muted-foreground mt-1">
               From all customers

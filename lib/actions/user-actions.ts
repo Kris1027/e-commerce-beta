@@ -713,6 +713,73 @@ export interface AdminUsersResult {
 
 const USERS_PER_PAGE = 10;
 
+export interface CustomerStatistics {
+  totalCustomers: number;
+  adminUsers: number;
+  activeBuyers: number;
+  totalRevenue: string;
+}
+
+export async function getCustomerStatistics(): Promise<CustomerStatistics> {
+  try {
+    const session = await auth();
+
+    // Check if user is admin
+    if (!session?.user?.id || session.user.role !== 'admin') {
+      return {
+        totalCustomers: 0,
+        adminUsers: 0,
+        activeBuyers: 0,
+        totalRevenue: '0.00',
+      };
+    }
+
+    // Get total customers
+    const totalCustomers = await prisma.user.count();
+
+    // Get admin users count
+    const adminUsers = await prisma.user.count({
+      where: { role: 'admin' },
+    });
+
+    // Get active buyers (users with at least one order)
+    const activeBuyers = await prisma.user.count({
+      where: {
+        Order: {
+          some: {},
+        },
+      },
+    });
+
+    // Get total revenue from all non-cancelled orders
+    const totalRevenueResult = await prisma.order.aggregate({
+      where: {
+        status: { not: 'cancelled' },
+      },
+      _sum: {
+        totalPrice: true,
+      },
+    });
+
+    const totalRevenue = formatNumberWithDecimal(Number(totalRevenueResult._sum.totalPrice || 0));
+
+    return {
+      totalCustomers,
+      adminUsers,
+      activeBuyers,
+      totalRevenue,
+    };
+  } catch (error) {
+    console.error('Error fetching customer statistics:', error);
+    return {
+      totalCustomers: 0,
+      adminUsers: 0,
+      activeBuyers: 0,
+      totalRevenue: '0.00',
+    };
+  }
+}
+
 export async function updateUserAsAdmin(
   userId: string,
   data: AdminUpdateUserInput

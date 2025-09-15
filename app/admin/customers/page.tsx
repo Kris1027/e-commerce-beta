@@ -1,4 +1,4 @@
-import { getUsersForAdmin } from '@/lib/actions/user-actions';
+import { getUsersForAdmin, getCustomerStatistics } from '@/lib/actions/user-actions';
 import { CustomersTable } from '@/components/admin/customers-table';
 import { Users } from 'lucide-react';
 
@@ -11,7 +11,10 @@ export default async function AdminCustomersPage({
   const page = Number(params.page) || 1;
   const search = params.search || '';
 
-  const data = await getUsersForAdmin(page, search);
+  const [data, statistics] = await Promise.all([
+    getUsersForAdmin(page, search),
+    getCustomerStatistics(),
+  ]);
 
   return (
     <div className="p-6">
@@ -31,7 +34,7 @@ export default async function AdminCustomersPage({
         </div>
       </div>
 
-      <CustomersTable data={data} />
+      <CustomersTable data={data} statistics={statistics} />
     </div>
   );
 }
