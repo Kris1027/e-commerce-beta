@@ -221,22 +221,22 @@ export function isActiveOrder(status: string): boolean {
 // Format date and times
 export const formatDateTime = (dateString: Date) => {
   const dateTimeOptions: Intl.DateTimeFormatOptions = {
-    month: 'short', // abbreviated month name (e.g., 'Oct')
-    year: 'numeric', // abbreviated month name (e.g., 'Oct')
-    day: 'numeric', // numeric day of the month (e.g., '25')
-    hour: 'numeric', // numeric hour (e.g., '8')
-    minute: 'numeric', // numeric minute (e.g., '30')
+    month: 'short', // abbreviated month name
+    year: 'numeric', // full year
+    day: 'numeric', // numeric day of the month
+    hour: 'numeric', // numeric hour (24-hour format)
+    minute: 'numeric', // numeric minute
     hour12: false, // use 24-hour clock for Polish locale
   };
   const dateOptions: Intl.DateTimeFormatOptions = {
-    // Weekday excluded for cleaner display (shows "15 wrz 2025" instead of "pon, 15 wrz 2025")
-    month: 'short', // abbreviated month name (e.g., 'wrz')
-    year: 'numeric', // numeric year (e.g., '2025')
-    day: 'numeric', // numeric day of the month (e.g., '15')
+    // Weekday excluded for cleaner display (format: "DD MMM YYYY" instead of "DDD, DD MMM YYYY")
+    month: 'short', // abbreviated month name
+    year: 'numeric', // full year
+    day: 'numeric', // numeric day of the month
   };
   const timeOptions: Intl.DateTimeFormatOptions = {
-    hour: 'numeric', // numeric hour (e.g., '8')
-    minute: 'numeric', // numeric minute (e.g., '30')
+    hour: 'numeric', // numeric hour (24-hour format)
+    minute: 'numeric', // numeric minute
     hour12: false, // use 24-hour clock for Polish locale
   };
   const formattedDateTime: string = new Date(dateString).toLocaleString(
