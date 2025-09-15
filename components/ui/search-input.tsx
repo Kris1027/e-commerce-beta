@@ -54,7 +54,7 @@ export function SearchInput({
       setInternalValue(externalValue);
       lastSearchedValueRef.current = externalValue;
     }
-  }, [externalValue]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [externalValue, internalValue])
 
   // Handle input changes
   const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
