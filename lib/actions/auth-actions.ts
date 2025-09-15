@@ -37,7 +37,7 @@ export async function signInAction(
       password,
       redirect: false,
     });
-    
+
     return { success: true };
   } catch (error) {
     if (error instanceof AuthError) {
