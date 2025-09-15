@@ -149,10 +149,13 @@ function formatAsGroszy(amount: number): string {
 // Format currency with automatic groszy handling for amounts below 1 zł
 // Uses spaces for thousands and commas for decimals: 1 100,00 zł
 // Amounts below 1 zł are shown as groszy: 50 gr
-export function formatCurrency(amount: number | string | null, forceZloty: boolean = false) {
+export function formatCurrency(amount: number | string | null, forceZloty?: boolean) {
+  // Default to false if not provided
+  const shouldForceZloty = forceZloty ?? false;
+
   if (typeof amount === 'number') {
     // Format as groszy if amount is less than 1 zł and not forced to show złoty
-    if (amount < 1 && amount > 0 && !forceZloty) {
+    if (amount < 1 && amount > 0 && !shouldForceZloty) {
       return formatAsGroszy(amount);
     }
     return formatWithCustomSeparators(amount);
@@ -160,7 +163,7 @@ export function formatCurrency(amount: number | string | null, forceZloty: boole
     const numAmount = Number(amount);
     if (!isNaN(numAmount)) {
       // Format as groszy if amount is less than 1 zł and not forced to show złoty
-      if (numAmount < 1 && numAmount > 0 && !forceZloty) {
+      if (numAmount < 1 && numAmount > 0 && !shouldForceZloty) {
         return formatAsGroszy(numAmount);
       }
       return formatWithCustomSeparators(numAmount);

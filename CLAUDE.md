@@ -128,7 +128,7 @@ ORDERS_PER_PAGE = 10  // Pagination for order history
 
 ### Essential Utilities (`/lib/utils.ts`)
 ```typescript
-formatCurrency(value: string | number, forceZloty?: boolean) // "1 100,00 zł" or "50 gr" (auto-detects groszy)
+formatCurrency(value: string | number | null, forceZloty?: boolean) // "1 100,00 zł" or "50 gr" (auto-detects groszy)
 formatGroszy(amount: number | string)      // "50 gr" (force groszy format)
 formatOrderStatus(status: string)          // "Pending"
 getOrderStatusColor(status: string)        // "bg-yellow-100..."
