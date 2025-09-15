@@ -712,6 +712,69 @@ export interface AdminUsersResult {
 
 const USERS_PER_PAGE = 10;
 
+export async function deleteUser(userId: string) {
+  try {
+    const session = await auth();
+
+    // Check if user is admin
+    if (!session?.user?.id || session.user.role !== 'admin') {
+      return { success: false, message: 'Unauthorized' };
+    }
+
+    // Prevent admin from deleting themselves
+    if (userId === session.user.id) {
+      return { success: false, message: 'Cannot delete your own account' };
+    }
+
+    // Check if user exists
+    const userToDelete = await prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        id: true,
+        email: true,
+        _count: {
+          select: {
+            Order: {
+              where: {
+                status: {
+                  notIn: ['delivered', 'cancelled'],
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+
+    if (!userToDelete) {
+      return { success: false, message: 'User not found' };
+    }
+
+    // Check if user has active orders
+    if (userToDelete._count.Order > 0) {
+      return {
+        success: false,
+        message: `Cannot delete user with ${userToDelete._count.Order} active orders. Please cancel or complete their orders first.`,
+      };
+    }
+
+    // Delete user and related data (cascade delete will handle related records)
+    await prisma.user.delete({
+      where: { id: userId },
+    });
+
+    revalidatePath('/admin/customers');
+
+    return {
+      success: true,
+      message: `User ${userToDelete.email} has been deleted successfully`,
+    };
+  } catch (error) {
+    console.error('Error deleting user:', error);
+    return { success: false, message: 'Failed to delete user' };
+  }
+}
+
 export async function getUsersForAdmin(
   page: number = 1,
   search?: string

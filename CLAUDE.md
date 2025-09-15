@@ -154,6 +154,7 @@ deleteAddress(id)                           // Remove address
 setDefaultAddress(id)                       // Set default shipping address
 getOrderStats()                             // User order statistics
 getUsersForAdmin(page, search?)            // Admin: Get paginated users with search
+deleteUser(userId)                         // Admin: Delete user account (with validation)
 ```
 
 ### Wishlist Actions (`/lib/actions/wishlist-actions.ts`)
@@ -320,6 +321,13 @@ pending → processing → shipped → delivered
     - Role badges with crown icon for admins
     - Visual indicators for orders, wishlist, and spending
     - Hover tooltips showing detailed information
+  - User deletion functionality:
+    - Delete button with trash icon for each user
+    - Confirmation dialog with user details
+    - Protection against deleting own admin account
+    - Validation for active orders before deletion
+    - Warning messages for users with order history
+    - Success/error toast notifications
   - Pagination support (10 users per page)
   - Modern table UI with shadcn/ui components
   - Customer statistics card with gradient design
@@ -330,7 +338,7 @@ pending → processing → shipped → delivered
 - Admin dashboard features:
   - Product management (CRUD operations)
   - Order management and status updates
-  - Customer management (edit/delete users)
+  - Customer management (edit users, role changes)
   - Category management
   - Review moderation
   - Analytics and reports

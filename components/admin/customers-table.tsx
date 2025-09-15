@@ -14,7 +14,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { formatCurrency, copyToClipboard, cn } from '@/lib/utils';
-import { AdminUsersResult } from '@/lib/actions/user-actions';
+import { AdminUsersResult, deleteUser } from '@/lib/actions/user-actions';
 import {
   Search,
   User,
@@ -27,7 +27,17 @@ import {
   Crown,
   ShoppingBag,
   Clock,
-  TrendingUp
+  TrendingUp,
+  Trash2,
+  AlertTriangle,
+  Filter,
+  MoreVertical,
+  ArrowUpDown,
+  Users,
+  Activity,
+  DollarSign,
+  Shield,
+  X
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useTransition } from 'react';
@@ -38,6 +48,25 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 interface CustomersTableProps {
   data: AdminUsersResult;
@@ -49,6 +78,7 @@ export function CustomersTable({ data }: CustomersTableProps) {
   const [searchTerm, setSearchTerm] = useState(searchParams.get('search') || '');
   const [isPending, startTransition] = useTransition();
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [deletingUserId, setDeletingUserId] = useState<string | null>(null);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -83,63 +113,205 @@ export function CustomersTable({ data }: CustomersTableProps) {
     }
   };
 
+  const handleDeleteUser = async (userId: string) => {
+    setDeletingUserId(userId);
+    try {
+      const result = await deleteUser(userId);
+      if (result.success) {
+        toast.success(result.message);
+        router.refresh();
+      } else {
+        toast.error(result.message);
+      }
+    } catch (error) {
+      console.error('Error deleting user:', error);
+      toast.error('Failed to delete user');
+    } finally {
+      setDeletingUserId(null);
+    }
+  };
+
   const getRoleBadgeVariant = (role: string) => {
     return role === 'admin' ? 'destructive' : 'default';
   };
 
   return (
     <div className="space-y-6">
+      {/* Header Section */}
+      <div>
+        <h2 className="text-2xl font-bold tracking-tight">Customer Management</h2>
+        <p className="text-muted-foreground">
+          Manage your customer base and user accounts
+        </p>
+      </div>
+
       {/* Stats Cards */}
       <div className="grid gap-4 md:grid-cols-4">
-        <Card className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/20 border-blue-200 dark:border-blue-800">
+        <Card className="relative overflow-hidden">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Customers</CardTitle>
-            <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
-              <User className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+            <div className="p-2.5 bg-gradient-to-br from-blue-500/10 to-indigo-500/10 rounded-xl">
+              <Users className="h-5 w-5 text-blue-600 dark:text-blue-400" />
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{data.totalUsers}</div>
-            <p className="text-xs text-muted-foreground mt-1">
-              {data.totalUsers > 0 ? `Page ${data.currentPage} of ${data.totalPages}` : 'No customers yet'}
+            <div className="text-3xl font-bold">{data.totalUsers}</div>
+            <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
+              <Activity className="h-3 w-3" />
+              All registered users
             </p>
+            <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500/20 to-indigo-500/20" />
+          </CardContent>
+        </Card>
+
+        <Card className="relative overflow-hidden">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Admin Users</CardTitle>
+            <div className="p-2.5 bg-gradient-to-br from-red-500/10 to-pink-500/10 rounded-xl">
+              <Shield className="h-5 w-5 text-red-600 dark:text-red-400" />
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold">
+              {data.users.filter(u => u.role === 'admin').length}
+            </div>
+            <p className="text-xs text-muted-foreground mt-1">
+              System administrators
+            </p>
+            <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-red-500/20 to-pink-500/20" />
+          </CardContent>
+        </Card>
+
+        <Card className="relative overflow-hidden">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Active Buyers</CardTitle>
+            <div className="p-2.5 bg-gradient-to-br from-green-500/10 to-emerald-500/10 rounded-xl">
+              <ShoppingBag className="h-5 w-5 text-green-600 dark:text-green-400" />
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold">
+              {data.users.filter(u => u.ordersCount > 0).length}
+            </div>
+            <p className="text-xs text-muted-foreground mt-1">
+              Customers with orders
+            </p>
+            <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-green-500/20 to-emerald-500/20" />
+          </CardContent>
+        </Card>
+
+        <Card className="relative overflow-hidden">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
+            <div className="p-2.5 bg-gradient-to-br from-purple-500/10 to-indigo-500/10 rounded-xl">
+              <DollarSign className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold">
+              {formatCurrency(data.users.reduce((sum, u) => sum + Number(u.totalSpent), 0).toString())}
+            </div>
+            <p className="text-xs text-muted-foreground mt-1">
+              From all customers
+            </p>
+            <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-purple-500/20 to-indigo-500/20" />
           </CardContent>
         </Card>
       </div>
 
-      {/* Search Bar */}
-      <Card>
-        <CardContent className="pt-6">
-          <form onSubmit={handleSearch} className="flex gap-2">
-            <div className="relative flex-1">
-              <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Search by name or email..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-8 cursor-pointer"
-                disabled={isPending}
-              />
-            </div>
-            <Button type="submit" disabled={isPending}>
-              Search
-            </Button>
-            {searchParams.get('search') && (
+      {/* Search and Filters Bar */}
+      <Card className="border-0 shadow-sm">
+        <CardContent className="p-4">
+          <div className="flex flex-col lg:flex-row gap-4">
+            <form onSubmit={handleSearch} className="flex-1 flex gap-2">
+              <div className="relative flex-1 max-w-md">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+                <Input
+                  placeholder="Search customers by name or email..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10 pr-10 h-10 cursor-text bg-background/50 border-muted-foreground/20 focus:bg-background transition-colors"
+                  disabled={isPending}
+                />
+                {searchTerm && (
+                  <button
+                    type="button"
+                    onClick={() => setSearchTerm('')}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                )}
+              </div>
               <Button
-                type="button"
-                variant="outline"
-                onClick={() => {
-                  setSearchTerm('');
-                  startTransition(() => {
-                    router.push('/admin/customers');
-                  });
-                }}
+                type="submit"
                 disabled={isPending}
+                size="default"
+                className="gap-2"
               >
-                Clear
+                <Search className="h-4 w-4" />
+                Search
               </Button>
-            )}
-          </form>
+              {searchParams.get('search') && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => {
+                    setSearchTerm('');
+                    startTransition(() => {
+                      router.push('/admin/customers');
+                    });
+                  }}
+                  disabled={isPending}
+                >
+                  Reset
+                </Button>
+              )}
+            </form>
+
+            <div className="flex items-center gap-2">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="default" className="gap-2">
+                    <Filter className="h-4 w-4" />
+                    Filters
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-[200px]">
+                  <DropdownMenuLabel>Filter by Role</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem>All Users</DropdownMenuItem>
+                  <DropdownMenuItem>Customers Only</DropdownMenuItem>
+                  <DropdownMenuItem>Admins Only</DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuLabel>Filter by Activity</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem>With Orders</DropdownMenuItem>
+                  <DropdownMenuItem>Without Orders</DropdownMenuItem>
+                  <DropdownMenuItem>High Value (&gt; 1000 zł)</DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="default" className="gap-2">
+                    <ArrowUpDown className="h-4 w-4" />
+                    Sort
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-[200px]">
+                  <DropdownMenuLabel>Sort by</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem>Newest First</DropdownMenuItem>
+                  <DropdownMenuItem>Oldest First</DropdownMenuItem>
+                  <DropdownMenuItem>Name (A-Z)</DropdownMenuItem>
+                  <DropdownMenuItem>Name (Z-A)</DropdownMenuItem>
+                  <DropdownMenuItem>Most Orders</DropdownMenuItem>
+                  <DropdownMenuItem>Highest Spent</DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          </div>
         </CardContent>
       </Card>
 
@@ -158,12 +330,13 @@ export function CustomersTable({ data }: CustomersTableProps) {
                   <TableHead className="text-center w-[100px]">Wishlist</TableHead>
                   <TableHead className="text-right w-[130px]">Total Spent</TableHead>
                   <TableHead className="w-[120px]">Last Order</TableHead>
+                  <TableHead className="w-[80px]">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {data.users.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
+                    <TableCell colSpan={9} className="text-center py-8 text-muted-foreground">
                       {searchParams.get('search')
                         ? 'No customers found matching your search'
                         : 'No customers yet'}
@@ -317,6 +490,84 @@ export function CustomersTable({ data }: CustomersTableProps) {
                           ) : (
                             <span className="text-sm text-muted-foreground italic">No orders</span>
                           )}
+                        </TableCell>
+                        <TableCell>
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8 hover:bg-muted"
+                              >
+                                <MoreVertical className="h-4 w-4" />
+                                <span className="sr-only">Open menu</span>
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" className="w-[200px]">
+                              <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem className="cursor-pointer">
+                                <User className="h-4 w-4 mr-2" />
+                                View Details
+                              </DropdownMenuItem>
+                              <DropdownMenuItem className="cursor-pointer">
+                                <Mail className="h-4 w-4 mr-2" />
+                                Send Email
+                              </DropdownMenuItem>
+                              <DropdownMenuItem className="cursor-pointer">
+                                <ShoppingBag className="h-4 w-4 mr-2" />
+                                View Orders
+                              </DropdownMenuItem>
+                              <DropdownMenuSeparator />
+                              <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                  <DropdownMenuItem
+                                    className="cursor-pointer text-destructive focus:text-destructive focus:bg-destructive/10"
+                                    disabled={deletingUserId === user.id}
+                                    onSelect={(e) => e.preventDefault()}
+                                  >
+                                    <Trash2 className="h-4 w-4 mr-2" />
+                                    Delete User
+                                  </DropdownMenuItem>
+                                </AlertDialogTrigger>
+                                  <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle className="flex items-center gap-2">
+                                  <AlertTriangle className="h-5 w-5 text-destructive" />
+                                  Delete User Account
+                                </AlertDialogTitle>
+                                <AlertDialogDescription asChild>
+                                  <div className="space-y-3">
+                                    <p>Are you sure you want to delete this user?</p>
+                                    <div className="bg-muted p-3 rounded-md space-y-1">
+                                      <div className="font-medium">{user.name || 'Anonymous'}</div>
+                                      <div className="text-sm text-muted-foreground">{user.email}</div>
+                                      <div className="text-sm text-muted-foreground">ID: {user.id}</div>
+                                    </div>
+                                    <p className="text-sm text-destructive font-medium">
+                                      This action cannot be undone. All user data including wishlists and order history will be permanently deleted.
+                                    </p>
+                                    {user.ordersCount > 0 && (
+                                      <p className="text-sm text-amber-600 dark:text-amber-400 font-medium">
+                                        ⚠️ This user has {user.ordersCount} order(s). Make sure all active orders are completed or cancelled before deletion.
+                                      </p>
+                                    )}
+                                  </div>
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction
+                                  onClick={() => handleDeleteUser(user.id)}
+                                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                >
+                                  Delete User
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                                </AlertDialogContent>
+                              </AlertDialog>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
                         </TableCell>
                       </TableRow>
                     ))}
