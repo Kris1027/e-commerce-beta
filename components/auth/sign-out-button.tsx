@@ -44,10 +44,18 @@ export function SignOutButton({
         await signOutAction();
       } catch (error) {
         // Next.js throws a NEXT_REDIRECT error when redirecting - this is expected
-        // Only show error if it's not a redirect
-        if (error && typeof error === 'object' && 'digest' in error) {
-          // This is likely a Next.js redirect, which is expected
-          return;
+        // Check for redirect error more reliably
+        if (error && typeof error === 'object') {
+          // Check for Next.js redirect error patterns
+          const errorObj = error as { name?: string; message?: string; digest?: string };
+          if (
+            errorObj.name === 'NEXT_REDIRECT' ||
+            errorObj.message?.includes('NEXT_REDIRECT') ||
+            (errorObj.digest && typeof errorObj.digest === 'string' && errorObj.digest.startsWith('NEXT_REDIRECT'))
+          ) {
+            // This is a Next.js redirect, which is expected behavior
+            return;
+          }
         }
         console.error('Sign out failed:', error);
         toast.error('Failed to sign out. Please try again.');
