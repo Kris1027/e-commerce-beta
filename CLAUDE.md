@@ -128,7 +128,8 @@ ORDERS_PER_PAGE = 10  // Pagination for order history
 
 ### Essential Utilities (`/lib/utils.ts`)
 ```typescript
-formatCurrency(value: string | number)     // 99.99 zł (PLN format)
+formatCurrency(value: string | number, forceZloty?: boolean) // "1 100,00 zł" or "50 gr" (auto-detects groszy)
+formatGroszy(amount: number | string)      // "50 gr" (force groszy format)
 formatOrderStatus(status: string)          // "Pending"
 getOrderStatusColor(status: string)        // "bg-yellow-100..."
 isActiveOrder(status: string)              // true/false
@@ -414,6 +415,29 @@ pnpm db:studio    # Prisma Studio GUI
 ```
 
 ## Recent Updates
+- **Session Provider & Cart Persistence Fixes (2025-09-15)**:
+  - **Fixed `useSession` Error**:
+    - Created `SessionProvider` wrapper component at `/components/providers/session-provider.tsx`
+    - Wrapped entire app with `SessionProvider` in root layout
+    - Resolved "useSession must be wrapped in SessionProvider" error
+  - **Fixed Cart Persistence After Login**:
+    - Simplified cart operations in `/lib/actions/cart-actions.ts`
+    - Added explicit cart merge on signin/signup pages
+    - Cart now properly migrates from anonymous to user after authentication
+    - Fixed redirect flow: user now goes directly to checkout after login (not cart page)
+    - Removed `router.refresh()` that was interfering with navigation
+    - Changed `router.push()` to `router.replace()` for cleaner history
+  - **How Cart Migration Works**:
+    - Anonymous cart saved with `sessionCartId` only
+    - After login, `mergeAnonymousCart()` is called
+    - Cart is either merged with existing user cart or converted to user cart
+    - Updated cart is synced to Zustand store before redirect
+- **Currency Formatting Enhancement (2025-09-15)**:
+  - Updated `formatCurrency()` to use spaces as thousand separators (1 100,00 zł)
+  - Added automatic groszy formatting for amounts below 1 zł (0,50 zł → 50 gr)
+  - Created `formatGroszy()` utility for direct groszy formatting
+  - Added `forceZloty` parameter to override automatic groszy conversion
+  - Follows standard Polish currency formatting conventions
 - **useRole Hook Implementation (2025-09-14)**:
   - Created `/hooks/use-role.ts` for consistent client-side role checking
   - Provides `isAdmin`, `isUser`, `isAuthenticated`, and `hasRole` utilities

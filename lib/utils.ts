@@ -139,20 +139,43 @@ function formatWithCustomSeparators(amount: number): string {
   return `${formattedInteger},${decimalPart} zł`;
 }
 
-// Format currency with custom thousand separators
+// Format small amounts as groszy (Polish cents)
+// Example: 0,50 zł -> 50 gr, 0,01 zł -> 1 gr
+function formatAsGroszy(amount: number): string {
+  const groszy = Math.round(amount * 100);
+  return `${groszy} gr`;
+}
+
+// Format currency with automatic groszy handling for amounts below 1 zł
 // Uses spaces for thousands and commas for decimals: 1 100,00 zł
-export function formatCurrency(amount: number | string | null) {
+// Amounts below 1 zł are shown as groszy: 50 gr
+export function formatCurrency(amount: number | string | null, forceZloty: boolean = false) {
   if (typeof amount === 'number') {
+    // Format as groszy if amount is less than 1 zł and not forced to show złoty
+    if (amount < 1 && amount > 0 && !forceZloty) {
+      return formatAsGroszy(amount);
+    }
     return formatWithCustomSeparators(amount);
   } else if (typeof amount === 'string') {
     const numAmount = Number(amount);
     if (!isNaN(numAmount)) {
+      // Format as groszy if amount is less than 1 zł and not forced to show złoty
+      if (numAmount < 1 && numAmount > 0 && !forceZloty) {
+        return formatAsGroszy(numAmount);
+      }
       return formatWithCustomSeparators(numAmount);
     }
     return 'NaN';
   } else {
     return 'NaN';
   }
+}
+
+// Export separate groszy formatter for direct use when needed
+export function formatGroszy(amount: number | string): string {
+  const numAmount = typeof amount === 'string' ? Number(amount) : amount;
+  if (isNaN(numAmount)) return 'NaN';
+  return formatAsGroszy(numAmount);
 }
 
 // Format Number
