@@ -437,8 +437,8 @@ export function OrdersTable({ data, summary }: OrdersTableProps) {
                 <TableBody>
                   <TooltipProvider>
                     {data.orders.map((order) => {
-                      const lowerStatus = order.status.toLowerCase() as keyof typeof statusIcons;
-                      const StatusIcon = statusIcons[lowerStatus] || Clock;
+                      const lowerStatus = order.status.toLowerCase();
+                      const StatusIcon = lowerStatus in statusIcons ? statusIcons[lowerStatus as keyof typeof statusIcons] : Clock;
                       return (
                         <TableRow key={order.id} className="hover:bg-muted/50">
                           <TableCell>
@@ -483,7 +483,7 @@ export function OrdersTable({ data, summary }: OrdersTableProps) {
                           </div>
                         </TableCell>
                         <TableCell className="text-center">
-                          <Badge className={cn('gap-1', statusColors[lowerStatus] || statusColors.pending)}>
+                          <Badge className={cn('gap-1', lowerStatus in statusColors ? statusColors[lowerStatus as keyof typeof statusColors] : statusColors.pending)}>
                             <StatusIcon className="h-3 w-3" />
                             {order.status}
                           </Badge>
