@@ -7,6 +7,74 @@ import { revalidatePath } from 'next/cache';
 import { formatNumberWithDecimal, convertToPlainObject } from '@/lib/utils';
 import { UserRole } from '@prisma/client';
 
+// Configuration for status transitions and their side effects
+const ORDER_STATUS_TRANSITIONS = {
+  [ORDER_STATUS.PENDING]: {
+    // No automatic side effects for pending status
+    isPaid: undefined,
+    paidAt: undefined,
+    isDelivered: undefined,
+    deliveredAt: undefined,
+  },
+  [ORDER_STATUS.PROCESSING]: {
+    // When order moves to processing, mark as paid
+    isPaid: true,
+    paidAt: new Date(),
+    isDelivered: undefined,
+    deliveredAt: undefined,
+  },
+  [ORDER_STATUS.SHIPPED]: {
+    // Shipped orders should be paid but not yet delivered
+    isPaid: true,
+    paidAt: undefined, // Don't override existing payment date
+    isDelivered: false,
+    deliveredAt: undefined,
+  },
+  [ORDER_STATUS.DELIVERED]: {
+    // Delivered orders are paid and delivered
+    isPaid: true,
+    paidAt: undefined, // Don't override existing payment date
+    isDelivered: true,
+    deliveredAt: new Date(),
+  },
+  [ORDER_STATUS.CANCELLED]: {
+    // Cancelled orders retain their payment status
+    isPaid: undefined,
+    paidAt: undefined,
+    isDelivered: false,
+    deliveredAt: undefined,
+  },
+} as const;
+
+// Helper function to get status transition data
+function getStatusTransitionData(status: string) {
+  const normalizedStatus = status.toLowerCase();
+  const transition = ORDER_STATUS_TRANSITIONS[normalizedStatus as keyof typeof ORDER_STATUS_TRANSITIONS];
+
+  if (!transition) {
+    // If status is not recognized, only update the status field
+    return { status: normalizedStatus };
+  }
+
+  // Filter out undefined values to avoid overwriting existing data unnecessarily
+  const data: Record<string, unknown> = { status: normalizedStatus };
+
+  if (transition.isPaid !== undefined) {
+    data['isPaid'] = transition.isPaid;
+  }
+  if (transition.paidAt !== undefined) {
+    data['paidAt'] = transition.paidAt;
+  }
+  if (transition.isDelivered !== undefined) {
+    data['isDelivered'] = transition.isDelivered;
+  }
+  if (transition.deliveredAt !== undefined) {
+    data['deliveredAt'] = transition.deliveredAt;
+  }
+
+  return data;
+}
+
 export type OrderFilterStatus = 'all' | 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
 export type OrderFilterPayment = 'all' | 'paid' | 'unpaid';
 export type OrderSortBy = 'newest' | 'oldest' | 'highest' | 'lowest';
@@ -269,15 +337,12 @@ export async function updateAdminOrderStatus(orderId: string, status: string) {
       return { success: false, error: 'Unauthorized' };
     }
 
+    // Get the appropriate data updates based on the status transition
+    const updateData = getStatusTransitionData(status);
+
     const updatedOrder = await prisma.order.update({
       where: { id: orderId },
-      data: {
-        status: status.toLowerCase(),
-        isPaid: status.toLowerCase() === ORDER_STATUS.PROCESSING ? true : undefined,
-        paidAt: status.toLowerCase() === ORDER_STATUS.PROCESSING ? new Date() : undefined,
-        isDelivered: status.toLowerCase() === ORDER_STATUS.DELIVERED ? true : undefined,
-        deliveredAt: status.toLowerCase() === ORDER_STATUS.DELIVERED ? new Date() : undefined,
-      },
+      data: updateData,
     });
 
     revalidatePath('/admin/orders');
