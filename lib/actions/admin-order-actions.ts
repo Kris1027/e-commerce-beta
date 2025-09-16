@@ -85,7 +85,7 @@ export async function getOrdersForAdmin(
     }
 
     if (statusFilter !== 'all') {
-      where['status'] = statusFilter.toUpperCase();
+      where['status'] = statusFilter.toLowerCase();
     }
 
     if (paymentFilter === 'paid') {
@@ -272,11 +272,11 @@ export async function updateAdminOrderStatus(orderId: string, status: string) {
     const updatedOrder = await prisma.order.update({
       where: { id: orderId },
       data: {
-        status,
-        isPaid: status === ORDER_STATUS.PROCESSING ? true : undefined,
-        paidAt: status === ORDER_STATUS.PROCESSING ? new Date() : undefined,
-        isDelivered: status === ORDER_STATUS.DELIVERED ? true : undefined,
-        deliveredAt: status === ORDER_STATUS.DELIVERED ? new Date() : undefined,
+        status: status.toLowerCase(),
+        isPaid: status.toLowerCase() === ORDER_STATUS.PROCESSING ? true : undefined,
+        paidAt: status.toLowerCase() === ORDER_STATUS.PROCESSING ? new Date() : undefined,
+        isDelivered: status.toLowerCase() === ORDER_STATUS.DELIVERED ? true : undefined,
+        deliveredAt: status.toLowerCase() === ORDER_STATUS.DELIVERED ? new Date() : undefined,
       },
     });
 

@@ -160,7 +160,7 @@ export function OrdersTable({ data, summary }: OrdersTableProps) {
       if (status === 'all') {
         params.delete('status');
       } else {
-        params.set('status', status);
+        params.set('status', status.toLowerCase());
       }
       params.delete('page');
       router.push(`/admin/orders?${params.toString()}`);
