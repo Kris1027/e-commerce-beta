@@ -74,19 +74,19 @@ interface OrdersTableProps {
 }
 
 const statusColors = {
-  PENDING: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400',
-  PROCESSING: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400',
-  SHIPPED: 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400',
-  DELIVERED: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
-  CANCELLED: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400',
+  pending: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400',
+  processing: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400',
+  shipped: 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400',
+  delivered: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
+  cancelled: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400',
 };
 
 const statusIcons = {
-  PENDING: Clock,
-  PROCESSING: Package,
-  SHIPPED: Truck,
-  DELIVERED: CheckCircle2,
-  CANCELLED: XCircle,
+  pending: Clock,
+  processing: Package,
+  shipped: Truck,
+  delivered: CheckCircle2,
+  cancelled: XCircle,
 };
 
 export function OrdersTable({ data, summary }: OrdersTableProps) {
@@ -437,8 +437,8 @@ export function OrdersTable({ data, summary }: OrdersTableProps) {
                 <TableBody>
                   <TooltipProvider>
                     {data.orders.map((order) => {
-                      const upperStatus = order.status.toUpperCase() as keyof typeof statusIcons;
-                      const StatusIcon = statusIcons[upperStatus] || Clock;
+                      const lowerStatus = order.status.toLowerCase() as keyof typeof statusIcons;
+                      const StatusIcon = statusIcons[lowerStatus] || Clock;
                       return (
                         <TableRow key={order.id} className="hover:bg-muted/50">
                           <TableCell>
@@ -483,7 +483,7 @@ export function OrdersTable({ data, summary }: OrdersTableProps) {
                           </div>
                         </TableCell>
                         <TableCell className="text-center">
-                          <Badge className={cn('gap-1', statusColors[upperStatus] || statusColors.PENDING)}>
+                          <Badge className={cn('gap-1', statusColors[lowerStatus] || statusColors.pending)}>
                             <StatusIcon className="h-3 w-3" />
                             {order.status}
                           </Badge>
@@ -539,32 +539,32 @@ export function OrdersTable({ data, summary }: OrdersTableProps) {
                               <DropdownMenuLabel className="text-xs text-muted-foreground">
                                 Update Status
                               </DropdownMenuLabel>
-                              {order.status !== 'PENDING' && (
-                                <DropdownMenuItem onClick={() => handleStatusUpdate(order.id, 'PENDING')}>
+                              {order.status !== 'pending' && (
+                                <DropdownMenuItem onClick={() => handleStatusUpdate(order.id, 'pending')}>
                                   <Clock className="h-4 w-4 mr-2" />
                                   Mark as Pending
                                 </DropdownMenuItem>
                               )}
-                              {order.status !== 'PROCESSING' && (
-                                <DropdownMenuItem onClick={() => handleStatusUpdate(order.id, 'PROCESSING')}>
+                              {order.status !== 'processing' && (
+                                <DropdownMenuItem onClick={() => handleStatusUpdate(order.id, 'processing')}>
                                   <Package className="h-4 w-4 mr-2" />
                                   Mark as Processing
                                 </DropdownMenuItem>
                               )}
-                              {order.status !== 'SHIPPED' && (
-                                <DropdownMenuItem onClick={() => handleStatusUpdate(order.id, 'SHIPPED')}>
+                              {order.status !== 'shipped' && (
+                                <DropdownMenuItem onClick={() => handleStatusUpdate(order.id, 'shipped')}>
                                   <Truck className="h-4 w-4 mr-2" />
                                   Mark as Shipped
                                 </DropdownMenuItem>
                               )}
-                              {order.status !== 'DELIVERED' && (
-                                <DropdownMenuItem onClick={() => handleStatusUpdate(order.id, 'DELIVERED')}>
+                              {order.status !== 'delivered' && (
+                                <DropdownMenuItem onClick={() => handleStatusUpdate(order.id, 'delivered')}>
                                   <CheckCircle2 className="h-4 w-4 mr-2" />
                                   Mark as Delivered
                                 </DropdownMenuItem>
                               )}
-                              {order.status !== 'CANCELLED' && (
-                                <DropdownMenuItem onClick={() => handleStatusUpdate(order.id, 'CANCELLED')}>
+                              {order.status !== 'cancelled' && (
+                                <DropdownMenuItem onClick={() => handleStatusUpdate(order.id, 'cancelled')}>
                                   <XCircle className="h-4 w-4 mr-2" />
                                   Mark as Cancelled
                                 </DropdownMenuItem>
