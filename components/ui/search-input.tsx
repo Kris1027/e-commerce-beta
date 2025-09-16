@@ -48,13 +48,12 @@ export function SearchInput({
   // Only update internal value from external when component mounts or when external value
   // changes programmatically (not from user typing)
   useEffect(() => {
-    // Only sync if the external value is different from what we last searched for
-    // AND different from current internal value (indicates external change)
-    if (externalValue !== lastSearchedValueRef.current && externalValue !== internalValue) {
+    // Only sync if the external value is different from current internal value (indicates external change)
+    if (externalValue !== internalValue) {
       setInternalValue(externalValue);
       lastSearchedValueRef.current = externalValue;
     }
-  }, [externalValue, internalValue])
+  }, [externalValue, internalValue]);
 
   // Handle input changes
   const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
