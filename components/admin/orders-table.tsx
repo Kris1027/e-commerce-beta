@@ -16,6 +16,7 @@ import { Button } from '@/components/ui/button';
 import { SearchInput } from '@/components/ui/search-input';
 import { cn, formatDateTime, formatCurrency, copyToClipboard } from '@/lib/utils';
 import { AdminOrdersResult, OrderSummary, updateAdminOrderStatus, deleteOrder } from '@/lib/actions/admin-order-actions';
+import { getStatusIcon, getStatusColor } from '@/lib/utils/order-status';
 import { PaginationWrapper } from '@/components/ui/pagination-wrapper';
 import {
   Package,
@@ -72,22 +73,6 @@ interface OrdersTableProps {
   data: AdminOrdersResult;
   summary: OrderSummary;
 }
-
-const statusColors = {
-  pending: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400',
-  processing: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400',
-  shipped: 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400',
-  delivered: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
-  cancelled: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400',
-};
-
-const statusIcons = {
-  pending: Clock,
-  processing: Package,
-  shipped: Truck,
-  delivered: CheckCircle2,
-  cancelled: XCircle,
-};
 
 export function OrdersTable({ data, summary }: OrdersTableProps) {
   const router = useRouter();
@@ -437,8 +422,7 @@ export function OrdersTable({ data, summary }: OrdersTableProps) {
                 <TableBody>
                   <TooltipProvider>
                     {data.orders.map((order) => {
-                      const lowerStatus = order.status.toLowerCase();
-                      const StatusIcon = lowerStatus in statusIcons ? statusIcons[lowerStatus as keyof typeof statusIcons] : Clock;
+                      const StatusIcon = getStatusIcon(order.status);
                       return (
                         <TableRow key={order.id} className="hover:bg-muted/50">
                           <TableCell>
@@ -483,7 +467,7 @@ export function OrdersTable({ data, summary }: OrdersTableProps) {
                           </div>
                         </TableCell>
                         <TableCell className="text-center">
-                          <Badge className={cn('gap-1', lowerStatus in statusColors ? statusColors[lowerStatus as keyof typeof statusColors] : statusColors.pending)}>
+                          <Badge className={cn('gap-1', getStatusColor(order.status))}>
                             <StatusIcon className="h-3 w-3" />
                             {order.status}
                           </Badge>

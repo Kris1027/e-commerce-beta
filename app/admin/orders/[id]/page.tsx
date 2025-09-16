@@ -13,28 +13,9 @@ import {
   CreditCard,
   Calendar,
   Receipt,
-  CheckCircle2,
-  Clock,
-  Truck,
-  XCircle,
 } from 'lucide-react';
 import { formatCurrency, formatDateTime } from '@/lib/utils';
-
-const statusColors = {
-  pending: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400',
-  processing: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400',
-  shipped: 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400',
-  delivered: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
-  cancelled: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400',
-};
-
-const statusIcons = {
-  pending: Clock,
-  processing: Package,
-  shipped: Truck,
-  delivered: CheckCircle2,
-  cancelled: XCircle,
-};
+import { getStatusIcon, getStatusColor } from '@/lib/utils/order-status';
 
 export default async function AdminOrderDetailsPage({
   params,
@@ -48,8 +29,7 @@ export default async function AdminOrderDetailsPage({
     notFound();
   }
 
-  const normalizedStatus = order.status.toLowerCase() as keyof typeof statusIcons;
-  const StatusIcon = statusIcons[normalizedStatus] || Clock;
+  const StatusIcon = getStatusIcon(order.status);
 
   return (
     <>
@@ -65,7 +45,7 @@ export default async function AdminOrderDetailsPage({
             <p className="text-sm text-muted-foreground">Order ID: {order.id}</p>
           </div>
         </div>
-        <Badge className={statusColors[normalizedStatus] || statusColors.pending}>
+        <Badge className={getStatusColor(order.status)}>
           <StatusIcon className="h-4 w-4 mr-1" />
           {order.status}
         </Badge>
