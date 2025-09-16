@@ -14,7 +14,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { SearchInput } from '@/components/ui/search-input';
-import { cn, formatDateTime, formatCurrency } from '@/lib/utils';
+import { cn, formatDateTime, formatCurrency, copyToClipboard } from '@/lib/utils';
 import { AdminOrdersResult, OrderSummary, updateAdminOrderStatus, deleteOrder } from '@/lib/actions/admin-order-actions';
 import { PaginationWrapper } from '@/components/ui/pagination-wrapper';
 import {
@@ -29,7 +29,9 @@ import {
   Eye,
   Trash2,
   CreditCard,
-  Loader2
+  Loader2,
+  Copy,
+  Check
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useTransition } from 'react';
@@ -93,6 +95,7 @@ export function OrdersTable({ data, summary }: OrdersTableProps) {
   const [isPending, startTransition] = useTransition();
   const [deletingOrderId, setDeletingOrderId] = useState<string | null>(null);
   const [orderToDelete, setOrderToDelete] = useState<string | null>(null);
+  const [copiedId, setCopiedId] = useState<string | null>(null);
 
   const currentSearch = searchParams.get('search') || '';
   const currentStatus = searchParams.get('status') || 'all';
@@ -171,6 +174,17 @@ export function OrdersTable({ data, summary }: OrdersTableProps) {
       router.refresh();
     } else {
       toast.error((result as { success: false; message?: string }).message || 'Failed to update order status');
+    }
+  };
+
+  const handleCopyId = async (orderId: string) => {
+    const success = await copyToClipboard(orderId);
+    if (success) {
+      setCopiedId(orderId);
+      toast.success('Order ID copied to clipboard');
+      setTimeout(() => setCopiedId(null), 2000);
+    } else {
+      toast.error('Failed to copy ID');
     }
   };
 
@@ -421,14 +435,45 @@ export function OrdersTable({ data, summary }: OrdersTableProps) {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {data.orders.map((order) => {
-                    const upperStatus = order.status.toUpperCase() as keyof typeof statusIcons;
-                    const StatusIcon = statusIcons[upperStatus] || Clock;
-                    return (
-                      <TableRow key={order.id} className="hover:bg-muted/50">
-                        <TableCell className="font-mono text-xs">
-                          {order.id.slice(0, 8)}...
-                        </TableCell>
+                  <TooltipProvider>
+                    {data.orders.map((order) => {
+                      const upperStatus = order.status.toUpperCase() as keyof typeof statusIcons;
+                      const StatusIcon = statusIcons[upperStatus] || Clock;
+                      return (
+                        <TableRow key={order.id} className="hover:bg-muted/50">
+                          <TableCell>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleCopyId(order.id);
+                                  }}
+                                  className={cn(
+                                    "inline-flex items-center gap-1 font-mono text-xs px-1.5 py-0.5 rounded transition-all cursor-pointer",
+                                    "hover:bg-primary/10 hover:text-primary",
+                                    copiedId === order.id && "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400"
+                                  )}
+                                >
+                                  {copiedId === order.id ? (
+                                    <>
+                                      <Check className="h-3 w-3" />
+                                      <span>Copied!</span>
+                                    </>
+                                  ) : (
+                                    <>
+                                      <Copy className="h-3 w-3 opacity-70" />
+                                      <span>{order.id.slice(0, 6)}...</span>
+                                    </>
+                                  )}
+                                </button>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p className="font-mono text-xs">{order.id}</p>
+                                <p className="text-xs text-muted-foreground mt-1">Click to copy full ID</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TableCell>
                         <TableCell>
                           <div className="flex flex-col">
                             <span className="font-medium">{order.user?.name || 'Guest'}</span>
@@ -455,18 +500,20 @@ export function OrdersTable({ data, summary }: OrdersTableProps) {
                           {formatCurrency(parseFloat(order.totalPrice))}
                         </TableCell>
                         <TableCell>
-                          <TooltipProvider>
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <span className="text-sm">
-                                  {new Date(order.createdAt).toLocaleDateString('pl-PL', { day: 'numeric', month: 'short' })}
-                                </span>
-                              </TooltipTrigger>
-                              <TooltipContent>
-                                {formatDateTime(order.createdAt).dateTime}
-                              </TooltipContent>
-                            </Tooltip>
-                          </TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <span className="text-sm">
+                                {new Date(order.createdAt).toLocaleDateString('pl-PL', {
+                                  day: 'numeric',
+                                  month: 'short',
+                                  year: 'numeric'
+                                })}
+                              </span>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Created: {formatDateTime(order.createdAt).dateTime}</p>
+                            </TooltipContent>
+                          </Tooltip>
                         </TableCell>
                         <TableCell className="text-center">
                           <DropdownMenu>
@@ -533,9 +580,10 @@ export function OrdersTable({ data, summary }: OrdersTableProps) {
                             </DropdownMenuContent>
                           </DropdownMenu>
                         </TableCell>
-                      </TableRow>
-                    );
-                  })}
+                        </TableRow>
+                      );
+                    })}
+                  </TooltipProvider>
                 </TableBody>
               </Table>
             </div>
