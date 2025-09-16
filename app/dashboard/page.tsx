@@ -206,7 +206,7 @@ export default async function DashboardPage() {
                   {order.status === ORDER_STATUS.PROCESSING && (
                     <div className="mt-3 p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded-md">
                       <p className="text-sm text-yellow-800 dark:text-yellow-200">
-                        We&apos;re preparing your order for shipment.
+                        {"We're preparing your order for shipment."}
                       </p>
                     </div>
                   )}
@@ -274,7 +274,7 @@ export default async function DashboardPage() {
         ) : (
           <div className="rounded-lg border bg-card p-6">
             <p className="text-muted-foreground text-center py-8">
-              You haven&apos;t placed any orders yet.
+              {"You haven't placed any orders yet."}
             </p>
             <div className="text-center">
               <Button asChild>

@@ -89,7 +89,7 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
           <div className="text-center">
             <h3 className="text-lg font-semibold">No products found</h3>
             <p className="mt-2 text-sm text-muted-foreground">
-              This category doesn&apos;t have any products yet
+              {"This category doesn't have any products yet"}
             </p>
             <Button asChild className="mt-4">
               <Link href="/categories">Browse Other Categories</Link>

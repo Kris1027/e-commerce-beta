@@ -6,8 +6,9 @@ import { formatNumberWithDecimal, formatDateTime, formatOrderStatus, getOrderSta
 import { revalidatePath } from 'next/cache';
 import bcrypt from 'bcryptjs';
 import { z } from 'zod';
-import { shippingAddressSchema, PASSWORD_REGEX, PASSWORD_ERROR_MESSAGE } from '@/lib/validators';
-import { ORDERS_PER_PAGE } from '@/lib/constants/cart';
+import { shippingAddressSchema, PASSWORD_REGEX, PASSWORD_ERROR_MESSAGE, adminUpdateUserSchema, AdminUpdateUserInput } from '@/lib/validators';
+import { UserRole, User, Prisma } from '@prisma/client';
+import { ORDERS_PER_PAGE, CUSTOMER_CONSTANTS } from '@/lib/constants/cart';
 import { ActionResult, ListResult, createListErrorResult, createErrorResult } from '@/lib/types/action-results';
 import type { Address } from '@prisma/client';
 
@@ -603,7 +604,7 @@ export async function updateProfile(data: UpdateProfileData) {
 export async function getOrderStats() {
   try {
     const session = await auth();
-    
+
     if (!session?.user?.id) {
       return {
         totalOrders: 0,
@@ -615,7 +616,7 @@ export async function getOrderStats() {
         totalSpent: '0.00',
       };
     }
-    
+
     const [orders, totalSpent] = await Promise.all([
       prisma.order.groupBy({
         by: ['status'],
@@ -638,7 +639,7 @@ export async function getOrderStats() {
         },
       }),
     ]);
-    
+
     const stats = {
       totalOrders: 0,
       pendingOrders: 0,
@@ -648,7 +649,7 @@ export async function getOrderStats() {
       cancelledOrders: 0,
       totalSpent: formatNumberWithDecimal(Number(totalSpent._sum.totalPrice || 0)),
     };
-    
+
     orders.forEach((order) => {
       stats.totalOrders += order._count.status;
       switch (order.status) {
@@ -669,7 +670,7 @@ export async function getOrderStats() {
           break;
       }
     });
-    
+
     return stats;
   } catch (error) {
     console.error('Error fetching order stats:', error);
@@ -682,5 +683,577 @@ export async function getOrderStats() {
       cancelledOrders: 0,
       totalSpent: '0.00',
     };
+  }
+}
+
+// Admin functions for user management
+export interface AdminUser {
+  id: string;
+  name: string | null;
+  email: string | null;
+  role: string;
+  createdAt: Date;
+  updatedAt: Date;
+  formattedCreatedAt: ReturnType<typeof formatDateTime>;
+  formattedUpdatedAt: ReturnType<typeof formatDateTime>;
+  ordersCount: number;
+  totalSpent: string;
+  wishlistCount: number;
+  lastOrderDate: Date | null;
+  formattedLastOrderDate: ReturnType<typeof formatDateTime> | null;
+}
+
+export interface AdminUsersResult {
+  users: AdminUser[];
+  currentPage: number;
+  totalPages: number;
+  totalUsers: number;
+  hasMore: boolean;
+}
+
+const USERS_PER_PAGE = 10;
+
+export interface CustomerStatistics {
+  totalCustomers: number;
+  adminUsers: number;
+  activeBuyers: number;
+  totalRevenue: string;
+}
+
+export async function getCustomerStatistics(): Promise<CustomerStatistics> {
+  try {
+    const session = await auth();
+
+    // Check if user is admin
+    if (!session?.user?.id || session.user.role !== 'admin') {
+      return {
+        totalCustomers: 0,
+        adminUsers: 0,
+        activeBuyers: 0,
+        totalRevenue: '0.00',
+      };
+    }
+
+    // Get total customers
+    const totalCustomers = await prisma.user.count();
+
+    // Get admin users count
+    const adminUsers = await prisma.user.count({
+      where: { role: 'admin' },
+    });
+
+    // Get active buyers (users with at least one order)
+    const activeBuyers = await prisma.user.count({
+      where: {
+        Order: {
+          some: {},
+        },
+      },
+    });
+
+    // Get total revenue from all non-cancelled orders
+    const totalRevenueResult = await prisma.order.aggregate({
+      where: {
+        status: { not: 'cancelled' },
+      },
+      _sum: {
+        totalPrice: true,
+      },
+    });
+
+    const totalRevenue = formatNumberWithDecimal(Number(totalRevenueResult._sum.totalPrice || 0));
+
+    return {
+      totalCustomers,
+      adminUsers,
+      activeBuyers,
+      totalRevenue,
+    };
+  } catch (error) {
+    console.error('Error fetching customer statistics:', error);
+    return {
+      totalCustomers: 0,
+      adminUsers: 0,
+      activeBuyers: 0,
+      totalRevenue: '0.00',
+    };
+  }
+}
+
+export async function updateUserAsAdmin(
+  userId: string,
+  data: AdminUpdateUserInput
+): Promise<ActionResult<User>> {
+  try {
+    const session = await auth();
+
+    if (!session?.user || session.user.role !== UserRole.admin) {
+      return {
+        success: false,
+        error: 'Unauthorized access',
+      };
+    }
+
+    // Validate input data
+    const validatedData = adminUpdateUserSchema.parse(data);
+
+    // Check if the user exists
+    const existingUser = await prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!existingUser) {
+      return {
+        success: false,
+        error: 'User not found',
+      };
+    }
+
+    // Prevent admin from removing their own admin role
+    if (userId === session.user.id && validatedData.role !== UserRole.admin) {
+      return {
+        success: false,
+        error: 'You cannot remove your own admin role',
+      };
+    }
+
+    // Check if email is being changed and if it's already taken
+    if (validatedData.email !== existingUser.email) {
+      const emailExists = await prisma.user.findUnique({
+        where: { email: validatedData.email },
+      });
+
+      if (emailExists) {
+        return {
+          success: false,
+          error: 'Email is already in use',
+        };
+      }
+    }
+
+    // Update the user
+    const updatedUser = await prisma.user.update({
+      where: { id: userId },
+      data: {
+        name: validatedData.name,
+        email: validatedData.email,
+        role: validatedData.role,
+      },
+    });
+
+    revalidatePath('/admin/customers');
+
+    return {
+      success: true,
+      data: updatedUser,
+    };
+  } catch (error) {
+    console.error('Error updating user:', error);
+    if (error instanceof z.ZodError) {
+      return {
+        success: false,
+        error: error.issues[0]?.message || 'Validation error',
+      };
+    }
+    return {
+      success: false,
+      error: 'Failed to update user',
+    };
+  }
+}
+
+export async function deleteUser(userId: string) {
+  try {
+    const session = await auth();
+
+    // Check if user is admin
+    if (!session?.user?.id || session.user.role !== 'admin') {
+      return { success: false, message: 'Unauthorized' };
+    }
+
+    // Prevent admin from deleting themselves
+    if (userId === session.user.id) {
+      return { success: false, message: 'Cannot delete your own account' };
+    }
+
+    // Check if user exists
+    const userToDelete = await prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        id: true,
+        email: true,
+        _count: {
+          select: {
+            Order: {
+              where: {
+                status: {
+                  notIn: ['delivered', 'cancelled'],
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+
+    if (!userToDelete) {
+      return { success: false, message: 'User not found' };
+    }
+
+    // Check if user has active orders
+    if (userToDelete._count.Order > 0) {
+      return {
+        success: false,
+        message: `Cannot delete user with ${userToDelete._count.Order} active orders. Please cancel or complete their orders first.`,
+      };
+    }
+
+    // Delete user and related data (cascade delete will handle related records)
+    await prisma.user.delete({
+      where: { id: userId },
+    });
+
+    revalidatePath('/admin/customers');
+
+    return {
+      success: true,
+      message: `User ${userToDelete.email} has been deleted successfully`,
+    };
+  } catch (error) {
+    console.error('Error deleting user:', error);
+    return { success: false, message: 'Failed to delete user' };
+  }
+}
+
+export type UserFilterRole = 'all' | 'customers' | 'admins';
+export type UserFilterActivity = 'all' | 'with-orders' | 'without-orders' | 'high-value';
+export type UserSortBy = 'newest' | 'oldest' | 'name-asc' | 'name-desc' | 'most-orders' | 'highest-spent';
+
+export async function getUsersForAdmin(
+  page: number = 1,
+  search?: string,
+  roleFilter: UserFilterRole = 'all',
+  activityFilter: UserFilterActivity = 'all',
+  sortBy: UserSortBy = 'newest'
+): Promise<AdminUsersResult> {
+  try {
+    const session = await auth();
+
+    // Check if user is admin
+    if (!session?.user?.id || session.user.role !== 'admin') {
+      return {
+        users: [],
+        currentPage: 1,
+        totalPages: 0,
+        totalUsers: 0,
+        hasMore: false,
+      };
+    }
+
+    const skip = (page - 1) * USERS_PER_PAGE;
+
+    // Build filter conditions
+    let filters: Prisma.UserWhereInput = {};
+
+    // Search condition
+    if (search) {
+      filters.OR = [
+        { email: { contains: search, mode: 'insensitive' } },
+        { name: { contains: search, mode: 'insensitive' } },
+      ];
+    }
+
+    // Role filter
+    if (roleFilter === 'customers') {
+      filters.role = UserRole.user;
+    } else if (roleFilter === 'admins') {
+      filters.role = UserRole.admin;
+    }
+
+    // Activity filter
+    if (activityFilter === 'with-orders') {
+      filters.Order = { some: {} };
+    } else if (activityFilter === 'without-orders') {
+      filters.Order = { none: {} };
+    }
+
+    // For high-value filter, we need to use a different approach
+    if (activityFilter === 'high-value') {
+      // Build the WHERE clause for the raw query using safe SQL construction
+      const baseQuery = Prisma.sql`
+        SELECT u.id as "userId", COALESCE(SUM(o."totalPrice"), 0) as "totalSpent"
+        FROM "User" u
+        LEFT JOIN "Order" o ON u.id = o."userId" AND o.status != 'cancelled'
+        WHERE 1=1
+      `;
+
+      // Build dynamic conditions using Prisma.sql with proper parameterization
+      const conditions: Prisma.Sql[] = [baseQuery];
+
+      // Add search condition if present
+      if (search) {
+        const searchPattern = `%${search}%`;
+        conditions.push(Prisma.sql` AND (LOWER(u.email) LIKE LOWER(${searchPattern}) OR LOWER(u.name) LIKE LOWER(${searchPattern}))`);
+      }
+
+      // Add role condition if present
+      if (roleFilter === 'customers') {
+        conditions.push(Prisma.sql` AND u.role = ${UserRole.user}`);
+      } else if (roleFilter === 'admins') {
+        conditions.push(Prisma.sql` AND u.role = ${UserRole.admin}`);
+      }
+
+      // Add GROUP BY and HAVING clauses
+      conditions.push(Prisma.sql`
+        GROUP BY u.id
+        HAVING COALESCE(SUM(o."totalPrice"), 0) > ${CUSTOMER_CONSTANTS.HIGH_VALUE_THRESHOLD}
+      `);
+
+      // Combine all conditions safely using Prisma.join
+      const query = Prisma.join(conditions);
+
+      // Execute the query
+      const usersWithTotals = await prisma.$queryRaw<{ userId: string; totalSpent: number }[]>(query);
+      const userIdsToInclude = usersWithTotals.map(u => u.userId);
+
+      // Override filters to only include high-value users
+      filters = { id: { in: userIdsToInclude.length > 0 ? userIdsToInclude : ['no-match'] } };
+    }
+
+    // Get total count for pagination
+    const totalUsers = await prisma.user.count({
+      where: filters,
+    });
+
+    const totalPages = Math.ceil(totalUsers / USERS_PER_PAGE);
+
+    // Determine sort order
+    let orderBy: Prisma.UserOrderByWithRelationInput = { createdAt: 'desc' }; // default: newest
+
+    switch (sortBy) {
+      case 'oldest':
+        orderBy = { createdAt: 'asc' };
+        break;
+      case 'name-asc':
+        orderBy = { name: 'asc' };
+        break;
+      case 'name-desc':
+        orderBy = { name: 'desc' };
+        break;
+      case 'most-orders':
+        orderBy = { Order: { _count: 'desc' } };
+        break;
+      case 'highest-spent':
+        // Will sort after fetching due to aggregation complexity
+        break;
+    }
+
+    // Get paginated users with related data
+    const users = await prisma.user.findMany({
+      where: filters,
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+        createdAt: true,
+        updatedAt: true,
+        _count: {
+          select: {
+            Order: true,
+            Wishlist: true,
+          },
+        },
+        Order: {
+          select: {
+            totalPrice: true,
+            createdAt: true,
+          },
+          orderBy: {
+            createdAt: 'desc',
+          },
+          take: 1, // Only fetch the most recent order for last order date display
+        },
+      },
+      orderBy,
+      skip,
+      take: USERS_PER_PAGE,
+    });
+
+    // Calculate total spent for each user
+    const userIds = users.map(u => u.id);
+    const orderTotals = await prisma.order.groupBy({
+      by: ['userId'],
+      where: {
+        userId: { in: userIds },
+        status: { not: 'cancelled' },
+      },
+      _sum: {
+        totalPrice: true,
+      },
+    });
+
+    const totalsMap = new Map(
+      orderTotals.map(total => [
+        total.userId,
+        formatNumberWithDecimal(Number(total._sum.totalPrice || 0)),
+      ])
+    );
+
+    // Format users with additional data
+    const formattedUsers: AdminUser[] = users.map(user => ({
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
+      formattedCreatedAt: formatDateTime(user.createdAt),
+      formattedUpdatedAt: formatDateTime(user.updatedAt),
+      ordersCount: user._count.Order,
+      totalSpent: totalsMap.get(user.id) || '0.00',
+      wishlistCount: user._count.Wishlist,
+      lastOrderDate: user.Order[0]?.createdAt || null,
+      formattedLastOrderDate: user.Order[0]?.createdAt
+        ? formatDateTime(user.Order[0].createdAt)
+        : null,
+    }));
+
+    // Sort by highest spent if needed (this requires post-fetch sorting due to aggregation complexity)
+    const sortedUsers = sortBy === 'highest-spent'
+      ? [...formattedUsers].sort((a, b) => parseFloat(b.totalSpent) - parseFloat(a.totalSpent))
+      : formattedUsers;
+
+    return {
+      users: sortedUsers,
+      currentPage: page,
+      totalPages,
+      totalUsers,
+      hasMore: page < totalPages,
+    };
+  } catch (error) {
+    console.error('Error fetching users for admin:', error);
+    return {
+      users: [],
+      currentPage: 1,
+      totalPages: 0,
+      totalUsers: 0,
+      hasMore: false,
+    };
+  }
+}
+
+export async function getUserDetailsForAdmin(userId: string) {
+  try {
+    const session = await auth();
+
+    if (!session || session.user.role !== UserRole.admin) {
+      throw new Error('Unauthorized');
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      include: {
+        addresses: {
+          orderBy: {
+            isDefault: 'desc'
+          }
+        },
+        Order: {
+          orderBy: {
+            createdAt: 'desc'
+          },
+          take: 10, // Last 10 orders
+          select: {
+            id: true,
+            status: true,
+            totalPrice: true,
+            createdAt: true,
+            orderitems: {
+              select: {
+                qty: true
+              }
+            }
+          }
+        },
+        Wishlist: {
+          include: {
+            product: {
+              select: {
+                id: true,
+                name: true,
+                slug: true,
+                price: true,
+                images: true
+              }
+            }
+          }
+        },
+        _count: {
+          select: {
+            Order: true,
+            Wishlist: true,
+            addresses: true,
+            Review: true
+          }
+        }
+      }
+    });
+
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    // Calculate total spent
+    const totalSpent = await prisma.order.aggregate({
+      where: { userId },
+      _sum: {
+        totalPrice: true
+      }
+    });
+
+    // Get order statistics
+    const orderStats = await prisma.order.groupBy({
+      by: ['status'],
+      where: { userId },
+      _count: true
+    });
+
+    // Format the data
+    return {
+      id: user.id,
+      name: user.name || 'Anonymous',
+      email: user.email,
+      role: user.role,
+      emailVerified: user.emailVerified,
+      image: user.image,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
+      addresses: user.addresses,
+      recentOrders: user.Order.map(order => ({
+        ...order,
+        itemCount: order.orderitems.reduce((sum, item) => sum + item.qty, 0),
+        formattedDate: formatDateTime(order.createdAt),
+        formattedStatus: formatOrderStatus(order.status),
+        statusColor: getOrderStatusColor(order.status)
+      })),
+      wishlistItems: user.Wishlist,
+      stats: {
+        totalOrders: user._count.Order,
+        totalWishlistItems: user._count.Wishlist,
+        totalAddresses: user._count.addresses,
+        totalReviews: user._count.Review,
+        totalSpent: totalSpent._sum.totalPrice || '0',
+        orderStatusBreakdown: orderStats.reduce((acc, stat) => {
+          acc[stat.status] = stat._count;
+          return acc;
+        }, {} as Record<string, number>)
+      },
+      formattedCreatedAt: formatDateTime(user.createdAt),
+      formattedUpdatedAt: formatDateTime(user.updatedAt)
+    };
+  } catch (error) {
+    console.error('Error fetching user details:', error);
+    throw error;
   }
 }

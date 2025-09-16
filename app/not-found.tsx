@@ -11,7 +11,7 @@ export default function NotFound() {
           Page Not Found
         </h2>
         <p className="max-w-[600px] text-muted-foreground">
-          Sorry, we couldn&apos;t find the page you&apos;re looking for. 
+          {"Sorry, we couldn't find the page you're looking for."} 
           The page might have been removed, had its name changed, or is temporarily unavailable.
         </p>
       </div>

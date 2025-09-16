@@ -146,6 +146,15 @@ export const insertUserSchema = signUpFormSchema
 
 export const updateUserSchema = insertUserSchema.partial();
 
+// Admin update user schema - for admin panel user editing
+export const adminUpdateUserSchema = z.object({
+  name: z.string().min(1, 'Name is required'),
+  email: z.string().email('Invalid email address'),
+  role: z.nativeEnum(UserRole),
+});
+
+export type AdminUpdateUserInput = z.infer<typeof adminUpdateUserSchema>;
+
 export const userSchema = insertUserSchema.extend({
   id: z.string().uuid(),
   createdAt: z.date().or(z.string().transform((val) => new Date(val))),

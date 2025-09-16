@@ -221,22 +221,22 @@ export function isActiveOrder(status: string): boolean {
 // Format date and times
 export const formatDateTime = (dateString: Date) => {
   const dateTimeOptions: Intl.DateTimeFormatOptions = {
-    month: 'short', // abbreviated month name (e.g., 'Oct')
-    year: 'numeric', // abbreviated month name (e.g., 'Oct')
-    day: 'numeric', // numeric day of the month (e.g., '25')
-    hour: 'numeric', // numeric hour (e.g., '8')
-    minute: 'numeric', // numeric minute (e.g., '30')
+    month: 'short', // abbreviated month name
+    year: 'numeric', // full year
+    day: 'numeric', // numeric day of the month
+    hour: 'numeric', // numeric hour
+    minute: 'numeric', // numeric minute
     hour12: false, // use 24-hour clock for Polish locale
   };
   const dateOptions: Intl.DateTimeFormatOptions = {
-    weekday: 'short', // abbreviated weekday name (e.g., 'Mon')
-    month: 'short', // abbreviated month name (e.g., 'Oct')
-    year: 'numeric', // numeric year (e.g., '2023')
-    day: 'numeric', // numeric day of the month (e.g., '25')
+    // Weekday excluded for cleaner display (format: "DD MMM YYYY" instead of "DDD, DD MMM YYYY")
+    month: 'short', // abbreviated month name
+    year: 'numeric', // full year
+    day: 'numeric', // numeric day of the month
   };
   const timeOptions: Intl.DateTimeFormatOptions = {
-    hour: 'numeric', // numeric hour (e.g., '8')
-    minute: 'numeric', // numeric minute (e.g., '30')
+    hour: 'numeric', // numeric hour
+    minute: 'numeric', // numeric minute
     hour12: false, // use 24-hour clock for Polish locale
   };
   const formattedDateTime: string = new Date(dateString).toLocaleString(
@@ -337,4 +337,15 @@ export function buildAuthUrl(path: string, callbackUrl: string): string {
   }
 
   return path;
+}
+
+// Copy text to clipboard
+export async function copyToClipboard(text: string): Promise<boolean> {
+  try {
+    await navigator.clipboard.writeText(text);
+    return true;
+  } catch (error) {
+    console.error('Failed to copy to clipboard:', error);
+    return false;
+  }
 }

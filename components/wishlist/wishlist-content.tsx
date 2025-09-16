@@ -103,7 +103,7 @@ export default function WishlistContent({ items: initialItems }: WishlistContent
         <Heart className="mb-4 h-16 w-16 text-muted-foreground" />
         <h2 className="mb-2 text-xl font-semibold">Your wishlist is empty</h2>
         <p className="mb-6 text-center text-muted-foreground">
-          Save items you like to your wishlist and they&apos;ll appear here
+          {"Save items you like to your wishlist and they'll appear here"}
         </p>
         <Button asChild>
           <Link href="/products">Continue Shopping</Link>

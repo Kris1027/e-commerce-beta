@@ -17,9 +17,9 @@ export default async function AdminLayout({
   return (
     <div className="flex min-h-screen bg-background">
       <AdminNav />
-      <main className="flex-1 bg-muted/40">
-        <div className="p-4 sm:p-6 lg:p-8">
-          <div className="mx-auto max-w-7xl">
+      <main className="flex-1 bg-muted/40 overflow-x-hidden">
+        <div className="container mx-auto p-6">
+          <div className="w-full">
             {children}
           </div>
         </div>

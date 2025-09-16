@@ -1,0 +1,55 @@
+import {
+  getUsersForAdmin,
+  getCustomerStatistics,
+  type UserFilterRole,
+  type UserFilterActivity,
+  type UserSortBy
+} from '@/lib/actions/user-actions';
+import { CustomersTable } from '@/components/admin/customers-table';
+import { Users } from 'lucide-react';
+
+export default async function AdminCustomersPage({
+  searchParams,
+}: {
+  searchParams: Promise<{
+    page?: string;
+    search?: string;
+    role?: string;
+    activity?: string;
+    sort?: string;
+  }>;
+}) {
+  const params = await searchParams;
+  const page = Number(params.page) || 1;
+  const search = params.search || '';
+  const roleFilter = (params.role || 'all') as UserFilterRole;
+  const activityFilter = (params.activity || 'all') as UserFilterActivity;
+  const sortBy = (params.sort || 'newest') as UserSortBy;
+
+  const [data, statistics] = await Promise.all([
+    getUsersForAdmin(page, search, roleFilter, activityFilter, sortBy),
+    getCustomerStatistics(),
+  ]);
+
+  return (
+    <>
+      <div className="mb-8">
+        <div className="flex items-center gap-3 mb-2">
+          <div className="p-2 bg-gradient-to-br from-blue-500/10 to-purple-500/10 rounded-xl">
+            <Users className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+          </div>
+          <div>
+            <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">
+              Customers
+            </h1>
+            <p className="text-muted-foreground">
+              Manage your customer base and view user details
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <CustomersTable data={data} statistics={statistics} />
+    </>
+  );
+}
