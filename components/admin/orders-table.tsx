@@ -14,7 +14,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { SearchInput } from '@/components/ui/search-input';
-import { formatCurrency, cn, formatDateTime } from '@/lib/utils';
+import { cn, formatDateTime, formatCurrency } from '@/lib/utils';
 import { AdminOrdersResult, OrderSummary, updateAdminOrderStatus, deleteOrder } from '@/lib/actions/admin-order-actions';
 import { PaginationWrapper } from '@/components/ui/pagination-wrapper';
 import {
@@ -23,9 +23,7 @@ import {
   Truck,
   CheckCircle2,
   XCircle,
-  DollarSign,
   ShoppingBag,
-  TrendingUp,
   MoreVertical,
   ArrowUpDown,
   Eye,
@@ -153,6 +151,19 @@ export function OrdersTable({ data, summary }: OrdersTableProps) {
     });
   };
 
+  const handleStatusCardClick = (status: string) => {
+    startTransition(() => {
+      const params = new URLSearchParams(searchParams);
+      if (status === 'all') {
+        params.delete('status');
+      } else {
+        params.set('status', status);
+      }
+      params.delete('page');
+      router.push(`/admin/orders?${params.toString()}`);
+    });
+  };
+
   const handleStatusUpdate = async (orderId: string, newStatus: string) => {
     const result = await updateAdminOrderStatus(orderId, newStatus);
     if (result.success) {
@@ -182,10 +193,16 @@ export function OrdersTable({ data, summary }: OrdersTableProps) {
 
   return (
     <>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        <Card className="border-l-4 border-l-blue-500">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 mb-6">
+        <Card
+          className={cn(
+            "border-l-4 border-l-gray-500 cursor-pointer transition-all hover:shadow-lg hover:scale-[1.02]",
+            currentStatus === 'all' && "ring-2 ring-gray-500"
+          )}
+          onClick={() => handleStatusCardClick('all')}
+        >
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Orders</CardTitle>
+            <CardTitle className="text-sm font-medium">Total</CardTitle>
             <ShoppingBag className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -196,41 +213,97 @@ export function OrdersTable({ data, summary }: OrdersTableProps) {
           </CardContent>
         </Card>
 
-        <Card className="border-l-4 border-l-green-500">
+        <Card
+          className={cn(
+            "border-l-4 border-l-yellow-500 cursor-pointer transition-all hover:shadow-lg hover:scale-[1.02]",
+            currentStatus === 'pending' && "ring-2 ring-yellow-500"
+          )}
+          onClick={() => handleStatusCardClick('pending')}
+        >
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{formatCurrency(summary.totalRevenue)}</div>
-            <p className="text-xs text-muted-foreground">
-              {formatCurrency(summary.todaysRevenue)} today
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card className="border-l-4 border-l-purple-500">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Average Order</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{formatCurrency(summary.averageOrderValue)}</div>
-            <p className="text-xs text-muted-foreground">
-              Per paid order
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card className="border-l-4 border-l-yellow-500">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Pending Orders</CardTitle>
-            <Clock className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium">Pending</CardTitle>
+            <Clock className="h-4 w-4 text-yellow-600" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{summary.pendingOrders}</div>
             <p className="text-xs text-muted-foreground">
-              Awaiting processing
+              Awaiting action
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card
+          className={cn(
+            "border-l-4 border-l-blue-500 cursor-pointer transition-all hover:shadow-lg hover:scale-[1.02]",
+            currentStatus === 'processing' && "ring-2 ring-blue-500"
+          )}
+          onClick={() => handleStatusCardClick('processing')}
+        >
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Processing</CardTitle>
+            <Package className="h-4 w-4 text-blue-600" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{summary.processingOrders}</div>
+            <p className="text-xs text-muted-foreground">
+              Being prepared
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card
+          className={cn(
+            "border-l-4 border-l-purple-500 cursor-pointer transition-all hover:shadow-lg hover:scale-[1.02]",
+            currentStatus === 'shipped' && "ring-2 ring-purple-500"
+          )}
+          onClick={() => handleStatusCardClick('shipped')}
+        >
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Shipped</CardTitle>
+            <Truck className="h-4 w-4 text-purple-600" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{summary.shippedOrders}</div>
+            <p className="text-xs text-muted-foreground">
+              In transit
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card
+          className={cn(
+            "border-l-4 border-l-green-500 cursor-pointer transition-all hover:shadow-lg hover:scale-[1.02]",
+            currentStatus === 'delivered' && "ring-2 ring-green-500"
+          )}
+          onClick={() => handleStatusCardClick('delivered')}
+        >
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Delivered</CardTitle>
+            <CheckCircle2 className="h-4 w-4 text-green-600" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{summary.deliveredOrders}</div>
+            <p className="text-xs text-muted-foreground">
+              Completed
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card
+          className={cn(
+            "border-l-4 border-l-red-500 cursor-pointer transition-all hover:shadow-lg hover:scale-[1.02]",
+            currentStatus === 'cancelled' && "ring-2 ring-red-500"
+          )}
+          onClick={() => handleStatusCardClick('cancelled')}
+        >
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Cancelled</CardTitle>
+            <XCircle className="h-4 w-4 text-red-600" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{summary.cancelledOrders}</div>
+            <p className="text-xs text-muted-foreground">
+              Terminated
             </p>
           </CardContent>
         </Card>
@@ -379,7 +452,7 @@ export function OrdersTable({ data, summary }: OrdersTableProps) {
                           {order.totalItems}
                         </TableCell>
                         <TableCell className="text-right font-medium">
-                          {order.totalPrice}
+                          {formatCurrency(parseFloat(order.totalPrice))}
                         </TableCell>
                         <TableCell>
                           <TooltipProvider>
