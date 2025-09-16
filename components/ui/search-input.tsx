@@ -51,6 +51,7 @@ export function SearchInput({
     // Only sync if the external value is different from current internal value (indicates external change)
     if (externalValue !== internalValue) {
       setInternalValue(externalValue);
+      // Update ref to track the last searched value
       lastSearchedValueRef.current = externalValue;
     }
   }, [externalValue, internalValue]);
