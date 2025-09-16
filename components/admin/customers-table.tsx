@@ -14,21 +14,13 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { SearchInput } from '@/components/ui/search-input';
-import { formatCurrency, copyToClipboard, cn, generatePaginationNumbers } from '@/lib/utils';
+import { formatCurrency, copyToClipboard, cn } from '@/lib/utils';
 import { AdminUsersResult, deleteUser, CustomerStatistics } from '@/lib/actions/user-actions';
 import { CUSTOMER_CONSTANTS } from '@/lib/constants/cart';
 import { UpdateUserModal } from '@/components/admin/update-user-modal';
 import { DeleteUserDialog } from '@/components/admin/delete-user-dialog';
 import { UserRole } from '@prisma/client';
-import {
-  Pagination,
-  PaginationContent,
-  PaginationEllipsis,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from '@/components/ui/pagination';
+import { PaginationWrapper } from '@/components/ui/pagination-wrapper';
 import {
   User,
   Heart,
@@ -45,8 +37,6 @@ import {
   DollarSign,
   Shield,
   Edit2,
-  ChevronsLeft,
-  ChevronsRight,
   CheckCircle2,
   Loader2
 } from 'lucide-react';
@@ -107,14 +97,6 @@ export function CustomersTable({ data, statistics }: CustomersTableProps) {
         params.delete('search');
         params.delete('page');
       }
-      router.push(`/admin/customers?${params.toString()}`);
-    });
-  };
-
-  const handlePageChange = (page: number) => {
-    startTransition(() => {
-      const params = new URLSearchParams(searchParams);
-      params.set('page', page.toString());
       router.push(`/admin/customers?${params.toString()}`);
     });
   };
@@ -688,95 +670,16 @@ export function CustomersTable({ data, statistics }: CustomersTableProps) {
           </div>
 
           {/* Pagination */}
-          {data.totalPages > 1 && (
-            <div className="flex flex-col gap-4 px-4 py-4 border-t">
-              <div className="text-sm text-muted-foreground text-center">
-                Page {data.currentPage} of {data.totalPages} ({data.totalUsers} total customers)
-              </div>
-              <Pagination>
-                <PaginationContent>
-                  {/* First Page Button */}
-                  <PaginationItem>
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      onClick={() => handlePageChange(1)}
-                      disabled={data.currentPage === 1 || isPending}
-                      className="h-9 w-9 cursor-pointer"
-                      aria-label="Go to first page"
-                    >
-                      <ChevronsLeft className="h-4 w-4" />
-                    </Button>
-                  </PaginationItem>
-
-                  {/* Previous Page Button */}
-                  <PaginationItem>
-                    <PaginationPrevious
-                      onClick={() => handlePageChange(data.currentPage - 1)}
-                      className={cn(
-                        "cursor-pointer",
-                        (data.currentPage === 1 || isPending) && "pointer-events-none opacity-50"
-                      )}
-                      aria-disabled={data.currentPage === 1 || isPending}
-                    />
-                  </PaginationItem>
-
-                  {/* Page Numbers */}
-                  {generatePaginationNumbers(data.currentPage, data.totalPages).map((page, index) => {
-                    if (typeof page === 'string') {
-                      return (
-                        <PaginationItem key={`ellipsis-${index}`}>
-                          <PaginationEllipsis />
-                        </PaginationItem>
-                      );
-                    }
-
-                    return (
-                      <PaginationItem key={`page-${page}`}>
-                        <PaginationLink
-                          onClick={() => handlePageChange(page)}
-                          isActive={page === data.currentPage}
-                          className={cn(
-                            "cursor-pointer",
-                            isPending && "pointer-events-none opacity-50"
-                          )}
-                          aria-disabled={isPending}
-                        >
-                          {page}
-                        </PaginationLink>
-                      </PaginationItem>
-                    );
-                  })}
-
-                  {/* Next Page Button */}
-                  <PaginationItem>
-                    <PaginationNext
-                      onClick={() => handlePageChange(data.currentPage + 1)}
-                      className={cn(
-                        "cursor-pointer",
-                        (!data.hasMore || isPending) && "pointer-events-none opacity-50"
-                      )}
-                      aria-disabled={!data.hasMore || isPending}
-                    />
-                  </PaginationItem>
-
-                  {/* Last Page Button */}
-                  <PaginationItem>
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      onClick={() => handlePageChange(data.totalPages)}
-                      disabled={data.currentPage === data.totalPages || isPending}
-                      className="h-9 w-9 cursor-pointer"
-                      aria-label="Go to last page"
-                    >
-                      <ChevronsRight className="h-4 w-4" />
-                    </Button>
-                  </PaginationItem>
-                </PaginationContent>
-              </Pagination>
-            </div>
-          )}
+          <PaginationWrapper
+            currentPage={data.currentPage}
+            totalPages={data.totalPages}
+            baseUrl="/admin/customers"
+            preserveParams={true}
+            showFirstLast={true}
+            showPageInfo={true}
+            totalItems={data.totalUsers}
+            className="px-4 py-4 border-t"
+          />
         </CardContent>
       </Card>
     </div>
