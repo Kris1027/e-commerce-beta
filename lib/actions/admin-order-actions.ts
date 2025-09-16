@@ -283,7 +283,7 @@ export async function updateAdminOrderStatus(orderId: string, status: string) {
     revalidatePath('/admin/orders');
     revalidatePath(`/orders/${orderId}`);
 
-    return { success: true, order: updatedOrder };
+    return convertToPlainObject({ success: true, order: updatedOrder });
   } catch (error) {
     console.error('Error updating order status:', error);
     return { success: false, message: 'Failed to update order status' };
