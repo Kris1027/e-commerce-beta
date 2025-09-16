@@ -75,6 +75,13 @@ getMyOrders(page)
 getCart()
 addToCart(item)
 
+// Admin Orders Management
+getOrdersForAdmin(page, search?, statusFilter?, paymentFilter?, sortBy?)
+getOrderSummary()
+updateAdminOrderStatus(orderId, status)
+getAdminOrderById(orderId)
+deleteOrder(orderId)
+
 // Wishlist
 getWishlist()
 toggleWishlist(productId)
@@ -147,3 +154,6 @@ pnpm db:seed    # Seed sample data
 - **Unified pagination** across app with enhanced PaginationWrapper
 - **Added query param preservation** for filters during pagination
 - **Cleaned up dependencies** and removed unused code
+- **Added Admin Orders Management** with full CRUD operations, filtering, and statistics
+- **Created Orders Dashboard** with order summary cards and order table
+- **Implemented Order Details Page** for admin with complete order information
