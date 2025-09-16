@@ -21,19 +21,19 @@ import {
 import { formatCurrency, formatDateTime } from '@/lib/utils';
 
 const statusColors = {
-  PENDING: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400',
-  PROCESSING: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400',
-  SHIPPED: 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400',
-  DELIVERED: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
-  CANCELLED: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400',
+  pending: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400',
+  processing: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400',
+  shipped: 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400',
+  delivered: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
+  cancelled: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400',
 };
 
 const statusIcons = {
-  PENDING: Clock,
-  PROCESSING: Package,
-  SHIPPED: Truck,
-  DELIVERED: CheckCircle2,
-  CANCELLED: XCircle,
+  pending: Clock,
+  processing: Package,
+  shipped: Truck,
+  delivered: CheckCircle2,
+  cancelled: XCircle,
 };
 
 export default async function AdminOrderDetailsPage({
@@ -48,7 +48,8 @@ export default async function AdminOrderDetailsPage({
     notFound();
   }
 
-  const StatusIcon = statusIcons[order.status as keyof typeof statusIcons];
+  const normalizedStatus = order.status.toLowerCase() as keyof typeof statusIcons;
+  const StatusIcon = statusIcons[normalizedStatus] || Clock;
 
   return (
     <>
@@ -64,7 +65,7 @@ export default async function AdminOrderDetailsPage({
             <p className="text-sm text-muted-foreground">Order ID: {order.id}</p>
           </div>
         </div>
-        <Badge className={statusColors[order.status as keyof typeof statusColors]}>
+        <Badge className={statusColors[normalizedStatus] || statusColors.pending}>
           <StatusIcon className="h-4 w-4 mr-1" />
           {order.status}
         </Badge>
