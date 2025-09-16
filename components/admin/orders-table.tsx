@@ -173,7 +173,7 @@ export function OrdersTable({ data, summary }: OrdersTableProps) {
       toast.success('Order status updated successfully');
       router.refresh();
     } else {
-      toast.error((result as { success: false; message?: string }).message || 'Failed to update order status');
+      toast.error(result.error || 'Failed to update order status');
     }
   };
 
@@ -198,7 +198,7 @@ export function OrdersTable({ data, summary }: OrdersTableProps) {
       toast.success('Order deleted successfully');
       router.refresh();
     } else {
-      toast.error((result as { success: false; message?: string }).message || 'Failed to delete order');
+      toast.error(result.error || 'Failed to delete order');
     }
 
     setDeletingOrderId(null);

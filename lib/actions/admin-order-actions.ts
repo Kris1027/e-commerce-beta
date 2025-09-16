@@ -266,7 +266,7 @@ export async function updateAdminOrderStatus(orderId: string, status: string) {
     const session = await auth();
 
     if (!session?.user?.role || session.user.role !== UserRole.admin) {
-      return { success: false, message: 'Unauthorized' };
+      return { success: false, error: 'Unauthorized' };
     }
 
     const updatedOrder = await prisma.order.update({
@@ -283,10 +283,10 @@ export async function updateAdminOrderStatus(orderId: string, status: string) {
     revalidatePath('/admin/orders');
     revalidatePath(`/orders/${orderId}`);
 
-    return convertToPlainObject({ success: true, order: updatedOrder });
+    return { success: true, data: convertToPlainObject(updatedOrder) };
   } catch (error) {
     console.error('Error updating order status:', error);
-    return { success: false, message: 'Failed to update order status' };
+    return { success: false, error: 'Failed to update order status' };
   }
 }
 
@@ -350,7 +350,7 @@ export async function deleteOrder(orderId: string) {
     const session = await auth();
 
     if (!session?.user?.role || session.user.role !== UserRole.admin) {
-      return { success: false, message: 'Unauthorized' };
+      return { success: false, error: 'Unauthorized' };
     }
 
     await prisma.$transaction(async (tx) => {
@@ -365,9 +365,9 @@ export async function deleteOrder(orderId: string) {
 
     revalidatePath('/admin/orders');
 
-    return { success: true };
+    return { success: true, data: undefined };
   } catch (error) {
     console.error('Error deleting order:', error);
-    return { success: false, message: 'Failed to delete order' };
+    return { success: false, error: 'Failed to delete order' };
   }
 }
