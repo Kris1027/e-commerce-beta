@@ -224,7 +224,7 @@ export const formatDateTime = (dateString: Date) => {
     month: 'short', // abbreviated month name
     year: 'numeric', // full year
     day: 'numeric', // numeric day of the month
-    hour: 'numeric', // numeric hour (24-hour format)
+    hour: 'numeric', // numeric hour
     minute: 'numeric', // numeric minute
     hour12: false, // use 24-hour clock for Polish locale
   };
@@ -235,7 +235,7 @@ export const formatDateTime = (dateString: Date) => {
     day: 'numeric', // numeric day of the month
   };
   const timeOptions: Intl.DateTimeFormatOptions = {
-    hour: 'numeric', // numeric hour (24-hour format)
+    hour: 'numeric', // numeric hour
     minute: 'numeric', // numeric minute
     hour12: false, // use 24-hour clock for Polish locale
   };

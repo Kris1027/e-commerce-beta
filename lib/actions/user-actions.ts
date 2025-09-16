@@ -980,31 +980,37 @@ export async function getUsersForAdmin(
     // For high-value filter, we need to use a different approach
     if (activityFilter === 'high-value') {
       // Build the WHERE clause for the raw query using safe SQL construction
-      let query = Prisma.sql`
+      const baseQuery = Prisma.sql`
         SELECT u.id as "userId", COALESCE(SUM(o."totalPrice"), 0) as "totalSpent"
         FROM "User" u
         LEFT JOIN "Order" o ON u.id = o."userId" AND o.status != 'cancelled'
         WHERE 1=1
       `;
 
+      // Build dynamic conditions using Prisma.sql with proper parameterization
+      const conditions: Prisma.Sql[] = [baseQuery];
+
       // Add search condition if present
       if (search) {
         const searchPattern = `%${search}%`;
-        query = Prisma.sql`${query} AND (LOWER(u.email) LIKE LOWER(${searchPattern}) OR LOWER(u.name) LIKE LOWER(${searchPattern}))`;
+        conditions.push(Prisma.sql` AND (LOWER(u.email) LIKE LOWER(${searchPattern}) OR LOWER(u.name) LIKE LOWER(${searchPattern}))`);
       }
 
       // Add role condition if present
       if (roleFilter === 'customers') {
-        query = Prisma.sql`${query} AND u.role = ${UserRole.user}`;
+        conditions.push(Prisma.sql` AND u.role = ${UserRole.user}`);
       } else if (roleFilter === 'admins') {
-        query = Prisma.sql`${query} AND u.role = ${UserRole.admin}`;
+        conditions.push(Prisma.sql` AND u.role = ${UserRole.admin}`);
       }
 
       // Add GROUP BY and HAVING clauses
-      query = Prisma.sql`${query}
+      conditions.push(Prisma.sql`
         GROUP BY u.id
         HAVING COALESCE(SUM(o."totalPrice"), 0) > ${CUSTOMER_CONSTANTS.HIGH_VALUE_THRESHOLD}
-      `;
+      `);
+
+      // Combine all conditions safely using Prisma.join
+      const query = Prisma.join(conditions);
 
       // Execute the query
       const usersWithTotals = await prisma.$queryRaw<{ userId: string; totalSpent: number }[]>(query);
