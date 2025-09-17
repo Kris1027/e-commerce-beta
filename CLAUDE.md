@@ -161,6 +161,7 @@ pnpm db:seed    # Seed sample data
 - **Implemented Product Statistics Dashboard** showing total products, stock status, and inventory value
 - **Added Delete Product Functionality** with confirmation dialog and optimistic UI updates
 - **Created Product Creation Form** with React Hook Form, Zod validation, auto-slug generation, multiple image support (rating and reviews auto-set to 0)
+- **Duplicate Product Prevention** - Products cannot be created with duplicate names (case-insensitive) or slugs, similar to email uniqueness for users
 - **Enhanced Security** - Moved admin-only product operations (create, update, delete) to admin-product-actions.ts with proper authentication checks
 - **Consistent Admin Actions** - All admin operations now follow same security pattern with UserRole.admin checks
 - **UI/UX Consistency** across all admin pages (Orders, Customers, Products) with gradient headers and cards

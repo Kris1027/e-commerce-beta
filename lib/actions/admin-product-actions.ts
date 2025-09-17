@@ -238,6 +238,36 @@ export async function createProduct(data: z.infer<typeof insertProductSchema>) {
     }
 
     const product = insertProductSchema.parse(data);
+
+    // Check if a product with the same name already exists
+    const existingProduct = await prisma.product.findFirst({
+      where: {
+        name: {
+          equals: product.name,
+          mode: 'insensitive', // Case-insensitive comparison
+        },
+      },
+    });
+
+    if (existingProduct) {
+      return {
+        success: false,
+        message: `A product with the name "${product.name}" already exists. Please use a different name.`,
+      };
+    }
+
+    // Check if a product with the same slug already exists
+    const existingSlug = await prisma.product.findFirst({
+      where: { slug: product.slug },
+    });
+
+    if (existingSlug) {
+      return {
+        success: false,
+        message: `The slug "${product.slug}" is already in use. Please use a different slug.`,
+      };
+    }
+
     await prisma.product.create({ data: product });
 
     revalidatePath('/admin/products');
@@ -272,6 +302,43 @@ export async function updateProduct(data: z.infer<typeof updateProductSchema> & 
 
     if (!productExists) {
       return { success: false, message: 'Product not found' };
+    }
+
+    // Check if updating name and if the new name already exists (excluding current product)
+    if (product.name) {
+      const existingProduct = await prisma.product.findFirst({
+        where: {
+          name: {
+            equals: product.name,
+            mode: 'insensitive',
+          },
+          NOT: { id },
+        },
+      });
+
+      if (existingProduct) {
+        return {
+          success: false,
+          message: `A product with the name "${product.name}" already exists. Please use a different name.`,
+        };
+      }
+    }
+
+    // Check if updating slug and if the new slug already exists (excluding current product)
+    if (product.slug) {
+      const existingSlug = await prisma.product.findFirst({
+        where: {
+          slug: product.slug,
+          NOT: { id },
+        },
+      });
+
+      if (existingSlug) {
+        return {
+          success: false,
+          message: `The slug "${product.slug}" is already in use. Please use a different slug.`,
+        };
+      }
     }
 
     await prisma.product.update({
