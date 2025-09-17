@@ -68,7 +68,6 @@ export function ProductEditForm({ product }: ProductEditFormProps) {
   const [pendingNavigation, setPendingNavigation] = useState<string | null>(null);
   const [existingCategories, setExistingCategories] = useState<string[]>([]);
   const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
-  const [categorySearch, setCategorySearch] = useState('');
 
   // Track original images to detect changes
   const originalImagesRef = useRef<string[]>(product.images);
@@ -112,12 +111,11 @@ export function ProductEditForm({ product }: ProductEditFormProps) {
       setExistingCategories(categories);
     }
     fetchCategories();
-    setCategorySearch(product.category);
-  }, [product.category]);
+  }, []);
 
-  // Filter categories based on search
+  // Filter categories based on current category input value
   const filteredCategories = existingCategories.filter(cat =>
-    cat.toLowerCase().includes(categorySearch.toLowerCase())
+    cat.toLowerCase().includes((watchCategory || '').toLowerCase())
   );
 
   // Auto-generate slug from name
@@ -384,11 +382,9 @@ export function ProductEditForm({ product }: ProductEditFormProps) {
                 {...register('category')}
                 className="pl-9"
                 placeholder="Type or select a category"
-                value={watchCategory || categorySearch}
+                value={watchCategory || ''}
                 onChange={(e) => {
-                  const value = e.target.value;
-                  setCategorySearch(value);
-                  setValue('category', value);
+                  setValue('category', e.target.value);
                   setShowCategoryDropdown(true);
                 }}
                 onFocus={() => setShowCategoryDropdown(true)}
@@ -408,16 +404,15 @@ export function ProductEditForm({ product }: ProductEditFormProps) {
                       onMouseDown={(e) => {
                         e.preventDefault();
                         setValue('category', category);
-                        setCategorySearch(category);
                         setShowCategoryDropdown(false);
                       }}
                     >
                       {category}
                     </button>
                   ))}
-                  {categorySearch && !existingCategories.includes(categorySearch) && (
+                  {watchCategory && !existingCategories.includes(watchCategory) && (
                     <div className="px-3 py-2 text-sm text-muted-foreground border-t">
-                      Press Enter to create &quot;{categorySearch}&quot;
+                      Press Enter to create &quot;{watchCategory}&quot;
                     </div>
                   )}
                 </div>
