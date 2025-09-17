@@ -11,6 +11,7 @@ import { toast } from 'sonner';
 interface ProductImageUploadProps {
   value: string[];
   onChange: (urls: string[]) => void;
+  onRemove?: (url: string) => void | Promise<void>;
   maxImages?: number;
   disabled?: boolean;
 }
@@ -18,6 +19,7 @@ interface ProductImageUploadProps {
 export function ProductImageUpload({
   value = [],
   onChange,
+  onRemove,
   maxImages = 5,
   disabled = false,
 }: ProductImageUploadProps) {
@@ -91,9 +93,22 @@ export function ProductImageUpload({
     e.target.value = '';
   };
 
-  const handleRemove = (indexToRemove: number) => {
+  const handleRemove = async (indexToRemove: number) => {
+    const urlToRemove = value[indexToRemove];
     const newUrls = value.filter((_, index) => index !== indexToRemove);
+
+    // Update the UI immediately
     onChange(newUrls);
+
+    // Call the onRemove callback if provided to handle storage deletion
+    if (onRemove && urlToRemove) {
+      try {
+        await onRemove(urlToRemove);
+      } catch (error) {
+        console.error('Failed to remove image from storage:', error);
+        // Image is already removed from UI, so we don't revert
+      }
+    }
   };
 
   const handleReorder = (fromIndex: number, toIndex: number) => {

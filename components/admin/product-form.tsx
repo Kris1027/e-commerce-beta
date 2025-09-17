@@ -119,9 +119,43 @@ export function ProductForm() {
     setValue('images', urls, { shouldValidate: true });
   };
 
+  const handleImageRemove = async (url: string) => {
+    // Delete the image from storage immediately
+    try {
+      const result = await deleteUploadThingFilesByUrls([url]);
+      if (result.success) {
+        console.log('Image deleted from storage:', url);
+        // Remove from tracking ref as well
+        uploadedImagesRef.current = uploadedImagesRef.current.filter(u => u !== url);
+        toast.success('Image removed successfully');
+      } else {
+        toast.error('Failed to remove image');
+      }
+    } catch (error) {
+      console.error('Failed to delete image from storage:', error);
+      toast.error('Failed to remove image');
+    }
+  };
+
   const handleBannerChange = (urls: string[]) => {
     const bannerUrl = urls[0] || '';
     setValue('banner', bannerUrl || null);
+  };
+
+  const handleBannerRemove = async (url: string) => {
+    // Delete the banner from storage immediately
+    try {
+      const result = await deleteUploadThingFilesByUrls([url]);
+      if (result.success) {
+        console.log('Banner deleted from storage:', url);
+        toast.success('Banner image removed successfully');
+      } else {
+        toast.error('Failed to remove banner image');
+      }
+    } catch (error) {
+      console.error('Failed to delete banner from storage:', error);
+      toast.error('Failed to remove banner image');
+    }
   };
 
   // Handle cancel with cleanup
@@ -456,6 +490,7 @@ export function ProductForm() {
               <ProductImageUpload
                 value={watchBanner ? [watchBanner] : []}
                 onChange={handleBannerChange}
+                onRemove={handleBannerRemove}
                 maxImages={1}
                 disabled={isPending || isCleaningUp}
               />
@@ -481,6 +516,7 @@ export function ProductForm() {
             <ProductImageUpload
               value={watchImages || []}
               onChange={handleImagesChange}
+              onRemove={handleImageRemove}
               maxImages={5}
               disabled={isPending || isCleaningUp}
             />

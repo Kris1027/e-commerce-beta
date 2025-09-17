@@ -143,6 +143,29 @@ export function ProductEditForm({ product }: ProductEditFormProps) {
     setValue('images', urls, { shouldValidate: true });
   };
 
+  const handleImageRemove = async (url: string) => {
+    // Only delete from storage if it's a newly uploaded image (not part of original product)
+    if (!originalImagesRef.current.includes(url)) {
+      try {
+        const result = await deleteUploadThingFilesByUrls([url]);
+        if (result.success) {
+          console.log('Newly uploaded image deleted from storage:', url);
+          // Remove from tracking ref as well
+          newlyUploadedImagesRef.current = newlyUploadedImagesRef.current.filter(u => u !== url);
+          toast.success('Image removed successfully');
+        } else {
+          toast.error('Failed to remove image');
+        }
+      } catch (error) {
+        console.error('Failed to delete image from storage:', error);
+        toast.error('Failed to remove image');
+      }
+    } else {
+      // Original image - will be removed when saving
+      toast.info('Image will be removed when you save changes');
+    }
+  };
+
   const handleBannerChange = (urls: string[]) => {
     const bannerUrl = urls[0] || '';
 
@@ -154,6 +177,29 @@ export function ProductEditForm({ product }: ProductEditFormProps) {
     }
 
     setValue('banner', bannerUrl || null);
+  };
+
+  const handleBannerRemove = async (url: string) => {
+    // Only delete from storage if it's not the original banner
+    if (url !== originalBannerRef.current) {
+      try {
+        const result = await deleteUploadThingFilesByUrls([url]);
+        if (result.success) {
+          console.log('Newly uploaded banner deleted from storage:', url);
+          // Remove from tracking ref
+          newlyUploadedImagesRef.current = newlyUploadedImagesRef.current.filter(u => u !== url);
+          toast.success('Banner image removed successfully');
+        } else {
+          toast.error('Failed to remove banner image');
+        }
+      } catch (error) {
+        console.error('Failed to delete banner from storage:', error);
+        toast.error('Failed to remove banner image');
+      }
+    } else {
+      // Original banner - will be removed when saving
+      toast.info('Banner will be removed when you save changes');
+    }
   };
 
   // Handle cancel with cleanup
@@ -481,6 +527,7 @@ export function ProductEditForm({ product }: ProductEditFormProps) {
               <ProductImageUpload
                 value={watchBanner ? [watchBanner] : []}
                 onChange={handleBannerChange}
+                onRemove={handleBannerRemove}
                 maxImages={1}
                 disabled={isPending || isCleaningUp}
               />
@@ -506,6 +553,7 @@ export function ProductEditForm({ product }: ProductEditFormProps) {
             <ProductImageUpload
               value={watchImages || []}
               onChange={handleImagesChange}
+              onRemove={handleImageRemove}
               maxImages={5}
               disabled={isPending || isCleaningUp}
             />
