@@ -222,9 +222,24 @@ export async function getProductStatistics(): Promise<ProductStatistics> {
       prisma.product.groupBy({ by: ['category'] }),
     ]);
 
-    const totalValue = products.reduce((sum, p) => sum + (Number(p.price) * p.stock), 0);
-    const averagePrice = products.length > 0
-      ? products.reduce((sum, p) => sum + Number(p.price), 0) / products.length
+    // Safe number conversion with validation
+    const safeParsePrice = (price: unknown): number => {
+      const parsed = parseFloat(String(price));
+      return isNaN(parsed) || parsed < 0 ? 0 : parsed;
+    };
+
+    const totalValue = products.reduce((sum, p) => {
+      const price = safeParsePrice(p.price);
+      const stock = Math.max(0, p.stock); // Ensure stock is non-negative
+      return sum + (price * stock);
+    }, 0);
+
+    const validPrices = products
+      .map(p => safeParsePrice(p.price))
+      .filter(price => price > 0); // Only include valid positive prices in average
+
+    const averagePrice = validPrices.length > 0
+      ? validPrices.reduce((sum, price) => sum + price, 0) / validPrices.length
       : 0;
 
     return {

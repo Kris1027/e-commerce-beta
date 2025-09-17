@@ -120,7 +120,14 @@ export async function addToCart(
     }
 
     const itemsPrice = items.reduce(
-      (sum, item) => sum + parseFloat(item.price) * item.qty,
+      (sum, item) => {
+        const price = parseFloat(item.price);
+        if (isNaN(price) || price < 0) {
+          console.error(`Invalid price for item ${item.name}: ${item.price}`);
+          return sum; // Skip invalid items
+        }
+        return sum + price * item.qty;
+      },
       0
     );
     const prices = calculateCartPrices(itemsPrice);
@@ -196,7 +203,14 @@ export async function updateCartItem(productId: string, qty: number) {
     }
 
     const itemsPrice = items.reduce(
-      (sum, item) => sum + parseFloat(item.price) * item.qty,
+      (sum, item) => {
+        const price = parseFloat(item.price);
+        if (isNaN(price) || price < 0) {
+          console.error(`Invalid price for item ${item.name}: ${item.price}`);
+          return sum; // Skip invalid items
+        }
+        return sum + price * item.qty;
+      },
       0
     );
     const prices = calculateCartPrices(itemsPrice);
@@ -289,7 +303,14 @@ export async function mergeAnonymousCart() {
       }
 
       const itemsPrice = mergedItems.reduce(
-        (sum, item) => sum + parseFloat(item.price) * item.qty,
+        (sum, item) => {
+          const price = parseFloat(item.price);
+          if (isNaN(price) || price < 0) {
+            console.error(`Invalid price for item ${item.name}: ${item.price}`);
+            return sum; // Skip invalid items
+          }
+          return sum + price * item.qty;
+        },
         0
       );
       const prices = calculateCartPrices(itemsPrice);

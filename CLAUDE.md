@@ -177,6 +177,12 @@ pnpm db:seed    # Seed sample data
 - Plus 31 additional test users
 
 ## Recent Updates (2025-09-17)
+- **Added Robust Price Validation** - Improved number conversion safety across the application
+  - Added safeParsePrice function with NaN and negative value checks
+  - Fixed potential calculation failures in getProductStatistics
+  - Added price validation to cart-actions for all reduce operations
+  - Ensured averagePrice only includes valid positive prices
+  - Graceful handling of invalid data with error logging
 - **Improved Production Logging Security** - Enhanced logging to prevent sensitive data exposure
   - Added environment-based logging (detailed in development, minimal in production)
   - Removed sensitive file information from production logs
