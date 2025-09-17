@@ -209,10 +209,12 @@ export default async function AdminDashboard() {
                 <BarChart3 className="h-4 w-4" />
                 View Analytics
               </Button>
-              <Button size="sm" className="gap-2">
-                <Package className="h-4 w-4" />
-                Add Product
-              </Button>
+              <Link href="/admin/products/new">
+                <Button size="sm" className="gap-2">
+                  <Package className="h-4 w-4" />
+                  Add Product
+                </Button>
+              </Link>
             </div>
           </div>
         </div>

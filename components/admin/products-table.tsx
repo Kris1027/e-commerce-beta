@@ -3,6 +3,7 @@
 import { useState, useTransition } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
+import Link from 'next/link';
 import {
   Table,
   TableBody,
@@ -31,7 +32,8 @@ import {
   ImageOff,
   DollarSign,
   Box,
-  Loader2
+  Loader2,
+  Plus
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
@@ -206,6 +208,15 @@ export function ProductsTable({ data, statistics, categories }: ProductsTablePro
       {/* Filters */}
       <Card>
         <CardHeader>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold">Product Catalog</h2>
+            <Link href="/admin/products/new">
+              <Button>
+                <Plus className="mr-2 h-4 w-4" />
+                Create Product
+              </Button>
+            </Link>
+          </div>
           <div className="flex flex-col lg:flex-row gap-4">
             <div className="flex-1">
               <SearchInput
