@@ -82,9 +82,12 @@ updateAdminOrderStatus(orderId, status)
 getAdminOrderById(orderId)
 deleteOrder(orderId)
 
-// Admin Products Management
+// Admin Products Management (admin-product-actions.ts)
 getProductsForAdmin(page, search?, categoryFilter?, stockFilter?, featuredFilter?, sortBy?)
 getProductStatistics()
+deleteProduct(id) // Admin-only with auth check
+createProduct(data) // Admin-only with auth check
+updateProduct(data) // Admin-only with auth check
 
 // Wishlist
 getWishlist()
@@ -157,6 +160,8 @@ pnpm db:seed    # Seed sample data
 - **Created Products Table Component** with search, category/stock/featured filters, and sorting options
 - **Implemented Product Statistics Dashboard** showing total products, stock status, and inventory value
 - **Added Delete Product Functionality** with confirmation dialog and optimistic UI updates
+- **Enhanced Security** - Moved admin-only product operations (create, update, delete) to admin-product-actions.ts with proper authentication checks
+- **Consistent Admin Actions** - All admin operations now follow same security pattern with UserRole.admin checks
 - **UI/UX Consistency** across all admin pages (Orders, Customers, Products) with gradient headers and cards
 
 ## Previous Updates (2025-09-16)

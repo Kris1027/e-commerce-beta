@@ -1,9 +1,13 @@
 'use server';
 
 import { prisma } from '@/db/prisma';
-import { convertToPlainObject } from '../utils';
+import { convertToPlainObject, formatError } from '../utils';
 import { PAGE_SIZE } from '../constants';
-import { Prisma } from '@prisma/client';
+import { Prisma, UserRole } from '@prisma/client';
+import { revalidatePath } from 'next/cache';
+import { insertProductSchema, updateProductSchema } from '../validators';
+import { z } from 'zod';
+import { auth } from '@/auth';
 
 export type ProductFilterCategory = 'all' | string;
 export type ProductFilterStock = 'all' | 'in_stock' | 'out_of_stock' | 'low_stock';
@@ -187,5 +191,104 @@ export async function getProductStatistics(): Promise<ProductStatistics> {
       averagePrice: 0,
       categoriesCount: 0,
     };
+  }
+}
+
+// Delete a product (Admin only)
+export async function deleteProduct(id: string) {
+  try {
+    // Check if user is admin
+    const session = await auth();
+
+    if (!session?.user?.role || session.user.role !== UserRole.admin) {
+      return { success: false, message: 'Unauthorized. Admin access required.' };
+    }
+
+    const productExists = await prisma.product.findFirst({
+      where: { id },
+    });
+
+    if (!productExists) {
+      return { success: false, message: 'Product not found' };
+    }
+
+    await prisma.product.delete({ where: { id } });
+
+    revalidatePath('/admin/products');
+    revalidatePath('/products');
+
+    return {
+      success: true,
+      message: 'Product deleted successfully',
+    };
+  } catch (error) {
+    console.error('Failed to delete product:', error);
+    return { success: false, message: formatError(error) };
+  }
+}
+
+// Create a product (Admin only)
+export async function createProduct(data: z.infer<typeof insertProductSchema>) {
+  try {
+    // Check if user is admin
+    const session = await auth();
+
+    if (!session?.user?.role || session.user.role !== UserRole.admin) {
+      return { success: false, message: 'Unauthorized. Admin access required.' };
+    }
+
+    const product = insertProductSchema.parse(data);
+    await prisma.product.create({ data: product });
+
+    revalidatePath('/admin/products');
+    revalidatePath('/products');
+
+    return {
+      success: true,
+      message: 'Product created successfully',
+    };
+  } catch (error) {
+    console.error('Failed to create product:', error);
+    return { success: false, message: formatError(error) };
+  }
+}
+
+// Update a product (Admin only)
+export async function updateProduct(data: z.infer<typeof updateProductSchema> & { id: string }) {
+  try {
+    // Check if user is admin
+    const session = await auth();
+
+    if (!session?.user?.role || session.user.role !== UserRole.admin) {
+      return { success: false, message: 'Unauthorized. Admin access required.' };
+    }
+
+    const { id, ...updateData } = data;
+    const product = updateProductSchema.parse(updateData);
+
+    const productExists = await prisma.product.findFirst({
+      where: { id },
+    });
+
+    if (!productExists) {
+      return { success: false, message: 'Product not found' };
+    }
+
+    await prisma.product.update({
+      where: { id },
+      data: product,
+    });
+
+    revalidatePath('/admin/products');
+    revalidatePath('/products');
+    revalidatePath(`/products/${productExists.slug}`);
+
+    return {
+      success: true,
+      message: 'Product updated successfully',
+    };
+  } catch (error) {
+    console.error('Failed to update product:', error);
+    return { success: false, message: formatError(error) };
   }
 }

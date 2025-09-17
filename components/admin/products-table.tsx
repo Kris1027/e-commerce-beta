@@ -15,8 +15,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { SearchInput } from '@/components/ui/search-input';
 import { cn, formatCurrency, copyToClipboard } from '@/lib/utils';
-import { AdminProductsResult, ProductStatistics } from '@/lib/actions/admin-product-actions';
-import { deleteProduct } from '@/lib/actions/product-actions';
+import { AdminProductsResult, ProductStatistics, deleteProduct } from '@/lib/actions/admin-product-actions';
 import { PaginationWrapper } from '@/components/ui/pagination-wrapper';
 import {
   Package,
