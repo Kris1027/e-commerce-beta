@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useTransition } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import {
@@ -16,6 +16,7 @@ import { Button } from '@/components/ui/button';
 import { SearchInput } from '@/components/ui/search-input';
 import { cn, formatCurrency, copyToClipboard } from '@/lib/utils';
 import { AdminProductsResult, ProductStatistics } from '@/lib/actions/admin-product-actions';
+import { deleteProduct } from '@/lib/actions/product-actions';
 import { PaginationWrapper } from '@/components/ui/pagination-wrapper';
 import {
   Package,
@@ -30,7 +31,8 @@ import {
   Check,
   ImageOff,
   DollarSign,
-  Box
+  Box,
+  Loader2
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
@@ -54,6 +56,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import { toast } from 'sonner';
 
 interface ProductsTableProps {
   data: AdminProductsResult;
@@ -65,6 +78,9 @@ export function ProductsTable({ data, statistics, categories }: ProductsTablePro
   const router = useRouter();
   const searchParams = useSearchParams();
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [productToDelete, setProductToDelete] = useState<{ id: string; name: string } | null>(null);
+  const [isPending, startTransition] = useTransition();
 
   const handleSearch = (value: string) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -98,6 +114,27 @@ export function ProductsTable({ data, statistics, categories }: ProductsTablePro
     await copyToClipboard(id);
     setCopiedId(id);
     setTimeout(() => setCopiedId(null), 2000);
+  };
+
+  const handleDeleteClick = (product: { id: string; name: string }) => {
+    setProductToDelete(product);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleDeleteConfirm = () => {
+    if (!productToDelete) return;
+
+    startTransition(async () => {
+      const result = await deleteProduct(productToDelete.id);
+      if (result.success) {
+        toast.success(`Product "${productToDelete.name}" deleted successfully`);
+        router.refresh();
+      } else {
+        toast.error(result.message || 'Failed to delete product');
+      }
+      setDeleteDialogOpen(false);
+      setProductToDelete(null);
+    });
   };
 
   const getStockStatus = (stock: number) => {
@@ -401,7 +438,10 @@ export function ProductsTable({ data, statistics, categories }: ProductsTablePro
                                 <Edit className="h-4 w-4 mr-2" />
                                 Edit Product
                               </DropdownMenuItem>
-                              <DropdownMenuItem disabled className="text-destructive">
+                              <DropdownMenuItem
+                                className="text-destructive focus:text-destructive"
+                                onClick={() => handleDeleteClick({ id: product.id, name: product.name })}
+                              >
                                 <Trash2 className="h-4 w-4 mr-2" />
                                 Delete Product
                               </DropdownMenuItem>
@@ -431,6 +471,34 @@ export function ProductsTable({ data, statistics, categories }: ProductsTablePro
           )}
         </CardContent>
       </Card>
+
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Product</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete &quot;{productToDelete?.name}&quot;? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isPending}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeleteConfirm}
+              disabled={isPending}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {isPending ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Deleting...
+                </>
+              ) : (
+                'Delete'
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
