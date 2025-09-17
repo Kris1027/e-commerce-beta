@@ -4,7 +4,7 @@
  */
 export function extractFileKey(url: string): string | null {
   try {
-    const regex = /https:\/\/utfs\.io\/f\/([a-zA-Z0-9]+)/;
+    const regex = /https:\/\/utfs\.io\/f\/([a-zA-Z0-9_-]+)/;
     const match = url.match(regex);
     return match && match[1] ? match[1] : null;
   } catch {
