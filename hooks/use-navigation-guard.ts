@@ -9,6 +9,29 @@ interface UseNavigationGuardOptions {
   message?: string;
 }
 
+/**
+ * Hook to prevent navigation when there are unsaved changes.
+ *
+ * Features:
+ * - Intercepts browser navigation (back/forward, refresh, tab close)
+ * - Intercepts Next.js client-side navigation
+ * - Shows browser confirmation dialog for unload events
+ * - Calls custom handler for internal navigation
+ *
+ * Limitations:
+ * - Modern browsers show generic messages for beforeunload (security feature)
+ * - Cannot prevent programmatic navigation (router.push() calls)
+ * - Dialog appearance varies by browser
+ *
+ * @example
+ * ```tsx
+ * useNavigationGuard({
+ *   shouldBlock: () => hasUnsavedChanges,
+ *   onBlock: (url) => setShowConfirmDialog(true),
+ *   message: 'You have unsaved changes'
+ * });
+ * ```
+ */
 export function useNavigationGuard({
   shouldBlock,
   onBlock,
@@ -20,13 +43,23 @@ export function useNavigationGuard({
   // Browser navigation guard (back button, closing tab, refresh)
   useEffect(() => {
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-      if (shouldBlock()) {
-        e.preventDefault();
-        // returnValue is deprecated but still needed for some browsers
-        e.returnValue = message;
-        return message;
+      if (!shouldBlock()) {
+        return undefined;
       }
-      return;
+
+      e.preventDefault();
+
+      // Modern browsers ignore custom messages for security reasons and show a generic message.
+      // Setting returnValue is still required to trigger the dialog in all browsers:
+      // - Chrome 119+: Shows generic message, ignores custom text
+      // - Firefox 44+: Shows generic message, ignores custom text
+      // - Safari 9.1+: Shows generic message, ignores custom text
+      // - Edge: Shows generic message, ignores custom text
+      // The custom message is kept for older browsers and documentation purposes.
+      e.returnValue = message;
+
+      // Some legacy browsers may use the return value
+      return message;
     };
 
     window.addEventListener('beforeunload', handleBeforeUnload);

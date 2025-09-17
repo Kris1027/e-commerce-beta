@@ -177,6 +177,11 @@ pnpm db:seed    # Seed sample data
 - Plus 31 additional test users
 
 ## Recent Updates (2025-09-17)
+- **Enhanced useNavigationGuard Hook Documentation** - Improved browser compatibility documentation
+  - Added comprehensive JSDoc with usage examples
+  - Documented browser-specific behavior for beforeunload
+  - Listed supported browsers and their message handling
+  - Clarified limitations with modern browser security features
 - **Fixed TypeScript Issues in Product Forms** - Resolved type compatibility between Zod schemas and React Hook Form
   - Removed explicit type parameters from useForm to let TypeScript infer
   - Used z.infer<typeof schema> for onSubmit handlers
