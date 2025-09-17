@@ -177,6 +177,12 @@ pnpm db:seed    # Seed sample data
 - Plus 31 additional test users
 
 ## Recent Updates (2025-09-17)
+- **Upgraded ProductImageUpload with @dnd-kit** - Replaced custom drag-and-drop with @dnd-kit library
+  - Full keyboard accessibility (Tab to focus, arrow keys to reorder)
+  - Touch gesture support for mobile devices
+  - Visual feedback during drag operations with DragOverlay
+  - Smooth animations and transitions
+  - WCAG-compliant with proper ARIA labels
 - **Enhanced Search Security** - Added Zod validation and sanitization for all search inputs to prevent ReDoS attacks
   - Validates search term length (max 64 chars)
   - Escapes special SQL characters (%_\) to prevent injection
