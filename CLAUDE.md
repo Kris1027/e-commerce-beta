@@ -36,6 +36,7 @@ toast.error('Failed to save')
 - **UI**: Tailwind, shadcn/ui, Lucide icons, Sonner toasts
 - **State**: Zustand 5.0.8
 - **Forms**: React Hook Form 7.62.0, Zod 4.1.5
+- **File Upload**: UploadThing 7.7.4
 
 ## Project Structure
 ```
@@ -156,6 +157,11 @@ pnpm db:seed    # Seed sample data
 - Plus 31 additional test users
 
 ## Recent Updates (2025-09-17)
+- **Integrated UploadThing File Upload** - Replaced URL-based image inputs with drag-and-drop image upload component
+- **Created ProductImageUpload Component** - Custom upload component with multi-image support, drag-to-reorder, progress tracking, and validation
+- **Configured UploadThing File Router** - Set up secure file upload endpoints with admin-only authentication for product images
+- **Added Multiple Upload Endpoints** - Support for product images (5 files, 4MB each), avatars, category images, and banners
+- **Updated Product Form** - Now uses UploadThing for both product images and banner uploads with visual preview
 - **Added Admin Products Page** with complete display functionality, filtering, and statistics
 - **Created Products Table Component** with search, category/stock/featured filters, and sorting options
 - **Implemented Product Statistics Dashboard** showing total products, stock status, and inventory value

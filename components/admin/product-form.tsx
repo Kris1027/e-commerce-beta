@@ -15,17 +15,16 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
+import { ProductImageUpload } from '@/components/ui/product-image-upload';
 import {
   ArrowLeft,
   Save,
   Package,
   DollarSign,
-  Image as ImageIcon,
   Tag,
   FileText,
   Loader2,
-  Plus,
-  X
+  ImageIcon
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -47,7 +46,7 @@ const COMMON_CATEGORIES = [
 export function ProductForm() {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
-  const [imageUrls, setImageUrls] = useState<string[]>(['']);
+  const [bannerUrl, setBannerUrl] = useState<string>('');
 
   const {
     register,
@@ -74,6 +73,7 @@ export function ProductForm() {
   });
 
   const watchIsFeatured = watch('isFeatured');
+  const watchImages = watch('images');
 
   // Auto-generate slug from name
   const generateSlug = (name: string) => {
@@ -89,35 +89,24 @@ export function ProductForm() {
     setValue('slug', generateSlug(name));
   };
 
-  const addImageField = () => {
-    setImageUrls([...imageUrls, '']);
+  const handleImagesChange = (urls: string[]) => {
+    setValue('images', urls, { shouldValidate: true });
   };
 
-  const removeImageField = (index: number) => {
-    const newImageUrls = imageUrls.filter((_, i) => i !== index);
-    setImageUrls(newImageUrls.length === 0 ? [''] : newImageUrls);
-    setValue('images', newImageUrls.filter(url => url.trim() !== ''));
-  };
-
-  const updateImageUrl = (index: number, value: string) => {
-    const newImageUrls = [...imageUrls];
-    newImageUrls[index] = value;
-    setImageUrls(newImageUrls);
-    setValue('images', newImageUrls.filter(url => url.trim() !== ''));
+  const handleBannerChange = (urls: string[]) => {
+    const bannerUrl = urls[0] || '';
+    setBannerUrl(bannerUrl);
+    setValue('banner', bannerUrl || null);
   };
 
   const onSubmit = (data: ProductFormData) => {
-    // Filter out empty image URLs
-    const filteredImages = imageUrls.filter(url => url.trim() !== '');
-
-    if (filteredImages.length === 0) {
+    if (data.images.length === 0) {
       toast.error('At least one image is required');
       return;
     }
 
     const submitData = {
       ...data,
-      images: filteredImages,
       price: data.price.toString(),
       rating: '0.00',
       numReviews: 0,
@@ -303,11 +292,12 @@ export function ProductForm() {
             </div>
 
             <div>
-              <Label htmlFor="banner">Banner Image URL (Optional)</Label>
-              <Input
-                id="banner"
-                {...register('banner')}
-                placeholder="https://example.com/banner.jpg"
+              <Label htmlFor="banner">Banner Image (Optional)</Label>
+              <ProductImageUpload
+                value={bannerUrl ? [bannerUrl] : []}
+                onChange={handleBannerChange}
+                maxImages={1}
+                disabled={isPending}
               />
               {errors.banner && (
                 <p className="mt-1 text-sm text-destructive">{errors.banner.message}</p>
@@ -319,45 +309,23 @@ export function ProductForm() {
         {/* Product Images */}
         <Card className="lg:col-span-2">
           <CardHeader>
-            <CardTitle>Product Images</CardTitle>
-            <CardDescription>Add product images (at least one required)</CardDescription>
+            <CardTitle className="flex items-center gap-2">
+              <ImageIcon className="h-5 w-5" />
+              Product Images
+            </CardTitle>
+            <CardDescription>
+              Upload product images (at least one required). First image will be the main product image.
+            </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
-            {imageUrls.map((url, index) => (
-              <div key={index} className="flex gap-2">
-                <div className="relative flex-1">
-                  <ImageIcon className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    value={url}
-                    onChange={(e) => updateImageUrl(index, e.target.value)}
-                    className="pl-9"
-                    placeholder="https://example.com/image.jpg"
-                  />
-                </div>
-                {imageUrls.length > 1 && (
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="icon"
-                    onClick={() => removeImageField(index)}
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
-                )}
-                {index === imageUrls.length - 1 && (
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="icon"
-                    onClick={addImageField}
-                  >
-                    <Plus className="h-4 w-4" />
-                  </Button>
-                )}
-              </div>
-            ))}
+          <CardContent>
+            <ProductImageUpload
+              value={watchImages || []}
+              onChange={handleImagesChange}
+              maxImages={5}
+              disabled={isPending}
+            />
             {errors.images && (
-              <p className="text-sm text-destructive">{errors.images.message}</p>
+              <p className="mt-2 text-sm text-destructive">{errors.images.message}</p>
             )}
           </CardContent>
         </Card>
