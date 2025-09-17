@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useTransition, useRef, useCallback } from 'react';
+import { useState, useTransition, useRef, useCallback, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import type { Resolver } from 'react-hook-form';
@@ -8,7 +8,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { toast } from 'sonner';
 import { insertProductSchema } from '@/lib/validators';
-import { createProduct } from '@/lib/actions/admin-product-actions';
+import { createProduct, getAllCategoryNames } from '@/lib/actions/admin-product-actions';
 import { deleteUploadThingFilesByUrls } from '@/lib/actions/uploadthing-actions';
 import { useNavigationGuard } from '@/hooks/use-navigation-guard';
 import { Button } from '@/components/ui/button';
@@ -42,25 +42,15 @@ import {
 
 type ProductFormData = z.infer<typeof insertProductSchema>;
 
-const COMMON_CATEGORIES = [
-  'Electronics',
-  'Clothing',
-  'Books',
-  'Sports',
-  'Home & Garden',
-  'Toys',
-  'Beauty',
-  'Automotive',
-  'Food & Beverages',
-  'Office Supplies'
-];
-
 export function ProductForm() {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [showCancelDialog, setShowCancelDialog] = useState(false);
   const [isCleaningUp, setIsCleaningUp] = useState(false);
   const [pendingNavigation, setPendingNavigation] = useState<string | null>(null);
+  const [existingCategories, setExistingCategories] = useState<string[]>([]);
+  const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
+  const [categorySearch, setCategorySearch] = useState('');
 
   // Track uploaded images for cleanup
   const uploadedImagesRef = useRef<string[]>([]);
@@ -93,6 +83,21 @@ export function ProductForm() {
   const watchIsFeatured = watch('isFeatured');
   const watchImages = watch('images');
   const watchBanner = watch('banner');
+  const watchCategory = watch('category');
+
+  // Fetch existing categories on mount
+  useEffect(() => {
+    async function fetchCategories() {
+      const categories = await getAllCategoryNames();
+      setExistingCategories(categories);
+    }
+    fetchCategories();
+  }, []);
+
+  // Filter categories based on search
+  const filteredCategories = existingCategories.filter(cat =>
+    cat.toLowerCase().includes(categorySearch.toLowerCase())
+  );
 
   // Auto-generate slug from name
   const generateSlug = (name: string) => {
@@ -319,19 +324,53 @@ export function ProductForm() {
               )}
             </div>
 
-            <div>
+            <div className="relative">
               <Label htmlFor="category">Category *</Label>
               <Input
                 id="category"
                 {...register('category')}
-                placeholder="e.g., Electronics"
-                list="categories"
+                placeholder="Type or select a category"
+                value={watchCategory || categorySearch}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setCategorySearch(value);
+                  setValue('category', value);
+                  setShowCategoryDropdown(true);
+                }}
+                onFocus={() => setShowCategoryDropdown(true)}
+                onBlur={() => {
+                  // Delay to allow clicking on dropdown items
+                  setTimeout(() => setShowCategoryDropdown(false), 200);
+                }}
+                autoComplete="off"
               />
-              <datalist id="categories">
-                {COMMON_CATEGORIES.map(cat => (
-                  <option key={cat} value={cat} />
-                ))}
-              </datalist>
+              {showCategoryDropdown && filteredCategories.length > 0 && (
+                <div className="absolute z-10 w-full mt-1 bg-background border rounded-md shadow-md max-h-60 overflow-auto">
+                  {filteredCategories.map((category) => (
+                    <button
+                      key={category}
+                      type="button"
+                      className="w-full px-3 py-2 text-left hover:bg-accent hover:text-accent-foreground transition-colors"
+                      onMouseDown={(e) => {
+                        e.preventDefault(); // Prevent input blur
+                        setValue('category', category);
+                        setCategorySearch(category);
+                        setShowCategoryDropdown(false);
+                      }}
+                    >
+                      {category}
+                    </button>
+                  ))}
+                  {categorySearch && !existingCategories.includes(categorySearch) && (
+                    <div className="px-3 py-2 text-sm text-muted-foreground border-t">
+                      Press Enter to create "{categorySearch}"
+                    </div>
+                  )}
+                </div>
+              )}
+              <p className="text-xs text-muted-foreground mt-1">
+                Select from existing categories or type a new one
+              </p>
               {errors.category && (
                 <p className="mt-1 text-sm text-destructive">{errors.category.message}</p>
               )}

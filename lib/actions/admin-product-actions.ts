@@ -148,6 +148,23 @@ export async function getProductsForAdmin(
   }
 }
 
+// Get all unique category names for product form
+export async function getAllCategoryNames(): Promise<string[]> {
+  try {
+    const categories = await prisma.product.groupBy({
+      by: ['category'],
+      orderBy: {
+        category: 'asc',
+      },
+    });
+
+    return categories.map(cat => cat.category);
+  } catch (error) {
+    console.error('Failed to fetch category names:', error);
+    return [];
+  }
+}
+
 export async function getProductStatistics(): Promise<ProductStatistics> {
   try {
     const [
