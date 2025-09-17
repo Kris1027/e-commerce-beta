@@ -114,7 +114,9 @@ export function ProductImageUpload({
   const handleReorder = (fromIndex: number, toIndex: number) => {
     const newUrls = [...value];
     const [movedItem] = newUrls.splice(fromIndex, 1);
-    newUrls.splice(toIndex, 0, movedItem);
+    if (movedItem) {
+      newUrls.splice(toIndex, 0, movedItem);
+    }
     onChange(newUrls);
   };
 

@@ -30,15 +30,6 @@ export const ourFileRouter = {
       return { userId: session.user.id, userRole: session.user.role };
     })
     .onUploadComplete(async ({ metadata, file }) => {
-      console.log("Product image uploaded by admin:", metadata.userId);
-      console.log("File URL:", file.url);
-      console.log("File details:", {
-        name: file.name,
-        size: file.size,
-        key: file.key,
-        url: file.url,
-      });
-
       // Return file info to be accessible on the client
       return {
         uploadedBy: metadata.userId,
@@ -65,9 +56,6 @@ export const ourFileRouter = {
       return { userId: session.user.id };
     })
     .onUploadComplete(async ({ metadata, file }) => {
-      console.log("Avatar uploaded by user:", metadata.userId);
-      console.log("File URL:", file.url);
-
       // Here you could update the user's avatar in the database
       // await prisma.user.update({
       //   where: { id: metadata.userId },
@@ -101,9 +89,6 @@ export const ourFileRouter = {
       return { userId: session.user.id };
     })
     .onUploadComplete(async ({ metadata, file }) => {
-      console.log("Category image uploaded by admin:", metadata.userId);
-      console.log("File URL:", file.url);
-
       return {
         uploadedBy: metadata.userId,
         fileUrl: file.url,
@@ -131,9 +116,6 @@ export const ourFileRouter = {
       return { userId: session.user.id };
     })
     .onUploadComplete(async ({ metadata, file }) => {
-      console.log("Banner uploaded by admin:", metadata.userId);
-      console.log("File URL:", file.url);
-
       return {
         uploadedBy: metadata.userId,
         fileUrl: file.url,

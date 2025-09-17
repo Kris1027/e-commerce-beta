@@ -29,15 +29,17 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import {
-  ArrowLeft,
   Save,
   Package,
-  DollarSign,
   Tag,
   FileText,
   Loader2,
   ImageIcon,
-  AlertTriangle
+  AlertTriangle,
+  Boxes,
+  Banknote,
+  FolderOpen,
+  Star
 } from 'lucide-react';
 
 type ProductEditFormData = z.infer<typeof updateProductSchema>;
@@ -149,7 +151,6 @@ export function ProductEditForm({ product }: ProductEditFormProps) {
       try {
         const result = await deleteUploadThingFilesByUrls([url]);
         if (result.success) {
-          console.log('Newly uploaded image deleted from storage:', url);
           // Remove from tracking ref as well
           newlyUploadedImagesRef.current = newlyUploadedImagesRef.current.filter(u => u !== url);
           toast.success('Image removed successfully');
@@ -185,7 +186,6 @@ export function ProductEditForm({ product }: ProductEditFormProps) {
       try {
         const result = await deleteUploadThingFilesByUrls([url]);
         if (result.success) {
-          console.log('Newly uploaded banner deleted from storage:', url);
           // Remove from tracking ref
           newlyUploadedImagesRef.current = newlyUploadedImagesRef.current.filter(u => u !== url);
           toast.success('Banner image removed successfully');
@@ -219,7 +219,7 @@ export function ProductEditForm({ product }: ProductEditFormProps) {
       try {
         const result = await deleteUploadThingFilesByUrls(newlyUploadedImagesRef.current);
         if (result.success) {
-          console.log('Cleaned up newly uploaded images');
+          // Successfully cleaned up newly uploaded images
         }
       } catch (error) {
         console.error('Failed to cleanup uploads:', error);
@@ -232,7 +232,7 @@ export function ProductEditForm({ product }: ProductEditFormProps) {
 
     try {
       await cleanupNewUploads();
-      toast.success('Newly uploaded images cleaned up');
+      toast.info('Newly uploaded images cleaned up');
     } catch (error) {
       console.error('Failed to cleanup uploads:', error);
     } finally {
@@ -296,25 +296,7 @@ export function ProductEditForm({ product }: ProductEditFormProps) {
   return (
     <>
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-        <div className="flex items-center justify-between">
-          <Button
-            type="button"
-            variant="ghost"
-            onClick={() => {
-              const hasNewUploads = newlyUploadedImagesRef.current.length > 0;
-              if (hasNewUploads) {
-                setPendingNavigation('back');
-                setShowCancelDialog(true);
-              } else {
-                router.back();
-              }
-            }}
-            disabled={isPending || isCleaningUp}
-          >
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Back
-          </Button>
-
+        <div className="flex items-center justify-end">
           <div className="flex gap-2">
             <Button
               type="button"
@@ -352,7 +334,7 @@ export function ProductEditForm({ product }: ProductEditFormProps) {
             <CardDescription>Update the product details</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div>
+            <div className="space-y-2">
               <Label htmlFor="name">Product Name *</Label>
               <div className="relative">
                 <Package className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -368,7 +350,7 @@ export function ProductEditForm({ product }: ProductEditFormProps) {
               )}
             </div>
 
-            <div>
+            <div className="space-y-2">
               <Label htmlFor="slug">URL Slug *</Label>
               <Input
                 id="slug"
@@ -380,7 +362,7 @@ export function ProductEditForm({ product }: ProductEditFormProps) {
               )}
             </div>
 
-            <div>
+            <div className="space-y-2">
               <Label htmlFor="brand">Brand *</Label>
               <div className="relative">
                 <Tag className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -396,11 +378,14 @@ export function ProductEditForm({ product }: ProductEditFormProps) {
               )}
             </div>
 
-            <div className="relative">
+            <div className="relative space-y-2">
               <Label htmlFor="category">Category *</Label>
-              <Input
+              <div className="relative">
+                <FolderOpen className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground z-10" />
+                <Input
                 id="category"
                 {...register('category')}
+                className="pl-9"
                 placeholder="Type or select a category"
                 value={watchCategory || categorySearch}
                 onChange={(e) => {
@@ -415,6 +400,7 @@ export function ProductEditForm({ product }: ProductEditFormProps) {
                 }}
                 autoComplete="off"
               />
+              </div>
               {showCategoryDropdown && filteredCategories.length > 0 && (
                 <div className="absolute z-10 w-full mt-1 bg-background border rounded-md shadow-md max-h-60 overflow-auto">
                   {filteredCategories.map((category) => (
@@ -434,7 +420,7 @@ export function ProductEditForm({ product }: ProductEditFormProps) {
                   ))}
                   {categorySearch && !existingCategories.includes(categorySearch) && (
                     <div className="px-3 py-2 text-sm text-muted-foreground border-t">
-                      Press Enter to create "{categorySearch}"
+                      Press Enter to create &quot;{categorySearch}&quot;
                     </div>
                   )}
                 </div>
@@ -447,7 +433,7 @@ export function ProductEditForm({ product }: ProductEditFormProps) {
               )}
             </div>
 
-            <div>
+            <div className="space-y-2">
               <Label htmlFor="description">Description *</Label>
               <div className="relative">
                 <FileText className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -473,10 +459,10 @@ export function ProductEditForm({ product }: ProductEditFormProps) {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
-              <div>
+              <div className="space-y-2">
                 <Label htmlFor="price">Price (PLN) *</Label>
                 <div className="relative">
-                  <DollarSign className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                  <Banknote className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
                   <Input
                     id="price"
                     type="number"
@@ -491,23 +477,30 @@ export function ProductEditForm({ product }: ProductEditFormProps) {
                 )}
               </div>
 
-              <div>
+              <div className="space-y-2">
                 <Label htmlFor="stock">Stock Quantity *</Label>
-                <Input
-                  id="stock"
-                  type="number"
-                  {...register('stock', { valueAsNumber: true })}
-                  placeholder="0"
-                />
+                <div className="relative">
+                  <Boxes className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    id="stock"
+                    type="number"
+                    {...register('stock', { valueAsNumber: true })}
+                    className="pl-9"
+                    placeholder="0"
+                  />
+                </div>
                 {errors.stock && (
                   <p className="mt-1 text-sm text-destructive">{errors.stock.message}</p>
                 )}
               </div>
             </div>
 
-            <div className="flex items-center justify-between rounded-lg border p-3">
+            <div className="flex items-center justify-between rounded-lg border p-4">
               <div className="space-y-0.5">
-                <Label htmlFor="featured">Featured Product</Label>
+                <Label htmlFor="featured" className="text-base flex items-center gap-2">
+                  <Star className="h-4 w-4" />
+                  Featured Product
+                </Label>
                 <p className="text-sm text-muted-foreground">
                   Display this product in featured sections
                 </p>
@@ -519,10 +512,13 @@ export function ProductEditForm({ product }: ProductEditFormProps) {
               />
             </div>
 
-            <div>
-              <Label htmlFor="banner">Banner Image (Optional)</Label>
-              <p className="text-sm text-muted-foreground mb-2">
-                Wide banner image for product promotions
+            <div className="space-y-2">
+              <Label htmlFor="banner" className="flex items-center gap-2">
+                <ImageIcon className="h-4 w-4" />
+                Banner Image (Optional)
+              </Label>
+              <p className="text-sm text-muted-foreground">
+                Wide banner image for featured product promotions
               </p>
               <ProductImageUpload
                 value={watchBanner ? [watchBanner] : []}
@@ -532,7 +528,7 @@ export function ProductEditForm({ product }: ProductEditFormProps) {
                 disabled={isPending || isCleaningUp}
               />
               {errors.banner && (
-                <p className="mt-1 text-sm text-destructive">{errors.banner.message}</p>
+                <p className="mt-2 text-sm text-destructive">{errors.banner.message}</p>
               )}
             </div>
           </CardContent>
@@ -543,7 +539,7 @@ export function ProductEditForm({ product }: ProductEditFormProps) {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <ImageIcon className="h-5 w-5" />
-              Product Images
+              Product Images *
             </CardTitle>
             <CardDescription>
               Update product images (at least one required). First image will be the main product image.
