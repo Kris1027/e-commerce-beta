@@ -8,6 +8,10 @@ import { revalidatePath } from 'next/cache';
 import { insertProductSchema, updateProductSchema } from '../validators';
 import { z } from 'zod';
 import { auth } from '@/auth';
+import { UTApi } from 'uploadthing/server';
+import { extractFileKeys } from '@/lib/utils/uploadthing';
+
+const utapi = new UTApi();
 
 export type ProductFilterCategory = 'all' | string;
 export type ProductFilterStock = 'all' | 'in_stock' | 'out_of_stock' | 'low_stock';
@@ -194,7 +198,7 @@ export async function getProductStatistics(): Promise<ProductStatistics> {
   }
 }
 
-// Delete a product (Admin only)
+// Delete a product and its images from UploadThing (Admin only)
 export async function deleteProduct(id: string) {
   try {
     // Check if user is admin
@@ -206,20 +210,48 @@ export async function deleteProduct(id: string) {
 
     const productExists = await prisma.product.findFirst({
       where: { id },
+      select: {
+        id: true,
+        name: true,
+        images: true,
+        banner: true,
+      },
     });
 
     if (!productExists) {
       return { success: false, message: 'Product not found' };
     }
 
+    // Collect all image URLs to delete from UploadThing
+    const imagesToDelete: string[] = [...productExists.images];
+    if (productExists.banner) {
+      imagesToDelete.push(productExists.banner);
+    }
+
+    // Delete product from database first
     await prisma.product.delete({ where: { id } });
+
+    // Then clean up images from UploadThing
+    if (imagesToDelete.length > 0) {
+      try {
+        const fileKeys = extractFileKeys(imagesToDelete);
+        if (fileKeys.length > 0) {
+          const result = await utapi.deleteFiles(fileKeys);
+          console.log(`Deleted ${fileKeys.length} images for product "${productExists.name}":`, result);
+        }
+      } catch (uploadError) {
+        // Log error but don't fail the product deletion
+        console.error('Failed to delete images from UploadThing:', uploadError);
+        // Product is already deleted, so we continue
+      }
+    }
 
     revalidatePath('/admin/products');
     revalidatePath('/products');
 
     return {
       success: true,
-      message: 'Product deleted successfully',
+      message: 'Product and associated images deleted successfully',
     };
   } catch (error) {
     console.error('Failed to delete product:', error);
@@ -298,6 +330,13 @@ export async function updateProduct(data: z.infer<typeof updateProductSchema> & 
 
     const productExists = await prisma.product.findFirst({
       where: { id },
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        images: true,
+        banner: true,
+      },
     });
 
     if (!productExists) {
@@ -341,10 +380,44 @@ export async function updateProduct(data: z.infer<typeof updateProductSchema> & 
       }
     }
 
+    // Find images that were removed (old images not in new images)
+    const imagesToDelete: string[] = [];
+
+    if (product.images !== undefined) {
+      const oldImages = productExists.images;
+      const newImages = product.images;
+
+      // Find images that were removed
+      const removedImages = oldImages.filter(img => !newImages.includes(img));
+      imagesToDelete.push(...removedImages);
+    }
+
+    if (product.banner !== undefined) {
+      // If banner was removed or changed
+      if (productExists.banner && product.banner !== productExists.banner) {
+        imagesToDelete.push(productExists.banner);
+      }
+    }
+
+    // Update product in database
     await prisma.product.update({
       where: { id },
       data: product,
     });
+
+    // Clean up removed images from UploadThing
+    if (imagesToDelete.length > 0) {
+      try {
+        const fileKeys = extractFileKeys(imagesToDelete);
+        if (fileKeys.length > 0) {
+          const result = await utapi.deleteFiles(fileKeys);
+          console.log(`Cleaned up ${fileKeys.length} old images for product "${productExists.name}":`, result);
+        }
+      } catch (uploadError) {
+        // Log error but don't fail the product update
+        console.error('Failed to delete old images from UploadThing:', uploadError);
+      }
+    }
 
     revalidatePath('/admin/products');
     revalidatePath('/products');
