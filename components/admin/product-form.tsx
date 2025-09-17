@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useState, useTransition, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import type { Resolver } from 'react-hook-form';
@@ -9,6 +9,7 @@ import { z } from 'zod';
 import { toast } from 'sonner';
 import { insertProductSchema } from '@/lib/validators';
 import { createProduct } from '@/lib/actions/admin-product-actions';
+import { deleteUploadThingFilesByUrls } from '@/lib/actions/uploadthing-actions';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -17,6 +18,16 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Switch } from '@/components/ui/switch';
 import { ProductImageUpload } from '@/components/ui/product-image-upload';
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import {
   ArrowLeft,
   Save,
   Package,
@@ -24,9 +35,9 @@ import {
   Tag,
   FileText,
   Loader2,
-  ImageIcon
+  ImageIcon,
+  AlertTriangle
 } from 'lucide-react';
-import Link from 'next/link';
 
 type ProductFormData = z.infer<typeof insertProductSchema>;
 
@@ -46,7 +57,11 @@ const COMMON_CATEGORIES = [
 export function ProductForm() {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
-  const [bannerUrl, setBannerUrl] = useState<string>('');
+  const [showCancelDialog, setShowCancelDialog] = useState(false);
+  const [isCleaningUp, setIsCleaningUp] = useState(false);
+
+  // Track uploaded images for cleanup
+  const uploadedImagesRef = useRef<string[]>([]);
 
   const {
     register,
@@ -74,6 +89,7 @@ export function ProductForm() {
 
   const watchIsFeatured = watch('isFeatured');
   const watchImages = watch('images');
+  const watchBanner = watch('banner');
 
   // Auto-generate slug from name
   const generateSlug = (name: string) => {
@@ -90,13 +106,51 @@ export function ProductForm() {
   };
 
   const handleImagesChange = (urls: string[]) => {
+    // Track all uploaded images
+    uploadedImagesRef.current = urls;
     setValue('images', urls, { shouldValidate: true });
   };
 
   const handleBannerChange = (urls: string[]) => {
     const bannerUrl = urls[0] || '';
-    setBannerUrl(bannerUrl);
     setValue('banner', bannerUrl || null);
+  };
+
+  // Handle cancel with cleanup
+  const handleCancel = async () => {
+    const hasUploads = uploadedImagesRef.current.length > 0 || watchBanner;
+
+    if (hasUploads) {
+      setShowCancelDialog(true);
+    } else {
+      router.push('/admin/products');
+    }
+  };
+
+  const confirmCancel = async () => {
+    setIsCleaningUp(true);
+
+    try {
+      // Collect all uploaded URLs to delete
+      const urlsToDelete = [...uploadedImagesRef.current];
+      if (watchBanner) {
+        urlsToDelete.push(watchBanner);
+      }
+
+      if (urlsToDelete.length > 0) {
+        const result = await deleteUploadThingFilesByUrls(urlsToDelete);
+        if (result.success) {
+          toast.success('Uploaded images cleaned up');
+        }
+      }
+    } catch (error) {
+      console.error('Failed to cleanup uploads:', error);
+      // Still navigate even if cleanup fails
+    } finally {
+      setIsCleaningUp(false);
+      setShowCancelDialog(false);
+      router.push('/admin/products');
+    }
   };
 
   const onSubmit = (data: ProductFormData) => {
@@ -116,6 +170,9 @@ export function ProductForm() {
       const result = await createProduct(submitData);
 
       if (result.success) {
+        // Clear refs since product was created successfully
+        uploadedImagesRef.current = [];
+
         toast.success('Product created successfully!');
         router.push('/admin/products');
         router.refresh();
@@ -126,28 +183,47 @@ export function ProductForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-      <div className="flex items-center justify-between">
-        <Link href="/admin/products">
-          <Button variant="ghost" size="sm">
+    <>
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        <div className="flex items-center justify-between">
+          <Button
+            type="button"
+            variant="ghost"
+            onClick={() => router.back()}
+            disabled={isPending || isCleaningUp}
+          >
             <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to Products
+            Back
           </Button>
-        </Link>
-        <Button type="submit" disabled={isPending}>
-          {isPending ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Creating...
-            </>
-          ) : (
-            <>
-              <Save className="mr-2 h-4 w-4" />
-              Create Product
-            </>
-          )}
-        </Button>
-      </div>
+
+          <div className="flex gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handleCancel}
+              disabled={isPending || isCleaningUp}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              disabled={isPending || isCleaningUp}
+              className="min-w-[120px]"
+            >
+              {isPending ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Creating...
+                </>
+              ) : (
+                <>
+                  <Save className="mr-2 h-4 w-4" />
+                  Create Product
+                </>
+              )}
+            </Button>
+          </div>
+        </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
         {/* Basic Information */}
@@ -293,11 +369,14 @@ export function ProductForm() {
 
             <div>
               <Label htmlFor="banner">Banner Image (Optional)</Label>
+              <p className="text-sm text-muted-foreground mb-2">
+                Wide banner image for product promotions
+              </p>
               <ProductImageUpload
-                value={bannerUrl ? [bannerUrl] : []}
+                value={watchBanner ? [watchBanner] : []}
                 onChange={handleBannerChange}
                 maxImages={1}
-                disabled={isPending}
+                disabled={isPending || isCleaningUp}
               />
               {errors.banner && (
                 <p className="mt-1 text-sm text-destructive">{errors.banner.message}</p>
@@ -322,7 +401,7 @@ export function ProductForm() {
               value={watchImages || []}
               onChange={handleImagesChange}
               maxImages={5}
-              disabled={isPending}
+              disabled={isPending || isCleaningUp}
             />
             {errors.images && (
               <p className="mt-2 text-sm text-destructive">{errors.images.message}</p>
@@ -331,5 +410,53 @@ export function ProductForm() {
         </Card>
       </div>
     </form>
+
+    {/* Cancel Confirmation Dialog */}
+    <AlertDialog open={showCancelDialog} onOpenChange={setShowCancelDialog}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle className="flex items-center gap-2">
+            <AlertTriangle className="h-5 w-5 text-amber-500" />
+            Discard Changes?
+          </AlertDialogTitle>
+          <AlertDialogDescription className="space-y-2">
+            <p>You have unsaved changes that will be lost:</p>
+            <ul className="ml-4 space-y-1 text-sm">
+              {uploadedImagesRef.current.length > 0 && (
+                <li className="flex items-center gap-1">
+                  • {uploadedImagesRef.current.length} product image{uploadedImagesRef.current.length > 1 ? 's' : ''}
+                </li>
+              )}
+              {watchBanner && (
+                <li className="flex items-center gap-1">
+                  • 1 banner image
+                </li>
+              )}
+            </ul>
+            <p className="pt-2 font-medium">These images will be permanently deleted.</p>
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel disabled={isCleaningUp}>
+            Keep Editing
+          </AlertDialogCancel>
+          <AlertDialogAction
+            onClick={confirmCancel}
+            disabled={isCleaningUp}
+            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+          >
+            {isCleaningUp ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Cleaning up...
+              </>
+            ) : (
+              'Discard & Leave'
+            )}
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+    </>
   );
 }
