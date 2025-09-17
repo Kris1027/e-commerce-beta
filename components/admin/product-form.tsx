@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useTransition, useRef } from 'react';
+import { useState, useTransition, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import type { Resolver } from 'react-hook-form';
@@ -10,6 +10,7 @@ import { toast } from 'sonner';
 import { insertProductSchema } from '@/lib/validators';
 import { createProduct } from '@/lib/actions/admin-product-actions';
 import { deleteUploadThingFilesByUrls } from '@/lib/actions/uploadthing-actions';
+import { useNavigationGuard } from '@/hooks/use-navigation-guard';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -59,9 +60,11 @@ export function ProductForm() {
   const [isPending, startTransition] = useTransition();
   const [showCancelDialog, setShowCancelDialog] = useState(false);
   const [isCleaningUp, setIsCleaningUp] = useState(false);
+  const [pendingNavigation, setPendingNavigation] = useState<string | null>(null);
 
   // Track uploaded images for cleanup
   const uploadedImagesRef = useRef<string[]>([]);
+  const formSubmittedRef = useRef(false);
 
   const {
     register,
@@ -127,31 +130,61 @@ export function ProductForm() {
     }
   };
 
+  // Cleanup function that can be reused
+  const cleanupUploads = useCallback(async () => {
+    const urlsToDelete = [...uploadedImagesRef.current];
+    if (watchBanner) {
+      urlsToDelete.push(watchBanner);
+    }
+
+    if (urlsToDelete.length > 0) {
+      try {
+        const result = await deleteUploadThingFilesByUrls(urlsToDelete);
+        if (result.success) {
+          console.log('Cleaned up uploaded images');
+        }
+      } catch (error) {
+        console.error('Failed to cleanup uploads:', error);
+      }
+    }
+  }, [watchBanner]);
+
   const confirmCancel = async () => {
     setIsCleaningUp(true);
 
     try {
-      // Collect all uploaded URLs to delete
-      const urlsToDelete = [...uploadedImagesRef.current];
-      if (watchBanner) {
-        urlsToDelete.push(watchBanner);
-      }
-
-      if (urlsToDelete.length > 0) {
-        const result = await deleteUploadThingFilesByUrls(urlsToDelete);
-        if (result.success) {
-          toast.success('Uploaded images cleaned up');
-        }
-      }
+      await cleanupUploads();
+      toast.success('Uploaded images cleaned up');
     } catch (error) {
       console.error('Failed to cleanup uploads:', error);
-      // Still navigate even if cleanup fails
     } finally {
       setIsCleaningUp(false);
       setShowCancelDialog(false);
-      router.push('/admin/products');
+      formSubmittedRef.current = true; // Mark as handled
+
+      if (pendingNavigation === 'back') {
+        router.back();
+      } else if (pendingNavigation) {
+        router.push(pendingNavigation);
+      } else {
+        router.push('/admin/products');
+      }
+      setPendingNavigation(null);
     }
   };
+
+  // Navigation guard - blocks navigation when there are unsaved uploads
+  useNavigationGuard({
+    shouldBlock: () => {
+      const hasUploads = uploadedImagesRef.current.length > 0 || !!watchBanner;
+      return hasUploads && !formSubmittedRef.current;
+    },
+    onBlock: (url) => {
+      setPendingNavigation(url || null);
+      setShowCancelDialog(true);
+    },
+    message: 'You have uploaded images that will be lost. Are you sure you want to leave?'
+  });
 
   const onSubmit = (data: ProductFormData) => {
     if (data.images.length === 0) {
@@ -170,7 +203,8 @@ export function ProductForm() {
       const result = await createProduct(submitData);
 
       if (result.success) {
-        // Clear refs since product was created successfully
+        // Mark form as submitted and clear refs
+        formSubmittedRef.current = true;
         uploadedImagesRef.current = [];
 
         toast.success('Product created successfully!');
@@ -189,7 +223,15 @@ export function ProductForm() {
           <Button
             type="button"
             variant="ghost"
-            onClick={() => router.back()}
+            onClick={() => {
+              const hasUploads = uploadedImagesRef.current.length > 0 || watchBanner;
+              if (hasUploads) {
+                setPendingNavigation('back');
+                setShowCancelDialog(true);
+              } else {
+                router.back();
+              }
+            }}
             disabled={isPending || isCleaningUp}
           >
             <ArrowLeft className="mr-2 h-4 w-4" />
@@ -439,7 +481,12 @@ export function ProductForm() {
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel disabled={isCleaningUp}>
+          <AlertDialogCancel
+            disabled={isCleaningUp}
+            onClick={() => {
+              setPendingNavigation(null);
+            }}
+          >
             Keep Editing
           </AlertDialogCancel>
           <AlertDialogAction

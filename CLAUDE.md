@@ -55,6 +55,9 @@ toast.error('Failed to save')
 - **SearchInput** - Real-time search with debouncing, no flickering
 - **PaginationWrapper** - Unified pagination with shadcn/ui
   - Props: `preserveParams`, `showFirstLast`, `showPageInfo`
+- **ProductImageUpload** - Drag-and-drop image upload with preview, reordering, and progress tracking
+  - Props: `value`, `onChange`, `maxImages`, `disabled`
+  - Features: Multi-file upload, drag to reorder, image preview, delete individual images
 
 ### Business Constants (`/lib/constants/cart.ts`)
 - `FREE_SHIPPING_THRESHOLD = 100` PLN
@@ -97,7 +100,17 @@ toggleWishlist(productId)
 // Categories
 getCategories()
 getProductsByCategory(category, page)
+
+// UploadThing File Management (uploadthing-actions.ts)
+deleteUploadThingFiles(fileKeys) // Admin-only, deletes files from storage
+deleteUploadThingFilesByUrls(urls) // Admin-only, extracts keys and deletes
 ```
+
+### Custom Hooks
+- **useNavigationGuard** - Prevents navigation with unsaved changes
+  - Options: `shouldBlock`, `onBlock`, `message`
+  - Intercepts both browser navigation (back button, refresh) and Next.js router navigation
+  - Usage: Product form protection, preventing loss of uploaded images
 
 ### Polish Localization
 - Currency: PLN (formatCurrency handles zł/gr)
@@ -118,10 +131,13 @@ getProductsByCategory(category, page)
 - Advanced search/filtering (SearchInput component)
 - Unified pagination (PaginationWrapper)
 - Polish localization throughout
+- Product creation with image upload (UploadThing)
+- Product deletion with automatic image cleanup
+- Navigation guards for preventing data loss
 
 ### 🚧 Pending
 - Stripe/PayPal integration
-- Product management CRUD
+- Product edit functionality (Update existing products)
 - Email notifications
 - Product reviews
 - Social login
@@ -161,6 +177,10 @@ pnpm db:seed    # Seed sample data
 - **Created ProductImageUpload Component** - Custom upload component with multi-image support, drag-to-reorder, progress tracking, and validation
 - **Configured UploadThing File Router** - Set up secure file upload endpoints with admin-only authentication for product images
 - **Added Multiple Upload Endpoints** - Support for product images (5 files, 4MB each), avatars, category images, and banners
+- **Implemented Image Cleanup on Cancel** - Automatically deletes uploaded images from UploadThing storage when user cancels product creation
+- **Added Navigation Guards** - Prevents accidental data loss by showing confirmation dialog when navigating away with unsaved uploads
+- **Enhanced Product Deletion** - Now automatically removes associated images from UploadThing storage when deleting products
+- **Created useNavigationGuard Hook** - Reusable hook for intercepting navigation and preventing data loss across the application
 - **Updated Product Form** - Now uses UploadThing for both product images and banner uploads with visual preview
 - **Added Admin Products Page** with complete display functionality, filtering, and statistics
 - **Created Products Table Component** with search, category/stock/featured filters, and sorting options
