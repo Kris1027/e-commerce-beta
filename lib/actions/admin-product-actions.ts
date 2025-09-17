@@ -1,7 +1,7 @@
 'use server';
 
 import { prisma } from '@/db/prisma';
-import { convertToPlainObject, formatError } from '../utils';
+import { convertToPlainObject, formatError, safeParsePrice } from '../utils';
 import { PAGE_SIZE } from '../constants';
 import { Prisma, UserRole } from '@prisma/client';
 import { revalidatePath } from 'next/cache';
@@ -221,12 +221,6 @@ export async function getProductStatistics(): Promise<ProductStatistics> {
       prisma.product.findMany({ select: { price: true, stock: true } }),
       prisma.product.groupBy({ by: ['category'] }),
     ]);
-
-    // Safe number conversion with validation
-    const safeParsePrice = (price: unknown): number => {
-      const parsed = parseFloat(String(price));
-      return isNaN(parsed) || parsed < 0 ? 0 : parsed;
-    };
 
     const totalValue = products.reduce((sum, p) => {
       const price = safeParsePrice(p.price);

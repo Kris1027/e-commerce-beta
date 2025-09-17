@@ -349,3 +349,9 @@ export async function copyToClipboard(text: string): Promise<boolean> {
     return false;
   }
 }
+
+// Safe price parsing with validation
+export function safeParsePrice(price: unknown): number {
+  const parsed = parseFloat(String(price));
+  return isNaN(parsed) || parsed < 0 ? 0 : parsed;
+}

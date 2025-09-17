@@ -8,6 +8,7 @@ import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 import { CART_CONSTANTS, calculateCartPrices } from '@/lib/constants/cart';
 import { randomBytes } from 'crypto';
+import { safeParsePrice } from '@/lib/utils';
 
 async function getSessionCartId() {
   const cookieStore = await cookies();
@@ -121,8 +122,8 @@ export async function addToCart(
 
     const itemsPrice = items.reduce(
       (sum, item) => {
-        const price = parseFloat(item.price);
-        if (isNaN(price) || price < 0) {
+        const price = safeParsePrice(item.price);
+        if (price === 0 && item.price !== '0' && item.price !== '0.00') {
           console.error(`Invalid price for item ${item.name}: ${item.price}`);
           return sum; // Skip invalid items
         }
@@ -204,8 +205,8 @@ export async function updateCartItem(productId: string, qty: number) {
 
     const itemsPrice = items.reduce(
       (sum, item) => {
-        const price = parseFloat(item.price);
-        if (isNaN(price) || price < 0) {
+        const price = safeParsePrice(item.price);
+        if (price === 0 && item.price !== '0' && item.price !== '0.00') {
           console.error(`Invalid price for item ${item.name}: ${item.price}`);
           return sum; // Skip invalid items
         }
@@ -304,8 +305,8 @@ export async function mergeAnonymousCart() {
 
       const itemsPrice = mergedItems.reduce(
         (sum, item) => {
-          const price = parseFloat(item.price);
-          if (isNaN(price) || price < 0) {
+          const price = safeParsePrice(item.price);
+          if (price === 0 && item.price !== '0' && item.price !== '0.00') {
             console.error(`Invalid price for item ${item.name}: ${item.price}`);
             return sum; // Skip invalid items
           }
