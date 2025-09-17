@@ -148,7 +148,7 @@ pnpm db:seed    # Seed sample data
 - **User**: user@example.com / Zaq12wsx
 - Plus 31 additional test users
 
-## Recent Updates (2025-09-16)
+## Recent Updates (2025-09-17)
 - **Fixed SQL injection vulnerability** in getUsersForAdmin using Prisma.sql safe queries
 - **Fixed nested anchor tags** in pagination components
 - **Unified pagination** across app with enhanced PaginationWrapper
@@ -157,3 +157,8 @@ pnpm db:seed    # Seed sample data
 - **Added Admin Orders Management** with full CRUD operations, filtering, and statistics
 - **Created Orders Dashboard** with order summary cards and order table
 - **Implemented Order Details Page** for admin with complete order information
+- **Replaced Static Banner System** with dynamic product-based carousel
+- **Created ProductBanners Carousel** using shadcn/ui carousel with embla-carousel
+- **Added getProductsWithBanners Action** to fetch products that have banner images
+- **Implemented Auto-play Carousel** with pause on hover, navigation controls, and dot indicators
+- **Removed HeroBanner** component in favor of product-based banners

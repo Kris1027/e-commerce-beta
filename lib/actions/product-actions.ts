@@ -230,3 +230,30 @@ export async function getNewArrivals() {
 
   return convertToPlainObject(data);
 }
+
+// Get products with banners for homepage
+export async function getProductsWithBanners() {
+  try {
+    const data = await prisma.product.findMany({
+      where: {
+        banner: {
+          not: null,
+        },
+      },
+      orderBy: { createdAt: 'desc' },
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        banner: true,
+        price: true,
+        category: true,
+      },
+    });
+
+    return convertToPlainObject(data);
+  } catch (error) {
+    console.error('Error fetching banner products:', error);
+    return [];
+  }
+}
