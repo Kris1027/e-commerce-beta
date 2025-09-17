@@ -3,9 +3,8 @@
 import { useState, useTransition, useRef, useCallback, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
-import type { Resolver } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
+import type { z } from 'zod';
 import { toast } from 'sonner';
 import { insertProductSchema } from '@/lib/validators';
 import { createProduct, getAllCategoryNames } from '@/lib/actions/admin-product-actions';
@@ -42,8 +41,6 @@ import {
   Star
 } from 'lucide-react';
 
-type ProductFormData = z.infer<typeof insertProductSchema>;
-
 export function ProductForm() {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -64,8 +61,8 @@ export function ProductForm() {
     formState: { errors },
     setValue,
     watch,
-  } = useForm<ProductFormData>({
-    resolver: (zodResolver(insertProductSchema) as unknown) as Resolver<ProductFormData>,
+  } = useForm({
+    resolver: zodResolver(insertProductSchema),
     defaultValues: {
       name: '',
       slug: '',
@@ -225,7 +222,7 @@ export function ProductForm() {
     message: 'You have uploaded images that will be lost. Are you sure you want to leave?'
   });
 
-  const onSubmit = (data: ProductFormData) => {
+  const onSubmit = (data: z.infer<typeof insertProductSchema>) => {
     if (data.images.length === 0) {
       toast.error('At least one image is required');
       return;

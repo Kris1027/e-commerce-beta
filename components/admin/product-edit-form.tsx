@@ -3,9 +3,8 @@
 import { useState, useTransition, useRef, useCallback, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
-import type { Resolver } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
+import type { z } from 'zod';
 import { toast } from 'sonner';
 import { updateProductSchema } from '@/lib/validators';
 import { updateProduct, getAllCategoryNames } from '@/lib/actions/admin-product-actions';
@@ -41,8 +40,6 @@ import {
   FolderOpen,
   Star
 } from 'lucide-react';
-
-type ProductEditFormData = z.infer<typeof updateProductSchema>;
 
 interface ProductEditFormProps {
   product: {
@@ -87,8 +84,8 @@ export function ProductEditForm({ product }: ProductEditFormProps) {
     formState: { errors },
     setValue,
     watch,
-  } = useForm<ProductEditFormData>({
-    resolver: (zodResolver(updateProductSchema) as unknown) as Resolver<ProductEditFormData>,
+  } = useForm({
+    resolver: zodResolver(updateProductSchema),
     defaultValues: {
       name: product.name,
       slug: product.slug,
@@ -264,7 +261,7 @@ export function ProductEditForm({ product }: ProductEditFormProps) {
     message: 'You have newly uploaded images that will be lost. Are you sure you want to leave?'
   });
 
-  const onSubmit = (data: ProductEditFormData) => {
+  const onSubmit = (data: z.infer<typeof updateProductSchema>) => {
     if (data.images && data.images.length === 0) {
       toast.error('At least one image is required');
       return;

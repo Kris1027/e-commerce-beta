@@ -177,6 +177,10 @@ pnpm db:seed    # Seed sample data
 - Plus 31 additional test users
 
 ## Recent Updates (2025-09-17)
+- **Fixed TypeScript Issues in Product Forms** - Resolved type compatibility between Zod schemas and React Hook Form
+  - Removed explicit type parameters from useForm to let TypeScript infer
+  - Used z.infer<typeof schema> for onSubmit handlers
+  - Eliminated need for type assertions or `any` types
 - **Upgraded ProductImageUpload with @dnd-kit** - Replaced custom drag-and-drop with @dnd-kit library
   - Full keyboard accessibility (Tab to focus, arrow keys to reorder)
   - Touch gesture support for mobile devices
