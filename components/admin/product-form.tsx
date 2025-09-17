@@ -419,21 +419,23 @@ export function ProductForm() {
             <AlertTriangle className="h-5 w-5 text-amber-500" />
             Discard Changes?
           </AlertDialogTitle>
-          <AlertDialogDescription className="space-y-2">
-            <p>You have unsaved changes that will be lost:</p>
-            <ul className="ml-4 space-y-1 text-sm">
-              {uploadedImagesRef.current.length > 0 && (
-                <li className="flex items-center gap-1">
-                  • {uploadedImagesRef.current.length} product image{uploadedImagesRef.current.length > 1 ? 's' : ''}
-                </li>
-              )}
-              {watchBanner && (
-                <li className="flex items-center gap-1">
-                  • 1 banner image
-                </li>
-              )}
-            </ul>
-            <p className="pt-2 font-medium">These images will be permanently deleted.</p>
+          <AlertDialogDescription asChild>
+            <div className="space-y-2">
+              <p>You have unsaved changes that will be lost:</p>
+              <ul className="ml-4 space-y-1 text-sm">
+                {uploadedImagesRef.current.length > 0 && (
+                  <li className="flex items-center gap-1">
+                    • {uploadedImagesRef.current.length} product image{uploadedImagesRef.current.length > 1 ? 's' : ''}
+                  </li>
+                )}
+                {watchBanner && (
+                  <li className="flex items-center gap-1">
+                    • 1 banner image
+                  </li>
+                )}
+              </ul>
+              <p className="pt-2 font-medium">These images will be permanently deleted.</p>
+            </div>
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
