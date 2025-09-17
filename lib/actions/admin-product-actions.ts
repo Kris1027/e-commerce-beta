@@ -60,17 +60,33 @@ export async function getProductsForAdmin(
   sortBy: ProductSortBy = 'newest'
 ): Promise<AdminProductsResult> {
   try {
+    // Validate and sanitize search input to prevent ReDoS attacks
+    const searchSchema = z
+      .string()
+      .max(64, { message: 'Search term too long' })
+      .trim();
+
+    let sanitizedSearch = '';
+    if (search) {
+      const parseResult = searchSchema.safeParse(search);
+      if (parseResult.success) {
+        sanitizedSearch = parseResult.data;
+        // Escape special characters for SQL LIKE queries
+        sanitizedSearch = sanitizedSearch.replace(/[%_\\]/g, '\\$&');
+      }
+    }
+
     const limit = PAGE_SIZE;
     const skip = (page - 1) * limit;
 
     const where: Prisma.ProductWhereInput = {};
 
-    // Search filter
-    if (search) {
+    // Search filter with sanitized input
+    if (sanitizedSearch) {
       where.OR = [
-        { name: { contains: search, mode: 'insensitive' } },
-        { slug: { contains: search, mode: 'insensitive' } },
-        { brand: { contains: search, mode: 'insensitive' } },
+        { name: { contains: sanitizedSearch, mode: 'insensitive' } },
+        { slug: { contains: sanitizedSearch, mode: 'insensitive' } },
+        { brand: { contains: sanitizedSearch, mode: 'insensitive' } },
       ];
     }
 

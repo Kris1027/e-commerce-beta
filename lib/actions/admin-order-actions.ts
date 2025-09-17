@@ -6,6 +6,7 @@ import { ORDER_STATUS } from '@/lib/validators';
 import { revalidatePath } from 'next/cache';
 import { formatNumberWithDecimal, convertToPlainObject } from '@/lib/utils';
 import { UserRole } from '@prisma/client';
+import { z } from 'zod';
 
 // Configuration for status transitions and their side effects
 const ORDER_STATUS_TRANSITIONS = {
@@ -139,16 +140,32 @@ export async function getOrdersForAdmin(
       return { orders: [], totalOrders: 0, totalPages: 0, currentPage: page };
     }
 
+    // Validate and sanitize search input to prevent ReDoS attacks
+    const searchSchema = z
+      .string()
+      .max(64, { message: 'Search term too long' })
+      .trim();
+
+    let sanitizedSearch = '';
+    if (search) {
+      const parseResult = searchSchema.safeParse(search);
+      if (parseResult.success) {
+        sanitizedSearch = parseResult.data;
+        // Escape special characters for SQL LIKE queries
+        sanitizedSearch = sanitizedSearch.replace(/[%_\\]/g, '\\$&');
+      }
+    }
+
     const itemsPerPage = 10;
     const skip = (page - 1) * itemsPerPage;
 
     const where: Record<string, unknown> = {};
 
-    if (search) {
+    if (sanitizedSearch) {
       where['OR'] = [
-        { id: { contains: search, mode: 'insensitive' } },
-        { user: { email: { contains: search, mode: 'insensitive' } } },
-        { user: { name: { contains: search, mode: 'insensitive' } } },
+        { id: { contains: sanitizedSearch, mode: 'insensitive' } },
+        { user: { email: { contains: sanitizedSearch, mode: 'insensitive' } } },
+        { user: { name: { contains: sanitizedSearch, mode: 'insensitive' } } },
       ];
     }
 

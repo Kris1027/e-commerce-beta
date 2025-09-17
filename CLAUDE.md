@@ -177,6 +177,10 @@ pnpm db:seed    # Seed sample data
 - Plus 31 additional test users
 
 ## Recent Updates (2025-09-17)
+- **Enhanced Search Security** - Added Zod validation and sanitization for all search inputs to prevent ReDoS attacks
+  - Validates search term length (max 64 chars)
+  - Escapes special SQL characters (%_\) to prevent injection
+  - Applied to admin products, orders, and customers search functions
 - **Integrated UploadThing File Upload** - Replaced URL-based image inputs with drag-and-drop image upload component
 - **Created ProductImageUpload Component** - Custom upload component with multi-image support, drag-to-reorder, progress tracking, and validation
 - **Configured UploadThing File Router** - Set up secure file upload endpoints with admin-only authentication for product images

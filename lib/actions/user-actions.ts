@@ -950,16 +950,32 @@ export async function getUsersForAdmin(
       };
     }
 
+    // Validate and sanitize search input to prevent ReDoS attacks
+    const searchSchema = z
+      .string()
+      .max(64, { message: 'Search term too long' })
+      .trim();
+
+    let sanitizedSearch = '';
+    if (search) {
+      const parseResult = searchSchema.safeParse(search);
+      if (parseResult.success) {
+        sanitizedSearch = parseResult.data;
+        // Escape special characters for SQL LIKE queries
+        sanitizedSearch = sanitizedSearch.replace(/[%_\\]/g, '\\$&');
+      }
+    }
+
     const skip = (page - 1) * USERS_PER_PAGE;
 
     // Build filter conditions
     let filters: Prisma.UserWhereInput = {};
 
-    // Search condition
-    if (search) {
+    // Search condition with sanitized input
+    if (sanitizedSearch) {
       filters.OR = [
-        { email: { contains: search, mode: 'insensitive' } },
-        { name: { contains: search, mode: 'insensitive' } },
+        { email: { contains: sanitizedSearch, mode: 'insensitive' } },
+        { name: { contains: sanitizedSearch, mode: 'insensitive' } },
       ];
     }
 
@@ -990,9 +1006,9 @@ export async function getUsersForAdmin(
       // Build dynamic conditions using Prisma.sql with proper parameterization
       const conditions: Prisma.Sql[] = [baseQuery];
 
-      // Add search condition if present
-      if (search) {
-        const searchPattern = `%${search}%`;
+      // Add search condition if present with sanitized input
+      if (sanitizedSearch) {
+        const searchPattern = `%${sanitizedSearch}%`;
         conditions.push(Prisma.sql` AND (LOWER(u.email) LIKE LOWER(${searchPattern}) OR LOWER(u.name) LIKE LOWER(${searchPattern}))`);
       }
 
