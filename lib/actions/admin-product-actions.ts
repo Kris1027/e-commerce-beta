@@ -291,11 +291,23 @@ export async function deleteProduct(id: string) {
         const fileKeys = extractFileKeys(imagesToDelete);
         if (fileKeys.length > 0) {
           const result = await utapi.deleteFiles(fileKeys);
-          console.log(`Deleted ${fileKeys.length} images for product "${productExists.name}":`, result);
+
+          // Secure logging: Only log detailed information in development
+          if (process.env.NODE_ENV === 'development') {
+            console.log(`Deleted ${fileKeys.length} images for product "${productExists.name}":`, result);
+          } else {
+            // Production: Log minimal information without sensitive details
+            console.log(`Product images cleaned up successfully (${fileKeys.length} files)`);
+          }
         }
       } catch (uploadError) {
         // Log error but don't fail the product deletion
-        console.error('Failed to delete images from UploadThing:', uploadError);
+        if (process.env.NODE_ENV === 'development') {
+          console.error('Failed to delete images from UploadThing:', uploadError);
+        } else {
+          // Production: Log error without exposing internal details
+          console.error('Failed to clean up product images');
+        }
         // Product is already deleted, so we continue
       }
     }
@@ -465,11 +477,23 @@ export async function updateProduct(data: z.infer<typeof updateProductSchema> & 
         const fileKeys = extractFileKeys(imagesToDelete);
         if (fileKeys.length > 0) {
           const result = await utapi.deleteFiles(fileKeys);
-          console.log(`Cleaned up ${fileKeys.length} old images for product "${productExists.name}":`, result);
+
+          // Secure logging: Only log detailed information in development
+          if (process.env.NODE_ENV === 'development') {
+            console.log(`Cleaned up ${fileKeys.length} old images for product "${productExists.name}":`, result);
+          } else {
+            // Production: Log minimal information without sensitive details
+            console.log(`Old product images cleaned up (${fileKeys.length} files)`);
+          }
         }
       } catch (uploadError) {
         // Log error but don't fail the product update
-        console.error('Failed to delete old images from UploadThing:', uploadError);
+        if (process.env.NODE_ENV === 'development') {
+          console.error('Failed to delete old images from UploadThing:', uploadError);
+        } else {
+          // Production: Log error without exposing internal details
+          console.error('Failed to clean up old product images');
+        }
       }
     }
 

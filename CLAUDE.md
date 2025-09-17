@@ -177,6 +177,11 @@ pnpm db:seed    # Seed sample data
 - Plus 31 additional test users
 
 ## Recent Updates (2025-09-17)
+- **Improved Production Logging Security** - Enhanced logging to prevent sensitive data exposure
+  - Added environment-based logging (detailed in development, minimal in production)
+  - Removed sensitive file information from production logs
+  - Kept error tracking while avoiding internal detail exposure
+  - Applied to all UploadThing file operations in admin actions
 - **Enhanced useNavigationGuard Hook Documentation** - Improved browser compatibility documentation
   - Added comprehensive JSDoc with usage examples
   - Documented browser-specific behavior for beforeunload
