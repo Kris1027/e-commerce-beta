@@ -444,7 +444,9 @@ export function ProductsTable({ data, statistics, categories }: ProductsTablePro
                                 <Eye className="h-4 w-4 mr-2" />
                                 View Product
                               </DropdownMenuItem>
-                              <DropdownMenuItem disabled>
+                              <DropdownMenuItem
+                                onClick={() => router.push(`/admin/products/${product.id}/edit`)}
+                              >
                                 <Edit className="h-4 w-4 mr-2" />
                                 Edit Product
                               </DropdownMenuItem>

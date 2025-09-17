@@ -89,9 +89,11 @@ deleteOrder(orderId)
 // Admin Products Management (admin-product-actions.ts)
 getProductsForAdmin(page, search?, categoryFilter?, stockFilter?, featuredFilter?, sortBy?)
 getProductStatistics()
-deleteProduct(id) // Admin-only with auth check
+getProductById(id) // Admin-only, fetches product for editing
+getAllCategoryNames() // Returns all unique category names
+deleteProduct(id) // Admin-only with auth check, auto-deletes images from storage
 createProduct(data) // Admin-only with auth check
-updateProduct(data) // Admin-only with auth check
+updateProduct(data) // Admin-only with auth check, auto-cleans removed images
 
 // Wishlist
 getWishlist()
@@ -131,13 +133,15 @@ deleteUploadThingFilesByUrls(urls) // Admin-only, extracts keys and deletes
 - Advanced search/filtering (SearchInput component)
 - Unified pagination (PaginationWrapper)
 - Polish localization throughout
-- Product creation with image upload (UploadThing)
-- Product deletion with automatic image cleanup
+- Complete product CRUD with image upload (UploadThing)
+  - Create products with drag-and-drop image upload
+  - Edit products with automatic image cleanup for removed images
+  - Delete products with full image storage cleanup
 - Navigation guards for preventing data loss
+- Category management with auto-complete
 
 ### 🚧 Pending
 - Stripe/PayPal integration
-- Product edit functionality (Update existing products)
 - Email notifications
 - Product reviews
 - Social login
@@ -181,6 +185,9 @@ pnpm db:seed    # Seed sample data
 - **Added Navigation Guards** - Prevents accidental data loss by showing confirmation dialog when navigating away with unsaved uploads
 - **Enhanced Product Deletion** - Now automatically removes associated images from UploadThing storage when deleting products
 - **Created useNavigationGuard Hook** - Reusable hook for intercepting navigation and preventing data loss across the application
+- **Implemented Product Edit Functionality** - Complete edit form with smart image management that only deletes removed/replaced images
+- **Added Category Auto-Complete** - Dynamic category field that shows existing categories and allows creating new ones
+- **Smart Image Management in Edit Mode** - Tracks original vs newly uploaded images, only cleans up new uploads on cancel
 - **Updated Product Form** - Now uses UploadThing for both product images and banner uploads with visual preview
 - **Added Admin Products Page** with complete display functionality, filtering, and statistics
 - **Created Products Table Component** with search, category/stock/featured filters, and sorting options

@@ -148,6 +148,27 @@ export async function getProductsForAdmin(
   }
 }
 
+// Get product by ID for editing (Admin only)
+export async function getProductById(id: string) {
+  try {
+    // Check if user is admin
+    const session = await auth();
+
+    if (!session?.user?.role || session.user.role !== UserRole.admin) {
+      return null;
+    }
+
+    const product = await prisma.product.findUnique({
+      where: { id },
+    });
+
+    return product ? convertToPlainObject(product) : null;
+  } catch (error) {
+    console.error('Failed to fetch product by id:', error);
+    return null;
+  }
+}
+
 // Get all unique category names for product form
 export async function getAllCategoryNames(): Promise<string[]> {
   try {
