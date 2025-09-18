@@ -252,12 +252,12 @@ export async function getProductsWithBanners() {
     });
 
     // Type assertion is safe here because we filtered for non-null banners
-    // But we'll validate at runtime in the component for extra safety
+    // The WHERE clause ensures banner is never null
     return convertToPlainObject(data) as Array<{
       id: string;
       name: string;
       slug: string;
-      banner: string | null;
+      banner: string;
       price: string;
       category: string;
     }>;

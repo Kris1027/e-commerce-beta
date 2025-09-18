@@ -10,23 +10,15 @@ async function ProductBannersServer() {
     return null;
   }
 
-  // Filter and validate banner products at runtime for type safety
-  const validBannerProducts = bannerProducts
-    .filter((product): product is typeof product & { banner: string } =>
-      typeof product.banner === 'string' && product.banner.length > 0
-    )
-    .map(product => ({
-      id: product.id,
-      name: product.name,
-      slug: product.slug,
-      banner: product.banner,
-      price: product.price,
-      category: product.category,
-    }));
-
-  if (validBannerProducts.length === 0) {
-    return null;
-  }
+  // Map products directly since banner is guaranteed to be a string from the query
+  const validBannerProducts = bannerProducts.map(product => ({
+    id: product.id,
+    name: product.name,
+    slug: product.slug,
+    banner: product.banner,
+    price: product.price,
+    category: product.category,
+  }));
 
   return <ProductBannersClient bannerProducts={validBannerProducts} />;
 }
