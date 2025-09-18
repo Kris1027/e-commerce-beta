@@ -148,6 +148,24 @@ pnpm db:seed    # Seed sample data
 - **User**: user@example.com / Zaq12wsx
 - Plus 31 additional test users
 
+## Recent Updates (2025-09-18)
+- **Enhanced Banner System Performance**:
+  - Optimized image loading with proper `priority` and `sizes` attributes
+  - Added loading skeleton with Suspense for better perceived performance
+  - Implemented progressive image loading (only first image has priority)
+- **Improved Accessibility**:
+  - Added WCAG 2.1 compliant pause/play button for carousel autoplay
+  - Implemented live region announcements for screen readers
+  - Enhanced keyboard navigation with proper ARIA attributes
+  - Added `aria-current` states for dot navigation
+- **Fixed Memory Leaks**:
+  - Fixed carousel event listener cleanup (both 'reInit' and 'select' events)
+  - Proper effect cleanup in ProductBannersClient component
+- **Code Quality Improvements**:
+  - Removed redundant banner filtering (already handled by database query)
+  - Better TypeScript type safety
+  - Consistent English UI text while maintaining Polish currency formatting
+
 ## Recent Updates (2025-09-17)
 - **Fixed SQL injection vulnerability** in getUsersForAdmin using Prisma.sql safe queries
 - **Fixed nested anchor tags** in pagination components

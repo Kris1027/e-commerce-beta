@@ -6,7 +6,8 @@ import Link from 'next/link';
 import Autoplay from 'embla-carousel-autoplay';
 import { formatCurrency } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
-import { ChevronRight } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { ChevronRight, Pause, Play } from 'lucide-react';
 import {
   Carousel,
   CarouselContent,
@@ -33,9 +34,15 @@ export function ProductBannersClient({ bannerProducts }: ProductBannersClientPro
   const [api, setApi] = React.useState<CarouselApi>();
   const [current, setCurrent] = React.useState(0);
   const [count, setCount] = React.useState(0);
+  const [isPlaying, setIsPlaying] = React.useState(true);
 
-  const plugin = React.useRef(
-    Autoplay({ delay: 5000, stopOnInteraction: false, stopOnMouseEnter: true })
+  const autoplayPlugin = React.useRef(
+    Autoplay({
+      delay: 5000,
+      stopOnInteraction: false,
+      stopOnMouseEnter: true,
+      stopOnFocusIn: true
+    })
   );
 
   React.useEffect(() => {
@@ -46,10 +53,27 @@ export function ProductBannersClient({ bannerProducts }: ProductBannersClientPro
     setCount(api.scrollSnapList().length);
     setCurrent(api.selectedScrollSnap() + 1);
 
-    api.on('select', () => {
+    const onSelect = () => {
       setCurrent(api.selectedScrollSnap() + 1);
-    });
+    };
+
+    api.on('select', onSelect);
+
+    return () => {
+      api.off('select', onSelect);
+    };
   }, [api]);
+
+  const toggleAutoplay = React.useCallback(() => {
+    const plugin = autoplayPlugin.current;
+    if (isPlaying) {
+      plugin.stop();
+    } else {
+      plugin.reset();
+      plugin.play();
+    }
+    setIsPlaying(!isPlaying);
+  }, [isPlaying]);
 
   if (!bannerProducts || bannerProducts.length === 0) {
     return null;
@@ -57,10 +81,15 @@ export function ProductBannersClient({ bannerProducts }: ProductBannersClientPro
 
   return (
     <div className="relative w-full group">
+      {/* Accessibility: Live region for screen readers */}
+      <div className="sr-only" aria-live="polite" aria-atomic="true">
+        {current > 0 && `Slide ${current} of ${count}: ${bannerProducts[current - 1]?.name || ''}`}
+      </div>
+
       <Carousel
         setApi={setApi}
         className="w-full"
-        plugins={[plugin.current]}
+        plugins={[autoplayPlugin.current]}
         opts={{
           align: 'start',
           loop: true,
@@ -76,11 +105,13 @@ export function ProductBannersClient({ bannerProducts }: ProductBannersClientPro
                 <div className="relative w-full aspect-[4/3] sm:aspect-[16/9] lg:aspect-[16/6]">
                   <Image
                     src={product.banner}
-                    alt={product.name}
+                    alt={`${product.name} - ${product.category}`}
                     fill
                     className="object-cover transition-transform duration-700 group-hover/item:scale-105"
-                    sizes="100vw"
-                    priority
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 100vw, 1280px"
+                    priority={bannerProducts.indexOf(product) === 0}
+                    loading={bannerProducts.indexOf(product) === 0 ? 'eager' : 'lazy'}
+                    quality={85}
                   />
                   <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/30 to-transparent" />
 
@@ -118,23 +149,38 @@ export function ProductBannersClient({ bannerProducts }: ProductBannersClientPro
               variant="ghost"
             />
 
-            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-10">
-              {Array.from({ length: count }).map((_, index) => (
-                <button
-                  key={index}
-                  onClick={() => api?.scrollTo(index)}
-                  className="group/dot p-1"
-                  aria-label={`Go to slide ${index + 1}`}
-                >
-                  <div
-                    className={`h-1.5 rounded-full transition-all duration-300 ${
-                      current === index + 1
-                        ? 'w-8 bg-white'
-                        : 'w-1.5 bg-white/60 hover:bg-white/80'
-                    }`}
-                  />
-                </button>
-              ))}
+            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-4 z-10">
+              {/* Pause/Play button for accessibility */}
+              <Button
+                onClick={toggleAutoplay}
+                size="icon"
+                variant="ghost"
+                className="h-8 w-8 bg-white/20 backdrop-blur-sm border-white/30 text-white hover:bg-white/30"
+                aria-label={isPlaying ? 'Pause slideshow' : 'Play slideshow'}
+              >
+                {isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+              </Button>
+
+              {/* Dots navigation */}
+              <div className="flex gap-2">
+                {Array.from({ length: count }).map((_, index) => (
+                  <button
+                    key={index}
+                    onClick={() => api?.scrollTo(index)}
+                    className="group/dot p-1"
+                    aria-label={`Go to slide ${index + 1}: ${bannerProducts[index]?.name || 'Product'}`}
+                    aria-current={current === index + 1 ? 'true' : 'false'}
+                  >
+                    <div
+                      className={`h-1.5 rounded-full transition-all duration-300 ${
+                        current === index + 1
+                          ? 'w-8 bg-white'
+                          : 'w-1.5 bg-white/60 hover:bg-white/80'
+                      }`}
+                    />
+                  </button>
+                ))}
+              </div>
             </div>
           </>
         )}
