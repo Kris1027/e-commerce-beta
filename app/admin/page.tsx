@@ -205,10 +205,12 @@ export default async function AdminDashboard() {
               </p>
             </div>
             <div className="hidden lg:flex items-center gap-2">
-              <Button variant="outline" size="sm" className="gap-2">
-                <BarChart3 className="h-4 w-4" />
-                View Analytics
-              </Button>
+              <Link href="/admin/analytics">
+                <Button variant="outline" size="sm" className="gap-2">
+                  <BarChart3 className="h-4 w-4" />
+                  View Analytics
+                </Button>
+              </Link>
               <Link href="/admin/products/new">
                 <Button size="sm" className="gap-2">
                   <Package className="h-4 w-4" />

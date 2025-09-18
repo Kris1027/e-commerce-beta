@@ -89,28 +89,54 @@ export function formatPhoneNumber(phone: string): string {
 }
 
 // Format errors
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function formatError(error: any) {
-  if (error.name === 'ZodError') {
+interface ZodError {
+  name: 'ZodError';
+  errors: Record<string, { message: string }>;
+  message?: string | object;
+}
+
+interface PrismaError {
+  name: 'PrismaClientKnownRequestError';
+  code: string;
+  meta?: {
+    target?: string[];
+  };
+  message?: string | object;
+}
+
+interface GenericError {
+  message: string | object;
+  name?: string;
+}
+
+type FormattableError = ZodError | PrismaError | GenericError;
+
+export function formatError(error: FormattableError) {
+  if ('name' in error && error.name === 'ZodError' && 'errors' in error) {
     // Handle Zod error
-    const fieldErrors = Object.keys(error.errors).map(
-      (field) => error.errors[field].message
-    );
+    const fieldErrors = Object.keys(error.errors).map((field) => {
+      const fieldError = error.errors[field];
+      return fieldError ? fieldError.message : '';
+    }).filter(Boolean);
 
     return fieldErrors.join('. ');
   } else if (
+    'name' in error &&
     error.name === 'PrismaClientKnownRequestError' &&
+    'code' in error &&
     error.code === 'P2002'
   ) {
     // Handle Prisma error
-    const field = error.meta?.target ? error.meta.target[0] : 'Field';
+    const field = error.meta?.target?.[0] || 'Field';
     return `${field.charAt(0).toUpperCase() + field.slice(1)} already exists`;
-  } else {
+  } else if ('message' in error) {
     // Handle other errors
     return typeof error.message === 'string'
       ? error.message
       : JSON.stringify(error.message);
   }
+
+  return 'An unexpected error occurred';
 }
 
 // Round number to 2 decimal places

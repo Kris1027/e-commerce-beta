@@ -1,7 +1,7 @@
 'use server';
 
 import { prisma } from '@/db/prisma';
-import { convertToPlainObject, formatError, safeParsePrice, escapeSqlLikePattern } from '../utils';
+import { convertToPlainObject, safeParsePrice, escapeSqlLikePattern } from '../utils';
 import { PAGE_SIZE } from '../constants';
 import { STOCK_STATUS } from '../constants/product';
 import { Prisma, UserRole } from '@prisma/client';
@@ -310,7 +310,7 @@ export async function deleteProduct(id: string) {
             console.log(`Product images cleaned up successfully (${fileKeys.length} files)`);
           }
         }
-      } catch (uploadError) {
+      } catch {
         // Log error but don't fail the product deletion
         // Log error without exposing sensitive details
         console.error(
@@ -331,7 +331,10 @@ export async function deleteProduct(id: string) {
     };
   } catch (error) {
     console.error('Failed to delete product:', error);
-    return { success: false, message: formatError(error) };
+    const errorMessage = error instanceof Error
+      ? error.message
+      : 'Failed to delete product';
+    return { success: false, message: errorMessage };
   }
 }
 
@@ -387,7 +390,10 @@ export async function createProduct(data: z.infer<typeof insertProductSchema>) {
     };
   } catch (error) {
     console.error('Failed to create product:', error);
-    return { success: false, message: formatError(error) };
+    const errorMessage = error instanceof Error
+      ? error.message
+      : 'Failed to create product';
+    return { success: false, message: errorMessage };
   }
 }
 
@@ -496,7 +502,7 @@ export async function updateProduct(data: z.infer<typeof updateProductSchema> & 
             console.log(`Old product images cleaned up (${fileKeys.length} files)`);
           }
         }
-      } catch (uploadError) {
+      } catch {
         // Log error without exposing sensitive details
         console.error(
           process.env.NODE_ENV === 'development'
@@ -516,6 +522,9 @@ export async function updateProduct(data: z.infer<typeof updateProductSchema> & 
     };
   } catch (error) {
     console.error('Failed to update product:', error);
-    return { success: false, message: formatError(error) };
+    const errorMessage = error instanceof Error
+      ? error.message
+      : 'Failed to update product';
+    return { success: false, message: errorMessage };
   }
 }
