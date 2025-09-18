@@ -34,7 +34,7 @@ export function InventoryStatusCard({ data }: InventoryStatusCardProps) {
       icon: CheckCircle,
       color: 'text-green-600 dark:text-green-400',
       bgColor: 'bg-green-500/10',
-      progressColor: 'bg-green-500',
+      progressClass: 'h-2 [&>div]:bg-green-500',
     },
     {
       label: 'Low Stock',
@@ -43,7 +43,7 @@ export function InventoryStatusCard({ data }: InventoryStatusCardProps) {
       icon: AlertTriangle,
       color: 'text-orange-600 dark:text-orange-400',
       bgColor: 'bg-orange-500/10',
-      progressColor: 'bg-orange-500',
+      progressClass: 'h-2 [&>div]:bg-orange-500',
     },
     {
       label: 'Out of Stock',
@@ -52,7 +52,7 @@ export function InventoryStatusCard({ data }: InventoryStatusCardProps) {
       icon: XCircle,
       color: 'text-red-600 dark:text-red-400',
       bgColor: 'bg-red-500/10',
-      progressColor: 'bg-red-500',
+      progressClass: 'h-2 [&>div]:bg-red-500',
     },
   ];
 
@@ -105,7 +105,7 @@ export function InventoryStatusCard({ data }: InventoryStatusCardProps) {
                 </div>
                 <Progress
                   value={item.percentage}
-                  className={cn('h-2', `[&>div]:${item.progressColor}`)}
+                  className={item.progressClass}
                 />
               </div>
             );
