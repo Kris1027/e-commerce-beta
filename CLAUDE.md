@@ -109,9 +109,14 @@ deleteUploadThingFilesByUrls(urls) // Admin-only, extracts keys and deletes
 ```
 
 ### Custom Hooks
-- **useNavigationGuard** - Prevents navigation with unsaved changes
+- **useNavigationGuard** - Prevents navigation with unsaved changes (Updated 2025-09-18)
   - Options: `shouldBlock`, `onBlock`, `message`
-  - Intercepts both browser navigation (back button, refresh) and Next.js router navigation
+  - Returns: `confirmNavigation`, `navigateWithoutBlocking`, `isPending`, `currentPath`
+  - Features:
+    - Intercepts browser navigation (back button, refresh) and Next.js router navigation
+    - Uses `replaceState` instead of `pushState` to avoid history stack corruption
+    - Integrates with React 18+ `useTransition` for smooth navigation
+    - Provides methods for controlled navigation after user confirmation
   - Usage: Product form protection, preventing loss of uploaded images
 
 ### Polish Localization
@@ -176,7 +181,29 @@ pnpm db:seed    # Seed sample data
 - **User**: user@example.com / Zaq12wsx
 - Plus 31 additional test users
 
-## Recent Updates (2025-09-17)
+## Recent Updates (2025-09-18)
+- **Improved useNavigationGuard Hook** - Refactored to follow Next.js 15 best practices
+  - Replaced `history.pushState` with `replaceState` to avoid history stack corruption
+  - Added React 18+ `useTransition` integration for smooth navigation transitions
+  - Enhanced API with `confirmNavigation` and `navigateWithoutBlocking` methods
+  - Better state management with `isAllowedNavigation` ref
+  - Returns utility functions for programmatic navigation control
+- **Fixed Product Form Issues** - Resolved multiple form-related problems
+  - Removed duplicate `register('category')` in product-edit-form that broke validation
+  - Removed unnecessary setTimeout race conditions in category dropdowns
+  - Simplified UploadThing URL extraction by removing legacy `fileUrl` fallback
+- **Enhanced Code Quality** - Multiple improvements for maintainability
+  - Extracted duplicate `generateSlug` function to shared utils
+  - Created product constants file for default values (rating, numReviews, stock thresholds)
+  - Improved logging security by avoiding sensitive data exposure in production
+  - Added database-level stock validation with Prisma schema defaults
+  - Fixed various timeout-based race conditions throughout the codebase
+- **Documentation Updates** - Improved code documentation
+  - Removed outdated browser version numbers from comments
+  - Added comprehensive JSDoc for navigation guard limitations and alternatives
+  - Documented UploadThing response format handling
+
+## Previous Updates (2025-09-17)
 - **Added Robust Price Validation** - Improved number conversion safety across the application
   - Added safeParsePrice function with NaN and negative value checks
   - Fixed potential calculation failures in getProductStatistics
