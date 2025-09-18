@@ -11,6 +11,7 @@ Production e-commerce template with Next.js 15.5.2, TypeScript (strict), Prisma/
 - **TypeScript**: Strict mode, explicit types, no `any`
 - **Components**: Server by default, client only when needed, <200 lines
 - **UI**: ALWAYS use shadcn/ui components, Lucide icons
+- **Responsive Design**: Mobile-first approach with Tailwind classes (base styles for mobile, sm:, md:, lg:, xl: for larger screens)
 - **Security**: Zod validation on client+server, httpOnly cookies
 - **Errors**: Always `catch (error)`, log with console.error
 - **Performance**: No `router.refresh()`, use state updates
@@ -213,6 +214,13 @@ pnpm db:seed    # Seed sample data
 
 ## Recent Updates (2025-09-19)
 
+- **Fixed Responsive Design Issues** - Improved mobile responsiveness across components
+  - Fixed TopProductsTable component text overlap issues on mobile devices
+  - Implemented mobile-first responsive layout with proper breakpoints
+  - Added line-clamp for long product names to prevent text overflow
+  - Separated mobile and desktop layouts for better readability
+  - Stock badges now display appropriately on both mobile and desktop views
+  - Added mobile-first styling as a core development rule in project standards
 - **Enhanced Admin Analytics Dashboard** - Comprehensive analytics page with Recharts visualization
   - Created `admin-analytics-actions.ts` with multiple data aggregation functions:
     - `getAnalyticsOverview()` - Overview metrics with month-over-month comparisons
