@@ -3,6 +3,7 @@
 import { prisma } from '@/db/prisma';
 import { convertToPlainObject, formatError, safeParsePrice } from '../utils';
 import { PAGE_SIZE } from '../constants';
+import { STOCK_STATUS } from '../constants/product';
 import { Prisma, UserRole } from '@prisma/client';
 import { revalidatePath } from 'next/cache';
 import { insertProductSchema, updateProductSchema } from '../validators';
@@ -97,11 +98,11 @@ export async function getProductsForAdmin(
 
     // Stock filter
     if (stockFilter === 'in_stock') {
-      where.stock = { gt: 10 };
+      where.stock = { gt: STOCK_STATUS.IN_STOCK_THRESHOLD };
     } else if (stockFilter === 'out_of_stock') {
       where.stock = 0;
     } else if (stockFilter === 'low_stock') {
-      where.stock = { gt: 0, lte: 10 };
+      where.stock = { gt: STOCK_STATUS.OUT_OF_STOCK, lte: STOCK_STATUS.LOW_STOCK_THRESHOLD };
     }
 
     // Featured filter
@@ -214,9 +215,9 @@ export async function getProductStatistics(): Promise<ProductStatistics> {
       categories,
     ] = await Promise.all([
       prisma.product.count(),
-      prisma.product.count({ where: { stock: { gt: 10 } } }),
-      prisma.product.count({ where: { stock: 0 } }),
-      prisma.product.count({ where: { stock: { gt: 0, lte: 10 } } }),
+      prisma.product.count({ where: { stock: { gt: STOCK_STATUS.IN_STOCK_THRESHOLD } } }),
+      prisma.product.count({ where: { stock: STOCK_STATUS.OUT_OF_STOCK } }),
+      prisma.product.count({ where: { stock: { gt: STOCK_STATUS.OUT_OF_STOCK, lte: STOCK_STATUS.LOW_STOCK_THRESHOLD } } }),
       prisma.product.count({ where: { isFeatured: true } }),
       prisma.product.findMany({ select: { price: true, stock: true } }),
       prisma.product.groupBy({ by: ['category'] }),

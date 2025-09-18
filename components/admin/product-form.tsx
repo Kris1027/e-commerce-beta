@@ -11,6 +11,7 @@ import { createProduct, getAllCategoryNames } from '@/lib/actions/admin-product-
 import { deleteUploadThingFilesByUrls } from '@/lib/actions/uploadthing-actions';
 import { useNavigationGuard } from '@/hooks/use-navigation-guard';
 import { generateSlug } from '@/lib/utils';
+import { PRODUCT_DEFAULTS } from '@/lib/constants/product';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -72,8 +73,8 @@ export function ProductForm() {
       description: '',
       stock: 0,
       price: '0.00',
-      rating: '0.00',
-      numReviews: 0,
+      rating: PRODUCT_DEFAULTS.INITIAL_RATING,
+      numReviews: PRODUCT_DEFAULTS.INITIAL_NUM_REVIEWS,
       isFeatured: false,
       banner: null,
     },
@@ -223,8 +224,8 @@ export function ProductForm() {
     const submitData = {
       ...data,
       price: data.price.toString(),
-      rating: '0.00',
-      numReviews: 0,
+      rating: PRODUCT_DEFAULTS.INITIAL_RATING,
+      numReviews: PRODUCT_DEFAULTS.INITIAL_NUM_REVIEWS,
     };
 
     startTransition(async () => {
