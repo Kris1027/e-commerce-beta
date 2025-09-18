@@ -251,7 +251,16 @@ export async function getProductsWithBanners() {
       },
     });
 
-    return convertToPlainObject(data);
+    // Type assertion is safe here because we filtered for non-null banners
+    // But we'll validate at runtime in the component for extra safety
+    return convertToPlainObject(data) as Array<{
+      id: string;
+      name: string;
+      slug: string;
+      banner: string | null;
+      price: string;
+      category: string;
+    }>;
   } catch (error) {
     console.error('Error fetching banner products:', error);
     return [];
