@@ -5,12 +5,12 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { X, ShoppingBag, Minus, Plus } from 'lucide-react';
 import { toast } from 'sonner';
+import { useSession } from 'next-auth/react';
 import { useCartStore } from '@/lib/store/cart-store';
 import { updateCartItem, removeFromCart } from '@/lib/actions/cart-actions';
 import { formatCurrency } from '@/lib/utils';
 import { CART_CONSTANTS } from '@/lib/constants/cart';
 import { CouponForm } from '@/components/cart/coupon-form';
-import { useRole } from '@/hooks/use-role';
 import {
   Sheet,
   SheetContent,
@@ -21,7 +21,8 @@ import {
 import { Button } from '@/components/ui/button';
 
 export function CartDrawer() {
-  const { isAuthenticated } = useRole();
+  const { status } = useSession();
+  const isAuthenticated = status === 'authenticated';
   const {
     items,
     itemsPrice,
