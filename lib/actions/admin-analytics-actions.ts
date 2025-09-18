@@ -1,7 +1,7 @@
 'use server';
 
 import { getCurrentUser } from '@/lib/actions/user-actions';
-import prisma from '@/db/prisma';
+import { prisma } from '@/db/prisma';
 import { safeParsePrice } from '@/lib/utils';
 import { ROLES } from '@/lib/constants/roles';
 
@@ -171,7 +171,7 @@ export async function getTopProducts(limit = 5) {
         if (!product) return null;
 
         const qty = item._sum.qty || 0;
-        const totalPrice = safeParsePrice(item._sum.price) * qty;
+        const totalRevenue = safeParsePrice(item._sum.price);
 
         return {
           id: product.id,
@@ -181,7 +181,7 @@ export async function getTopProducts(limit = 5) {
           price: safeParsePrice(product.price),
           image: product.images[0] || '',
           totalQuantity: qty,
-          totalRevenue: totalPrice,
+          totalRevenue: totalRevenue,
           orderCount: item._count.productId,
           stock: product.stock,
         };
