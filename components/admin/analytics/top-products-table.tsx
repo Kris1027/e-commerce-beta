@@ -2,11 +2,14 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { formatCurrency } from '@/lib/utils';
 import Image from 'next/image';
+import Link from 'next/link';
+import { ExternalLink } from 'lucide-react';
 
 interface TopProductsTableProps {
   products: Array<{
     id: string;
     name: string;
+    slug: string;
     category: string;
     price: number;
     image: string;
@@ -68,7 +71,22 @@ export function TopProductsTable({ products }: TopProductsTableProps) {
 
                 {/* Product info - mobile layout */}
                 <div className="flex-1 min-w-0 sm:hidden">
-                  <p className="font-medium line-clamp-1">{product.name}</p>
+                  <div className="flex items-center gap-1">
+                    <Link
+                      href={`/products/${product.slug}`}
+                      className="font-medium line-clamp-1 hover:underline"
+                    >
+                      {product.name}
+                    </Link>
+                    <Link
+                      href={`/products/${product.slug}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                      <ExternalLink className="h-3 w-3" />
+                    </Link>
+                  </div>
                   <div className="flex flex-wrap items-center gap-1.5 mt-1">
                     <Badge variant="secondary" className="text-xs max-w-[100px]">
                       <span className="truncate">{product.category}</span>
@@ -82,7 +100,22 @@ export function TopProductsTable({ products }: TopProductsTableProps) {
 
               {/* Product info - desktop layout */}
               <div className="hidden sm:block flex-1 min-w-0">
-                <p className="font-medium truncate">{product.name}</p>
+                <div className="flex items-center gap-2">
+                  <Link
+                    href={`/products/${product.slug}`}
+                    className="font-medium truncate hover:underline"
+                  >
+                    {product.name}
+                  </Link>
+                  <Link
+                    href={`/products/${product.slug}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    <ExternalLink className="h-3.5 w-3.5" />
+                  </Link>
+                </div>
                 <div className="flex flex-wrap items-center gap-2 mt-1">
                   <Badge variant="secondary" className="text-xs max-w-[120px]">
                     <span className="truncate">{product.category}</span>

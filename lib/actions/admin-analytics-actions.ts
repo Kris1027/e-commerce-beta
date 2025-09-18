@@ -155,6 +155,7 @@ export async function getTopProducts(limit = 5) {
       select: {
         id: true,
         name: true,
+        slug: true,
         price: true,
         images: true,
         category: true,
@@ -175,6 +176,7 @@ export async function getTopProducts(limit = 5) {
         return {
           id: product.id,
           name: product.name,
+          slug: product.slug,
           category: product.category,
           price: safeParsePrice(product.price),
           image: product.images[0] || '',
