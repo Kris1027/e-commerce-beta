@@ -50,12 +50,10 @@ export function useNavigationGuard({
       e.preventDefault();
 
       // Modern browsers ignore custom messages for security reasons and show a generic message.
-      // Setting returnValue is still required to trigger the dialog in all browsers:
-      // - Chrome 119+: Shows generic message, ignores custom text
-      // - Firefox 44+: Shows generic message, ignores custom text
-      // - Safari 9.1+: Shows generic message, ignores custom text
-      // - Edge: Shows generic message, ignores custom text
-      // The custom message is kept for older browsers and documentation purposes.
+      // Setting returnValue is still required to trigger the dialog in all browsers.
+      // All major browsers (Chrome, Firefox, Safari, Edge) now show their own generic message
+      // and ignore custom text for security reasons.
+      // The custom message is kept for legacy browser support and documentation purposes.
       e.returnValue = message;
 
       // Some legacy browsers may use the return value
