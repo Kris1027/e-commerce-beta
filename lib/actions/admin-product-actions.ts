@@ -224,6 +224,9 @@ export async function getProductStatistics(): Promise<ProductStatistics> {
 
     const totalValue = products.reduce((sum, p) => {
       const price = safeParsePrice(p.price);
+      if (p.stock < 0) {
+        console.warn(`Negative stock encountered for product with price ${p.price}:`, { stock: p.stock });
+      }
       const stock = Math.max(0, p.stock); // Ensure stock is non-negative
       return sum + (price * stock);
     }, 0);
