@@ -302,22 +302,22 @@ export async function deleteProduct(id: string) {
         if (fileKeys.length > 0) {
           const result = await utapi.deleteFiles(fileKeys);
 
-          // Secure logging: Only log detailed information in development
+          // Log success without exposing API response details
           if (process.env.NODE_ENV === 'development') {
-            console.log(`Deleted ${fileKeys.length} images for product "${productExists.name}":`, result);
+            console.log(`Deleted ${fileKeys.length} images for product "${productExists.name}" - Success: ${result.success}`);
           } else {
-            // Production: Log minimal information without sensitive details
+            // Production: Log minimal information
             console.log(`Product images cleaned up successfully (${fileKeys.length} files)`);
           }
         }
       } catch (uploadError) {
         // Log error but don't fail the product deletion
-        if (process.env.NODE_ENV === 'development') {
-          console.error('Failed to delete images from UploadThing:', uploadError);
-        } else {
-          // Production: Log error without exposing internal details
-          console.error('Failed to clean up product images');
-        }
+        // Log error without exposing sensitive details
+        console.error(
+          process.env.NODE_ENV === 'development'
+            ? `Failed to delete images from UploadThing for product "${productExists.name}"`
+            : 'Failed to clean up product images'
+        );
         // Product is already deleted, so we continue
       }
     }
@@ -490,20 +490,19 @@ export async function updateProduct(data: z.infer<typeof updateProductSchema> & 
 
           // Secure logging: Only log detailed information in development
           if (process.env.NODE_ENV === 'development') {
-            console.log(`Cleaned up ${fileKeys.length} old images for product "${productExists.name}":`, result);
+            console.log(`Cleaned up ${fileKeys.length} old images for product "${productExists.name}" - Success: ${result.success}`);
           } else {
             // Production: Log minimal information without sensitive details
             console.log(`Old product images cleaned up (${fileKeys.length} files)`);
           }
         }
       } catch (uploadError) {
-        // Log error but don't fail the product update
-        if (process.env.NODE_ENV === 'development') {
-          console.error('Failed to delete old images from UploadThing:', uploadError);
-        } else {
-          // Production: Log error without exposing internal details
-          console.error('Failed to clean up old product images');
-        }
+        // Log error without exposing sensitive details
+        console.error(
+          process.env.NODE_ENV === 'development'
+            ? `Failed to delete old images from UploadThing for product "${productExists.name}"`
+            : 'Failed to clean up old product images'
+        );
       }
     }
 
