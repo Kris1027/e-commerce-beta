@@ -225,7 +225,11 @@ export async function getProductStatistics(): Promise<ProductStatistics> {
     const totalValue = products.reduce((sum, p) => {
       const price = safeParsePrice(p.price);
       if (p.stock < 0) {
-        console.warn(`Negative stock encountered for product with price ${p.price}:`, { stock: p.stock });
+        if (process.env.NODE_ENV === 'development') {
+          console.warn(`Negative stock encountered for product:`, { stock: p.stock, price: p.price });
+        } else {
+          console.warn(`Data integrity warning: Negative stock value detected`);
+        }
       }
       const stock = Math.max(0, p.stock); // Ensure stock is non-negative
       return sum + (price * stock);
