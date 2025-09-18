@@ -379,7 +379,6 @@ export function ProductEditForm({ product }: ProductEditFormProps) {
                 <FolderOpen className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground z-10" />
                 <Input
                 id="category"
-                {...register('category')}
                 className="pl-9"
                 placeholder="Type or select a category"
                 value={watchCategory || ''}
