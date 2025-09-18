@@ -2,7 +2,7 @@
 
 import { auth } from '@/auth';
 import prisma from '@/db/prisma';
-import { formatNumberWithDecimal, formatDateTime, formatOrderStatus, getOrderStatusColor } from '@/lib/utils';
+import { formatNumberWithDecimal, formatDateTime, formatOrderStatus, getOrderStatusColor, escapeSqlLikePattern } from '@/lib/utils';
 import { revalidatePath } from 'next/cache';
 import bcrypt from 'bcryptjs';
 import { z } from 'zod';
@@ -962,7 +962,7 @@ export async function getUsersForAdmin(
       if (parseResult.success) {
         sanitizedSearch = parseResult.data;
         // Escape special characters for SQL LIKE queries
-        sanitizedSearch = sanitizedSearch.replace(/[%_\\]/g, '\\$&');
+        sanitizedSearch = escapeSqlLikePattern(sanitizedSearch);
       }
     }
 

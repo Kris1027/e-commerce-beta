@@ -4,7 +4,7 @@ import { auth } from '@/auth';
 import prisma from '@/db/prisma';
 import { ORDER_STATUS } from '@/lib/validators';
 import { revalidatePath } from 'next/cache';
-import { formatNumberWithDecimal, convertToPlainObject } from '@/lib/utils';
+import { formatNumberWithDecimal, convertToPlainObject, escapeSqlLikePattern } from '@/lib/utils';
 import { UserRole } from '@prisma/client';
 import { z } from 'zod';
 
@@ -152,7 +152,7 @@ export async function getOrdersForAdmin(
       if (parseResult.success) {
         sanitizedSearch = parseResult.data;
         // Escape special characters for SQL LIKE queries
-        sanitizedSearch = sanitizedSearch.replace(/[%_\\]/g, '\\$&');
+        sanitizedSearch = escapeSqlLikePattern(sanitizedSearch);
       }
     }
 

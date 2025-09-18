@@ -1,7 +1,7 @@
 'use server';
 
 import { prisma } from '@/db/prisma';
-import { convertToPlainObject, formatError, safeParsePrice } from '../utils';
+import { convertToPlainObject, formatError, safeParsePrice, escapeSqlLikePattern } from '../utils';
 import { PAGE_SIZE } from '../constants';
 import { STOCK_STATUS } from '../constants/product';
 import { Prisma, UserRole } from '@prisma/client';
@@ -73,7 +73,7 @@ export async function getProductsForAdmin(
       if (parseResult.success) {
         sanitizedSearch = parseResult.data;
         // Escape special characters for SQL LIKE queries
-        sanitizedSearch = sanitizedSearch.replace(/[%_\\]/g, '\\$&');
+        sanitizedSearch = escapeSqlLikePattern(sanitizedSearch);
       }
     }
 

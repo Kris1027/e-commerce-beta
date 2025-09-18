@@ -363,3 +363,9 @@ export function safeParsePrice(price: unknown): number {
   const parsed = parseFloat(String(price));
   return isNaN(parsed) || parsed < 0 ? 0 : parsed;
 }
+
+// Escape special characters for SQL LIKE queries to prevent injection
+export function escapeSqlLikePattern(pattern: string): string {
+  // Escape SQL LIKE special characters: %, _, \
+  return pattern.replace(/[%_\\]/g, '\\$&');
+}
