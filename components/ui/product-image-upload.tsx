@@ -155,13 +155,18 @@ export function ProductImageUpload({
   const { startUpload } = useUploadThing('productImageUploader', {
     onClientUploadComplete: (res) => {
       if (res) {
-        // Extract URLs from the upload response - check both common property names
+        /**
+         * Extract URLs from the upload response
+         * UploadThing v7+ uses 'url' property (standard response format)
+         * Legacy versions or certain configurations may use 'fileUrl'
+         * We check both to ensure compatibility across versions
+         */
         const newUrls = res.map((file) => {
-          // Check for 'url' property (standard UploadThing response)
+          // Primary: UploadThing v7+ standard response format
           if ('url' in file && typeof file.url === 'string') {
             return file.url;
           }
-          // Check for 'fileUrl' property (alternative format)
+          // Fallback: Legacy format or alternative configurations
           if ('fileUrl' in file && typeof file.fileUrl === 'string') {
             return file.fileUrl;
           }

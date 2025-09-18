@@ -10,6 +10,7 @@ import { updateProductSchema } from '@/lib/validators';
 import { updateProduct, getAllCategoryNames } from '@/lib/actions/admin-product-actions';
 import { deleteUploadThingFilesByUrls } from '@/lib/actions/uploadthing-actions';
 import { useNavigationGuard } from '@/hooks/use-navigation-guard';
+import { generateSlug } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -117,14 +118,6 @@ export function ProductEditForm({ product }: ProductEditFormProps) {
   const filteredCategories = existingCategories.filter(cat =>
     cat.toLowerCase().includes((watchCategory || '').toLowerCase())
   );
-
-  // Auto-generate slug from name
-  const generateSlug = (name: string) => {
-    return name
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/^-+|-+$/g, '');
-  };
 
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const name = e.target.value;

@@ -321,6 +321,14 @@ export function generatePaginationNumbers(currentPage: number, totalPages: numbe
   return pages;
 }
 
+// Generate URL-safe slug from string
+export function generateSlug(name: string): string {
+  return name
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
+
 // Convert slug to title case
 export function slugToTitle(slug: string): string {
   return slug
