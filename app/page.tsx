@@ -1,4 +1,4 @@
-import { HeroBanner } from '@/components/home/hero-banner';
+import { ProductBanners } from '@/components/home/product-banners-wrapper';
 import { FeaturedProducts } from '@/components/home/featured-products';
 import { ProductList } from '@/components/products/product-list';
 import { getFeaturedProducts, getNewArrivals } from '@/lib/actions/product-actions';
@@ -21,8 +21,12 @@ export default async function Home() {
 
   return (
     <>
-      {homepage.sections.heroBanner && <HeroBanner />}
-      
+      <section className="py-12 sm:py-16">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <ProductBanners />
+        </div>
+      </section>
+
       {homepage.sections.featuredProducts && (
         <FeaturedProducts 
           products={featuredProducts}

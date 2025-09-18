@@ -1,11 +1,13 @@
 # E-Commerce Template - Development Guide
 
 ## Project Overview
+
 Production e-commerce template with Next.js 15.5.2, TypeScript (strict), Prisma/PostgreSQL (Neon), NextAuth v5. Poland-only shipping.
 
 ## Critical Rules
 
 ### Code Standards
+
 - **TypeScript**: Strict mode, explicit types, no `any`
 - **Components**: Server by default, client only when needed, <200 lines
 - **UI**: ALWAYS use shadcn/ui components, Lucide icons
@@ -14,6 +16,7 @@ Production e-commerce template with Next.js 15.5.2, TypeScript (strict), Prisma/
 - **Performance**: No `router.refresh()`, use state updates
 
 ### Key Patterns
+
 ```typescript
 // Prices: formatCurrency() for all prices
 formatCurrency(100) // "100,00 zł"
@@ -30,6 +33,7 @@ toast.error('Failed to save')
 ```
 
 ## Tech Stack
+
 - **Core**: Next.js 15.5.2, React 19.1.0, TypeScript 5.9.2
 - **DB**: Prisma 6.15.0, PostgreSQL (Neon)
 - **Auth**: NextAuth v5 (5.0.0-beta.29)
@@ -39,6 +43,7 @@ toast.error('Failed to save')
 - **File Upload**: UploadThing 7.7.4
 
 ## Project Structure
+
 ```
 /app                # App Router pages
 /components/ui      # shadcn components + custom (SearchInput, PaginationWrapper)
@@ -52,6 +57,7 @@ toast.error('Failed to save')
 ## Key Components & Utilities
 
 ### Custom UI Components
+
 - **SearchInput** - Real-time search with debouncing, no flickering
 - **PaginationWrapper** - Unified pagination with shadcn/ui
   - Props: `preserveParams`, `showFirstLast`, `showPageInfo`
@@ -60,6 +66,7 @@ toast.error('Failed to save')
   - Features: Multi-file upload, drag to reorder, image preview, delete individual images
 
 ### Business Constants (`/lib/constants/cart.ts`)
+
 - `FREE_SHIPPING_THRESHOLD = 100` PLN
 - `SHIPPING_PRICE = 10` PLN
 - `TAX_RATE = 0.23` (Polish VAT)
@@ -67,6 +74,7 @@ toast.error('Failed to save')
 - `HIGH_VALUE_THRESHOLD = 1000` PLN
 
 ### Essential Server Actions
+
 ```typescript
 // User/Admin
 getCurrentUser()
@@ -109,6 +117,7 @@ deleteUploadThingFilesByUrls(urls) // Admin-only, extracts keys and deletes
 ```
 
 ### Custom Hooks
+
 - **useNavigationGuard** - Prevents navigation with unsaved changes (Updated 2025-09-18)
   - Options: `shouldBlock`, `onBlock`, `message`
   - Returns: `confirmNavigation`, `navigateWithoutBlocking`, `isPending`, `currentPath`
@@ -120,6 +129,7 @@ deleteUploadThingFilesByUrls(urls) // Admin-only, extracts keys and deletes
   - Usage: Product form protection, preventing loss of uploaded images
 
 ### Polish Localization
+
 - Currency: PLN (formatCurrency handles zł/gr)
 - Phone: +48 XXX-XXX-XXX format
 - Address: Voivodeship field, XX-XXX postal codes
@@ -128,6 +138,7 @@ deleteUploadThingFilesByUrls(urls) // Admin-only, extracts keys and deletes
 ## Current Implementation Status
 
 ### ✅ Completed
+
 - Full auth system with role-based access
 - Product catalog with categories, pagination
 - Shopping cart with drawer UI
@@ -146,12 +157,14 @@ deleteUploadThingFilesByUrls(urls) // Admin-only, extracts keys and deletes
 - Category management with auto-complete
 
 ### 🚧 Pending
+
 - Stripe/PayPal integration
 - Email notifications
 - Product reviews
 - Social login
 
 ## Database Models
+
 - **User**: Auth, roles (admin/user)
 - **Product**: Stock, price, images, featured
 - **Cart**: Session-based, user-linked
@@ -160,6 +173,7 @@ deleteUploadThingFilesByUrls(urls) // Admin-only, extracts keys and deletes
 - **Wishlist**: User saved products
 
 ## Testing Checklist
+
 - [ ] Run `pnpm lint` after changes
 - [ ] Run `pnpm build` before deploy
 - [ ] TypeScript strict mode passes
@@ -168,6 +182,7 @@ deleteUploadThingFilesByUrls(urls) // Admin-only, extracts keys and deletes
 - [ ] Polish formatting applied
 
 ## Commands
+
 ```bash
 pnpm dev        # Development
 pnpm build      # Production build
@@ -177,11 +192,13 @@ pnpm db:seed    # Seed sample data
 ```
 
 ## Sample Users
+
 - **Admin**: admin@example.com / Zaq12wsx
 - **User**: user@example.com / Zaq12wsx
 - Plus 31 additional test users
 
 ## Recent Updates (2025-09-18)
+
 - **Improved useNavigationGuard Hook** - Refactored to follow Next.js 15 best practices
   - Replaced `history.pushState` with `replaceState` to avoid history stack corruption
   - Added React 18+ `useTransition` integration for smooth navigation transitions
@@ -204,6 +221,7 @@ pnpm db:seed    # Seed sample data
   - Documented UploadThing response format handling
 
 ## Previous Updates (2025-09-17)
+
 - **Added Robust Price Validation** - Improved number conversion safety across the application
   - Added safeParsePrice function with NaN and negative value checks
   - Fixed potential calculation failures in getProductStatistics
@@ -232,7 +250,7 @@ pnpm db:seed    # Seed sample data
   - WCAG-compliant with proper ARIA labels
 - **Enhanced Search Security** - Added Zod validation and sanitization for all search inputs to prevent ReDoS attacks
   - Validates search term length (max 64 chars)
-  - Escapes special SQL characters (%_\) to prevent injection
+  - Escapes special SQL characters (%\_\) to prevent injection
   - Applied to admin products, orders, and customers search functions
 - **Integrated UploadThing File Upload** - Replaced URL-based image inputs with drag-and-drop image upload component
 - **Created ProductImageUpload Component** - Custom upload component with multi-image support, drag-to-reorder, progress tracking, and validation
@@ -256,7 +274,27 @@ pnpm db:seed    # Seed sample data
 - **Consistent Admin Actions** - All admin operations now follow same security pattern with UserRole.admin checks
 - **UI/UX Consistency** across all admin pages (Orders, Customers, Products) with gradient headers and cards
 
-## Previous Updates (2025-09-16)
+## Previous Updates (2025-09-18)
+
+- **Enhanced Banner System Performance**:
+  - Optimized image loading with proper `priority` and `sizes` attributes
+  - Added loading skeleton with Suspense for better perceived performance
+  - Implemented progressive image loading (only first image has priority)
+- **Improved Accessibility**:
+  - Added WCAG 2.1 compliant pause/play button for carousel autoplay
+  - Implemented live region announcements for screen readers
+  - Enhanced keyboard navigation with proper ARIA attributes
+  - Added `aria-current` states for dot navigation
+- **Fixed Memory Leaks**:
+  - Fixed carousel event listener cleanup (both 'reInit' and 'select' events)
+  - Proper effect cleanup in ProductBannersClient component
+- **Code Quality Improvements**:
+  - Removed redundant banner filtering (already handled by database query)
+  - Better TypeScript type safety
+  - Consistent English UI text while maintaining Polish currency formatting
+
+## Recent Updates (2025-09-17)
+
 - **Fixed SQL injection vulnerability** in getUsersForAdmin using Prisma.sql safe queries
 - **Fixed nested anchor tags** in pagination components
 - **Unified pagination** across app with enhanced PaginationWrapper
@@ -265,3 +303,8 @@ pnpm db:seed    # Seed sample data
 - **Added Admin Orders Management** with full CRUD operations, filtering, and statistics
 - **Created Orders Dashboard** with order summary cards and order table
 - **Implemented Order Details Page** for admin with complete order information
+- **Replaced Static Banner System** with dynamic product-based carousel
+- **Created ProductBanners Carousel** using shadcn/ui carousel with embla-carousel
+- **Added getProductsWithBanners Action** to fetch products that have banner images
+- **Implemented Auto-play Carousel** with pause on hover, navigation controls, and dot indicators
+- **Removed HeroBanner** component in favor of product-based banners

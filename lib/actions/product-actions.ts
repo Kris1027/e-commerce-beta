@@ -161,3 +161,39 @@ export async function getNewArrivals() {
 
   return convertToPlainObject(data);
 }
+
+// Get products with banners for homepage
+export async function getProductsWithBanners() {
+  try {
+    const data = await prisma.product.findMany({
+      where: {
+        banner: {
+          not: null,
+        },
+      },
+      orderBy: { createdAt: 'desc' },
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        banner: true,
+        price: true,
+        category: true,
+      },
+    });
+
+    // Type assertion is safe here because we filtered for non-null banners
+    // The WHERE clause ensures banner is never null
+    return convertToPlainObject(data) as Array<{
+      id: string;
+      name: string;
+      slug: string;
+      banner: string;
+      price: string;
+      category: string;
+    }>;
+  } catch (error) {
+    console.error('Error fetching banner products:', error);
+    return [];
+  }
+}
