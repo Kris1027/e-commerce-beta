@@ -413,6 +413,7 @@ export function OrdersTable({ data, summary }: OrdersTableProps) {
                     <TableHead>Customer</TableHead>
                     <TableHead className="text-center">Status</TableHead>
                     <TableHead className="text-center">Payment</TableHead>
+                    <TableHead className="text-center">Method</TableHead>
                     <TableHead className="text-right">Items</TableHead>
                     <TableHead className="text-right">Total</TableHead>
                     <TableHead>Date</TableHead>
@@ -476,6 +477,11 @@ export function OrdersTable({ data, summary }: OrdersTableProps) {
                           <Badge variant={order.isPaid ? 'default' : 'secondary'}>
                             {order.isPaid ? 'Paid' : 'Unpaid'}
                           </Badge>
+                        </TableCell>
+                        <TableCell className="text-center">
+                          <span className="text-sm">
+                            {order.paymentMethod === 'cashOnDelivery' ? 'COD' : order.paymentMethod}
+                          </span>
                         </TableCell>
                         <TableCell className="text-right">
                           {order.totalItems}
