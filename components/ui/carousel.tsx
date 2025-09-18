@@ -19,6 +19,7 @@ type CarouselProps = {
   plugins?: CarouselPlugin
   orientation?: "horizontal" | "vertical"
   setApi?: (api: CarouselApi) => void
+  ariaLabel?: string
 }
 
 type CarouselContextProps = {
@@ -49,6 +50,7 @@ function Carousel({
   plugins,
   className,
   children,
+  ariaLabel,
   ...props
 }: React.ComponentProps<"div"> & CarouselProps) {
   const [carouselRef, api] = useEmblaCarousel(
@@ -124,6 +126,7 @@ function Carousel({
         className={cn("relative", className)}
         role="region"
         aria-roledescription="carousel"
+        aria-label={ariaLabel || "Image carousel"}
         data-slot="carousel"
         {...props}
       >

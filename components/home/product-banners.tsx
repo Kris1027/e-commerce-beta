@@ -94,6 +94,7 @@ export function ProductBannersClient({ bannerProducts }: ProductBannersClientPro
           align: 'start',
           loop: true,
         }}
+        ariaLabel="Featured products carousel"
       >
         <CarouselContent>
           {bannerProducts.map((product) => (
