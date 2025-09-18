@@ -95,7 +95,19 @@ export const insertProductSchema = z.object({
   banner: z.string().nullable().optional(),
 });
 
-export const updateProductSchema = insertProductSchema.partial();
+export const updateProductSchema = insertProductSchema.partial().refine(
+  (data) => {
+    // If images array is provided, it must have at least one image
+    if (data.images !== undefined) {
+      return data.images.length > 0;
+    }
+    return true;
+  },
+  {
+    message: 'At least one image is required',
+    path: ['images'],
+  }
+);
 
 export const productSchema = insertProductSchema.extend({
   id: z.string().uuid(),

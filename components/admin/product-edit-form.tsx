@@ -253,11 +253,6 @@ export function ProductEditForm({ product }: ProductEditFormProps) {
   });
 
   const onSubmit = (data: z.infer<typeof updateProductSchema>) => {
-    if (data.images && data.images.length === 0) {
-      toast.error('At least one image is required');
-      return;
-    }
-
     const submitData = {
       ...data,
       id: product.id,

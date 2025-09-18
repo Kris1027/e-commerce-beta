@@ -216,11 +216,6 @@ export function ProductForm() {
   });
 
   const onSubmit = (data: z.infer<typeof insertProductSchema>) => {
-    if (data.images.length === 0) {
-      toast.error('At least one image is required');
-      return;
-    }
-
     const submitData = {
       ...data,
       price: data.price.toString(),
