@@ -155,17 +155,19 @@ export function ProductImageUpload({
   const { startUpload } = useUploadThing('productImageUploader', {
     onClientUploadComplete: (res) => {
       if (res) {
-        // Extract URLs from the upload response
+        // Extract URLs from the upload response - check both common property names
         const newUrls = res.map((file) => {
-          // Handle different response formats from UploadThing
+          // Check for 'url' property (standard UploadThing response)
           if ('url' in file && typeof file.url === 'string') {
             return file.url;
           }
+          // Check for 'fileUrl' property (alternative format)
           if ('fileUrl' in file && typeof file.fileUrl === 'string') {
             return file.fileUrl;
           }
-          // Fallback to any available URL property
-          return Object.values(file).find((val) => typeof val === 'string' && val.startsWith('http')) || '';
+          // If neither property exists, log error and skip
+          console.error('Unexpected file response format from UploadThing:', file);
+          return '';
         }).filter(Boolean);
 
         onChange([...value, ...newUrls]);
