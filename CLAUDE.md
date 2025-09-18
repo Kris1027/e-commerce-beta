@@ -103,6 +103,15 @@ deleteProduct(id) // Admin-only with auth check, auto-deletes images from storag
 createProduct(data) // Admin-only with auth check
 updateProduct(data) // Admin-only with auth check, auto-cleans removed images
 
+// Admin Analytics (admin-analytics-actions.ts)
+getAnalyticsOverview() // Dashboard metrics with comparisons
+getTopProducts(limit?) // Best-selling products analysis
+getCustomerInsights() // Customer growth and segmentation
+getInventoryStatus() // Stock levels and inventory value
+getOrderStatusBreakdown() // Orders grouped by status
+getProductCategoryDistribution() // Category performance metrics
+getCustomerOrderFrequency() // Customer purchase behavior segmentation
+
 // Wishlist
 getWishlist()
 toggleWishlist(productId)
@@ -155,6 +164,11 @@ deleteUploadThingFilesByUrls(urls) // Admin-only, extracts keys and deletes
   - Delete products with full image storage cleanup
 - Navigation guards for preventing data loss
 - Category management with auto-complete
+- Admin Analytics Dashboard with Recharts
+  - Revenue and order trends visualization
+  - Customer insights and growth tracking
+  - Inventory status monitoring
+  - Top products analysis
 
 ### 🚧 Pending
 
@@ -197,7 +211,31 @@ pnpm db:seed    # Seed sample data
 - **User**: user@example.com / Zaq12wsx
 - Plus 31 additional test users
 
-## Recent Updates (2025-09-18)
+## Recent Updates (2025-09-19)
+
+- **Enhanced Admin Analytics Dashboard** - Comprehensive analytics page with Recharts visualization
+  - Created `admin-analytics-actions.ts` with multiple data aggregation functions:
+    - `getAnalyticsOverview()` - Overview metrics with month-over-month comparisons
+    - `getTopProducts()` - Best-selling products with revenue metrics
+    - `getCustomerInsights()` - Customer growth and top spenders analysis
+    - `getInventoryStatus()` - Stock level monitoring and inventory value
+    - `getOrderStatusBreakdown()` - Order distribution by status
+    - `getProductCategoryDistribution()` - Category performance metrics
+    - `getCustomerOrderFrequency()` - Customer segmentation by purchase behavior
+  - Implemented comprehensive chart components:
+    - Order Status Chart (donut chart) - Visual breakdown of order statuses
+    - Product Performance Chart (bar chart) - Category distribution with metrics
+    - Customer Frequency Chart (bar chart) - Customer segmentation visualization
+    - Customer Insights Chart (line chart) - Growth trends and top customers
+    - Inventory Status Card - Stock level indicators with progress bars
+    - Top Products Table - Detailed product performance metrics
+  - **REMOVED** Revenue Overview and Orders Distribution charts (simplified dashboard)
+  - All charts follow strict TypeScript rules with no `any` or `unknown` types
+  - Polish localization (pl-PL) maintained throughout with `formatCurrency` utility
+  - Empty data states handled gracefully with informative messages
+  - Consistent UI/UX with existing admin pages (gradient headers, card layouts)
+
+## Previous Updates (2025-09-18)
 
 - **Improved useNavigationGuard Hook** - Refactored to follow Next.js 15 best practices
   - Replaced `history.pushState` with `replaceState` to avoid history stack corruption
