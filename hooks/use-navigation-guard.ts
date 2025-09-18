@@ -115,12 +115,12 @@ export function useNavigationGuard({
   }, [shouldBlock, onBlock]);
 
   // Intercept browser back/forward buttons
-  useEffect(() => {
-    let isBlocking = false;
+  const isBlockingRef = useRef(false);
 
+  useEffect(() => {
     const handlePopState = () => {
-      if (shouldBlock() && !isBlocking) {
-        isBlocking = true;
+      if (shouldBlock() && !isBlockingRef.current) {
+        isBlockingRef.current = true;
 
         // Push the current state back to prevent navigation
         window.history.pushState(null, '', window.location.href);
@@ -130,10 +130,10 @@ export function useNavigationGuard({
           onBlock('back');
         }
 
-        // Reset blocking flag
-        setTimeout(() => {
-          isBlocking = false;
-        }, 100);
+        // Reset blocking flag after the event completes
+        Promise.resolve().then(() => {
+          isBlockingRef.current = false;
+        });
       }
     };
 

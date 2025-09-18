@@ -387,9 +387,7 @@ export function ProductEditForm({ product }: ProductEditFormProps) {
                   setShowCategoryDropdown(true);
                 }}
                 onFocus={() => setShowCategoryDropdown(true)}
-                onBlur={() => {
-                  setTimeout(() => setShowCategoryDropdown(false), 200);
-                }}
+                onBlur={() => setShowCategoryDropdown(false)}
                 autoComplete="off"
               />
               </div>

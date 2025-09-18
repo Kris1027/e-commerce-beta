@@ -350,10 +350,7 @@ export function ProductForm() {
                     setShowCategoryDropdown(true);
                   }}
                   onFocus={() => setShowCategoryDropdown(true)}
-                  onBlur={() => {
-                    // Delay to allow clicking on dropdown items
-                    setTimeout(() => setShowCategoryDropdown(false), 200);
-                  }}
+                  onBlur={() => setShowCategoryDropdown(false)}
                   autoComplete="off"
                 />
               </div>
