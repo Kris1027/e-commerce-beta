@@ -3,6 +3,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { formatCurrency } from '@/lib/utils';
+import Link from 'next/link';
 import {
   Line,
   LineChart,
@@ -12,7 +13,7 @@ import {
   XAxis,
   YAxis,
 } from 'recharts';
-import { TrendingUp, TrendingDown, Users } from 'lucide-react';
+import { TrendingUp, TrendingDown, Users, ExternalLink } from 'lucide-react';
 
 interface CustomerInsightsChartProps {
   data: {
@@ -131,15 +132,30 @@ export function CustomerInsightsChart({ data }: CustomerInsightsChartProps) {
                     className="flex items-center justify-between p-2 rounded-lg hover:bg-muted/50 transition-colors"
                   >
                     <div className="flex items-center gap-2">
-                      <Badge variant="outline" className="w-6 h-6 p-0 justify-center">
+                      <Badge variant="outline" className="w-6 h-6 p-0 justify-center shrink-0">
                         {index + 1}
                       </Badge>
-                      <div>
-                        <p className="text-sm font-medium">{customer.name}</p>
-                        <p className="text-xs text-muted-foreground">{customer.email}</p>
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-1">
+                          <Link
+                            href={`/admin/customers/${customer.id}`}
+                            className="text-sm font-medium hover:underline truncate"
+                          >
+                            {customer.name}
+                          </Link>
+                          <Link
+                            href={`/admin/customers/${customer.id}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-muted-foreground hover:text-foreground transition-colors shrink-0"
+                          >
+                            <ExternalLink className="h-3 w-3" />
+                          </Link>
+                        </div>
+                        <p className="text-xs text-muted-foreground truncate">{customer.email}</p>
                       </div>
                     </div>
-                    <div className="text-right">
+                    <div className="text-right shrink-0">
                       <p className="text-sm font-medium">
                         {formatCurrency(customer.totalSpent)}
                       </p>
