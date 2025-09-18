@@ -36,6 +36,7 @@ toast.error('Failed to save')
 - **UI**: Tailwind, shadcn/ui, Lucide icons, Sonner toasts
 - **State**: Zustand 5.0.8
 - **Forms**: React Hook Form 7.62.0, Zod 4.1.5
+- **File Upload**: UploadThing 7.7.4
 
 ## Project Structure
 ```
@@ -54,6 +55,9 @@ toast.error('Failed to save')
 - **SearchInput** - Real-time search with debouncing, no flickering
 - **PaginationWrapper** - Unified pagination with shadcn/ui
   - Props: `preserveParams`, `showFirstLast`, `showPageInfo`
+- **ProductImageUpload** - Drag-and-drop image upload with preview, reordering, and progress tracking
+  - Props: `value`, `onChange`, `maxImages`, `disabled`
+  - Features: Multi-file upload, drag to reorder, image preview, delete individual images
 
 ### Business Constants (`/lib/constants/cart.ts`)
 - `FREE_SHIPPING_THRESHOLD = 100` PLN
@@ -82,6 +86,15 @@ updateAdminOrderStatus(orderId, status)
 getAdminOrderById(orderId)
 deleteOrder(orderId)
 
+// Admin Products Management (admin-product-actions.ts)
+getProductsForAdmin(page, search?, categoryFilter?, stockFilter?, featuredFilter?, sortBy?)
+getProductStatistics()
+getProductById(id) // Admin-only, fetches product for editing
+getAllCategoryNames() // Returns all unique category names
+deleteProduct(id) // Admin-only with auth check, auto-deletes images from storage
+createProduct(data) // Admin-only with auth check
+updateProduct(data) // Admin-only with auth check, auto-cleans removed images
+
 // Wishlist
 getWishlist()
 toggleWishlist(productId)
@@ -89,7 +102,22 @@ toggleWishlist(productId)
 // Categories
 getCategories()
 getProductsByCategory(category, page)
+
+// UploadThing File Management (uploadthing-actions.ts)
+deleteUploadThingFiles(fileKeys) // Admin-only, deletes files from storage
+deleteUploadThingFilesByUrls(urls) // Admin-only, extracts keys and deletes
 ```
+
+### Custom Hooks
+- **useNavigationGuard** - Prevents navigation with unsaved changes (Updated 2025-09-18)
+  - Options: `shouldBlock`, `onBlock`, `message`
+  - Returns: `confirmNavigation`, `navigateWithoutBlocking`, `isPending`, `currentPath`
+  - Features:
+    - Intercepts browser navigation (back button, refresh) and Next.js router navigation
+    - Uses `replaceState` instead of `pushState` to avoid history stack corruption
+    - Integrates with React 18+ `useTransition` for smooth navigation
+    - Provides methods for controlled navigation after user confirmation
+  - Usage: Product form protection, preventing loss of uploaded images
 
 ### Polish Localization
 - Currency: PLN (formatCurrency handles zł/gr)
@@ -110,10 +138,15 @@ getProductsByCategory(category, page)
 - Advanced search/filtering (SearchInput component)
 - Unified pagination (PaginationWrapper)
 - Polish localization throughout
+- Complete product CRUD with image upload (UploadThing)
+  - Create products with drag-and-drop image upload
+  - Edit products with automatic image cleanup for removed images
+  - Delete products with full image storage cleanup
+- Navigation guards for preventing data loss
+- Category management with auto-complete
 
 ### 🚧 Pending
 - Stripe/PayPal integration
-- Product management CRUD
 - Email notifications
 - Product reviews
 - Social login
@@ -148,7 +181,82 @@ pnpm db:seed    # Seed sample data
 - **User**: user@example.com / Zaq12wsx
 - Plus 31 additional test users
 
-## Recent Updates (2025-09-16)
+## Recent Updates (2025-09-18)
+- **Improved useNavigationGuard Hook** - Refactored to follow Next.js 15 best practices
+  - Replaced `history.pushState` with `replaceState` to avoid history stack corruption
+  - Added React 18+ `useTransition` integration for smooth navigation transitions
+  - Enhanced API with `confirmNavigation` and `navigateWithoutBlocking` methods
+  - Better state management with `isAllowedNavigation` ref
+  - Returns utility functions for programmatic navigation control
+- **Fixed Product Form Issues** - Resolved multiple form-related problems
+  - Removed duplicate `register('category')` in product-edit-form that broke validation
+  - Removed unnecessary setTimeout race conditions in category dropdowns
+  - Simplified UploadThing URL extraction by removing legacy `fileUrl` fallback
+- **Enhanced Code Quality** - Multiple improvements for maintainability
+  - Extracted duplicate `generateSlug` function to shared utils
+  - Created product constants file for default values (rating, numReviews, stock thresholds)
+  - Improved logging security by avoiding sensitive data exposure in production
+  - Added database-level stock validation with Prisma schema defaults
+  - Fixed various timeout-based race conditions throughout the codebase
+- **Documentation Updates** - Improved code documentation
+  - Removed outdated browser version numbers from comments
+  - Added comprehensive JSDoc for navigation guard limitations and alternatives
+  - Documented UploadThing response format handling
+
+## Previous Updates (2025-09-17)
+- **Added Robust Price Validation** - Improved number conversion safety across the application
+  - Added safeParsePrice function with NaN and negative value checks
+  - Fixed potential calculation failures in getProductStatistics
+  - Added price validation to cart-actions for all reduce operations
+  - Ensured averagePrice only includes valid positive prices
+  - Graceful handling of invalid data with error logging
+- **Improved Production Logging Security** - Enhanced logging to prevent sensitive data exposure
+  - Added environment-based logging (detailed in development, minimal in production)
+  - Removed sensitive file information from production logs
+  - Kept error tracking while avoiding internal detail exposure
+  - Applied to all UploadThing file operations in admin actions
+- **Enhanced useNavigationGuard Hook Documentation** - Improved browser compatibility documentation
+  - Added comprehensive JSDoc with usage examples
+  - Documented browser-specific behavior for beforeunload
+  - Listed supported browsers and their message handling
+  - Clarified limitations with modern browser security features
+- **Fixed TypeScript Issues in Product Forms** - Resolved type compatibility between Zod schemas and React Hook Form
+  - Removed explicit type parameters from useForm to let TypeScript infer
+  - Used z.infer<typeof schema> for onSubmit handlers
+  - Eliminated need for type assertions or `any` types
+- **Upgraded ProductImageUpload with @dnd-kit** - Replaced custom drag-and-drop with @dnd-kit library
+  - Full keyboard accessibility (Tab to focus, arrow keys to reorder)
+  - Touch gesture support for mobile devices
+  - Visual feedback during drag operations with DragOverlay
+  - Smooth animations and transitions
+  - WCAG-compliant with proper ARIA labels
+- **Enhanced Search Security** - Added Zod validation and sanitization for all search inputs to prevent ReDoS attacks
+  - Validates search term length (max 64 chars)
+  - Escapes special SQL characters (%_\) to prevent injection
+  - Applied to admin products, orders, and customers search functions
+- **Integrated UploadThing File Upload** - Replaced URL-based image inputs with drag-and-drop image upload component
+- **Created ProductImageUpload Component** - Custom upload component with multi-image support, drag-to-reorder, progress tracking, and validation
+- **Configured UploadThing File Router** - Set up secure file upload endpoints with admin-only authentication for product images
+- **Added Multiple Upload Endpoints** - Support for product images (5 files, 4MB each), avatars, category images, and banners
+- **Implemented Image Cleanup on Cancel** - Automatically deletes uploaded images from UploadThing storage when user cancels product creation
+- **Added Navigation Guards** - Prevents accidental data loss by showing confirmation dialog when navigating away with unsaved uploads
+- **Enhanced Product Deletion** - Now automatically removes associated images from UploadThing storage when deleting products
+- **Created useNavigationGuard Hook** - Reusable hook for intercepting navigation and preventing data loss across the application
+- **Implemented Product Edit Functionality** - Complete edit form with smart image management that only deletes removed/replaced images
+- **Added Category Auto-Complete** - Dynamic category field that shows existing categories and allows creating new ones
+- **Smart Image Management in Edit Mode** - Tracks original vs newly uploaded images, only cleans up new uploads on cancel
+- **Updated Product Form** - Now uses UploadThing for both product images and banner uploads with visual preview
+- **Added Admin Products Page** with complete display functionality, filtering, and statistics
+- **Created Products Table Component** with search, category/stock/featured filters, and sorting options
+- **Implemented Product Statistics Dashboard** showing total products, stock status, and inventory value
+- **Added Delete Product Functionality** with confirmation dialog and optimistic UI updates
+- **Created Product Creation Form** with React Hook Form, Zod validation, auto-slug generation, multiple image support (rating and reviews auto-set to 0)
+- **Duplicate Product Prevention** - Products cannot be created with duplicate names (case-insensitive) or slugs, similar to email uniqueness for users
+- **Enhanced Security** - Moved admin-only product operations (create, update, delete) to admin-product-actions.ts with proper authentication checks
+- **Consistent Admin Actions** - All admin operations now follow same security pattern with UserRole.admin checks
+- **UI/UX Consistency** across all admin pages (Orders, Customers, Products) with gradient headers and cards
+
+## Previous Updates (2025-09-16)
 - **Fixed SQL injection vulnerability** in getUsersForAdmin using Prisma.sql safe queries
 - **Fixed nested anchor tags** in pagination components
 - **Unified pagination** across app with enhanced PaginationWrapper

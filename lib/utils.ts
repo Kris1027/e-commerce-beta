@@ -321,6 +321,14 @@ export function generatePaginationNumbers(currentPage: number, totalPages: numbe
   return pages;
 }
 
+// Generate URL-safe slug from string
+export function generateSlug(name: string): string {
+  return name
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
+
 // Convert slug to title case
 export function slugToTitle(slug: string): string {
   return slug
@@ -348,4 +356,16 @@ export async function copyToClipboard(text: string): Promise<boolean> {
     console.error('Failed to copy to clipboard:', error);
     return false;
   }
+}
+
+// Safe price parsing with validation
+export function safeParsePrice(price: unknown): number {
+  const parsed = parseFloat(String(price));
+  return isNaN(parsed) || parsed < 0 ? 0 : parsed;
+}
+
+// Escape special characters for SQL LIKE queries to prevent injection
+export function escapeSqlLikePattern(pattern: string): string {
+  // Escape SQL LIKE special characters: %, _, \
+  return pattern.replace(/[%_\\]/g, '\\$&');
 }
