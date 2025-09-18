@@ -160,8 +160,8 @@ export function ProductImageUpload({
           if ('url' in file && typeof file.url === 'string') {
             return file.url;
           }
-          // If 'url' property does not exist, log error and skip
-          console.error('Invalid file response from UploadThing - missing url property:', file);
+          // If 'url' property does not exist, log error with available properties
+          console.error('Invalid file response from UploadThing - missing url property. Available properties:', Object.keys(file), 'Full object:', file);
           return '';
         }).filter(Boolean);
 

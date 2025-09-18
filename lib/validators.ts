@@ -80,11 +80,28 @@ const currency = z
   })
 
 // Product Schemas
+// Reusable validation helpers
+const productImageValidation = {
+  required: z.array(z.string().min(1, 'Image path is required')).min(1, 'At least one image is required'),
+  optional: z.array(z.string().min(1, 'Image path is required')).optional(),
+  refineNonEmpty: (data: { images?: string[] }) => {
+    // If images array is provided, it must have at least one image
+    if (data.images !== undefined) {
+      return data.images.length > 0;
+    }
+    return true;
+  },
+  refineMessage: {
+    message: 'At least one image is required',
+    path: ['images'],
+  },
+};
+
 export const insertProductSchema = z.object({
   name: z.string().min(3, 'Name must be at least 3 characters').max(255),
   slug: z.string().min(3, 'Slug must be at least 3 characters').max(255),
   category: z.string().min(1, 'Category is required'),
-  images: z.array(z.string().min(1, 'Image path is required')).min(1, 'At least one image is required'),
+  images: productImageValidation.required,
   brand: z.string().min(1, 'Brand is required'),
   description: z.string().min(1, 'Description is required'),
   stock: z.coerce.number().int().nonnegative('Stock cannot be negative'),
@@ -96,17 +113,8 @@ export const insertProductSchema = z.object({
 });
 
 export const updateProductSchema = insertProductSchema.partial().refine(
-  (data) => {
-    // If images array is provided, it must have at least one image
-    if (data.images !== undefined) {
-      return data.images.length > 0;
-    }
-    return true;
-  },
-  {
-    message: 'At least one image is required',
-    path: ['images'],
-  }
+  productImageValidation.refineNonEmpty,
+  productImageValidation.refineMessage
 );
 
 export const productSchema = insertProductSchema.extend({

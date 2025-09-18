@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useTransition, useRef, useCallback, useEffect } from 'react';
+import { useState, useTransition, useRef, useCallback, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -114,9 +114,11 @@ export function ProductEditForm({ product }: ProductEditFormProps) {
     fetchCategories();
   }, []);
 
-  // Filter categories based on current category input value
-  const filteredCategories = existingCategories.filter(cat =>
-    cat.toLowerCase().includes((watchCategory || '').toLowerCase())
+  // Filter categories based on current category input value - memoized for performance
+  const filteredCategories = useMemo(() =>
+    existingCategories.filter(cat =>
+      cat.toLowerCase().includes((watchCategory || '').toLowerCase())
+    ), [existingCategories, watchCategory]
   );
 
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
