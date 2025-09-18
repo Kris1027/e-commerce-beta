@@ -15,7 +15,6 @@ import {
   Package,
   ShoppingCart,
   Users,
-  Tags,
   Settings,
   ChevronLeft,
   ChevronRight,
@@ -45,11 +44,6 @@ const navItems = [
     title: 'Customers',
     href: '/admin/customers',
     icon: Users,
-  },
-  {
-    title: 'Categories',
-    href: '/admin/categories',
-    icon: Tags,
   },
   {
     title: 'Reviews',
