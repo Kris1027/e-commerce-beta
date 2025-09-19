@@ -56,7 +56,15 @@ export function ProductImageGallery({ images, productName }: ProductImageGallery
   }, [images]);
 
   const handleImageLoad = useCallback((index: number) => {
-    setLoadedImages(prev => new Set(prev).add(index));
+    setLoadedImages(prev => {
+      // Only create a new Set if the index isn't already in it
+      if (!prev.has(index)) {
+        const newSet = new Set(prev);
+        newSet.add(index);
+        return newSet;
+      }
+      return prev;
+    });
     if (index === selectedImage) {
       setIsLoading(false);
     }
