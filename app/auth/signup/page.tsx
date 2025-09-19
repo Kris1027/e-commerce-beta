@@ -6,7 +6,7 @@ import { signUpAction } from '@/lib/actions/auth-actions';
 import { mergeAnonymousCart, getCart } from '@/lib/actions/cart-actions';
 import Link from 'next/link';
 import { useEffect } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -32,7 +32,6 @@ function SubmitButton() {
 
 export default function SignUpPage() {
   const [state, formAction] = useActionState(signUpAction, null);
-  const router = useRouter();
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get('callbackUrl') || DEFAULT_AUTH_REDIRECT;
   const syncWithServer = useCartStore((state) => state.syncWithServer);
@@ -46,12 +45,13 @@ export default function SignUpPage() {
         await mergeAnonymousCart();
         const updatedCart = await getCart();
         syncWithServer(updatedCart);
-        router.replace(callbackUrl);
+        // Use window.location for full page refresh to update server components
+        window.location.href = callbackUrl;
       })();
     } else if (state?.error) {
       toast.error(state.error);
     }
-  }, [state, router, callbackUrl, syncWithServer]);
+  }, [state, callbackUrl, syncWithServer]);
 
   return (
     <div className="w-full max-w-md mx-auto">
