@@ -140,7 +140,7 @@ export function ProductImageGallery({ images, productName }: ProductImageGallery
           />
         </div>
 
-        {/* Preload adjacent images - hidden but with priority */}
+        {/* Preload adjacent images - hidden without priority */}
         {images.length > 1 && (
           <>
             {/* Preload next image */}
@@ -150,7 +150,7 @@ export function ProductImageGallery({ images, productName }: ProductImageGallery
                 alt="preload-next"
                 width={1}
                 height={1}
-                priority={true}
+                loading="eager"
                 quality={85}
               />
             </div>
@@ -161,7 +161,7 @@ export function ProductImageGallery({ images, productName }: ProductImageGallery
                 alt="preload-prev"
                 width={1}
                 height={1}
-                priority={true}
+                loading="eager"
                 quality={85}
               />
             </div>
