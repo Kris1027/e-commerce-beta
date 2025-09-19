@@ -212,6 +212,19 @@ pnpm db:seed    # Seed sample data
 - **User**: user@example.com / Zaq12wsx
 - Plus 31 additional test users
 
+## Recent Updates (2025-09-20)
+
+- **Implemented shadcn/ui Breadcrumb Component** - Replaced custom breadcrumb implementations with shadcn/ui component
+  - Replaced custom breadcrumb in product detail page (`/products/[slug]`)
+  - Added breadcrumb navigation to products listing page (`/products`)
+  - Added breadcrumb navigation to categories listing page (`/categories`)
+  - All breadcrumbs now use consistent shadcn/ui component with proper semantic HTML and ARIA attributes
+  - Improved accessibility with proper navigation landmarks
+- **Fixed Next.js 16 Image Quality Warnings** - Configured image quality settings
+  - Added `qualities: [85, 75, 60, 45]` to Next.js config
+  - Resolved warnings about unconfigured image qualities for Next.js 16 compatibility
+  - Maintains existing image quality (85) used in product banners
+
 ## Recent Updates (2025-09-19)
 
 - **Fixed Responsive Design Issues** - Improved mobile responsiveness across components
