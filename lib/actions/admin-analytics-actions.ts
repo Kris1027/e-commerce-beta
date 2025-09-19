@@ -1,16 +1,17 @@
 'use server';
 
-import { getCurrentUser } from '@/lib/actions/user-actions';
+import { auth } from '@/auth';
 import { prisma } from '@/db/prisma';
 import { safeParsePrice } from '@/lib/utils';
-import { ROLES } from '@/lib/constants/roles';
+import { UserRole } from '@prisma/client';
 
 async function checkAdminAccess() {
-  const result = await getCurrentUser();
-  if (!result.success || !result.data || result.data.role !== ROLES.ADMIN) {
+  const session = await auth();
+
+  if (!session?.user?.role || session.user.role !== UserRole.admin) {
     throw new Error('Unauthorized - Admin access required');
   }
-  return result.data;
+  return session.user;
 }
 
 function getStartOfMonth(date: Date): Date {
@@ -54,7 +55,7 @@ export async function getAnalyticsOverview() {
         where: { status: { not: 'pending' } },
       }),
       prisma.user.count({
-        where: { role: ROLES.USER },
+        where: { role: UserRole.user },
       }),
       prisma.product.count(),
       prisma.order.aggregate({
@@ -211,13 +212,13 @@ export async function getCustomerInsights() {
     ] = await Promise.all([
       prisma.user.count({
         where: {
-          role: ROLES.USER,
+          role: UserRole.user,
           createdAt: { gte: getStartOfMonth(now) },
         },
       }),
       prisma.user.count({
         where: {
-          role: ROLES.USER,
+          role: UserRole.user,
           createdAt: {
             gte: getStartOfMonth(subMonths(now, 1)),
             lt: getStartOfMonth(now),
@@ -233,7 +234,7 @@ export async function getCustomerInsights() {
       }),
       prisma.user.findMany({
         where: {
-          role: ROLES.USER,
+          role: UserRole.user,
           createdAt: { gte: sixMonthsAgo },
         },
         select: { createdAt: true },
