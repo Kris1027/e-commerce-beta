@@ -47,7 +47,6 @@ export function ProductImageGallery({ images, productName }: ProductImageGallery
   const [isLoading, setIsLoading] = useState(true);
   const [loadedImages, setLoadedImages] = useState<Set<number>>(new Set());
   const [isTransitioning, setIsTransitioning] = useState(false);
-  const [preloadedImages, setPreloadedImages] = useState<Set<number>>(new Set());
 
   // Initialize loading state for first image
   useEffect(() => {
@@ -55,34 +54,6 @@ export function ProductImageGallery({ images, productName }: ProductImageGallery
       setIsLoading(true);
     }
   }, [images]);
-
-  // Preload adjacent images for smooth transitions
-  useEffect(() => {
-    if (!images || images.length === 0) return;
-
-    const preloadImage = (index: number) => {
-      if (index >= 0 && index < images.length && !preloadedImages.has(index)) {
-        const imageUrl = images[index];
-        if (imageUrl) {
-          const img = new window.Image();
-          img.src = imageUrl;
-          img.onload = () => {
-            setPreloadedImages(prev => new Set(prev).add(index));
-          };
-        }
-      }
-    };
-
-    // Always preload current, next, and previous images
-    preloadImage(selectedImage);
-    preloadImage((selectedImage + 1) % images.length);
-    preloadImage(selectedImage === 0 ? images.length - 1 : selectedImage - 1);
-
-    // Preload all thumbnails
-    images.forEach((_, index) => {
-      preloadImage(index);
-    });
-  }, [selectedImage, images, preloadedImages]);
 
   const handleImageLoad = useCallback((index: number) => {
     setLoadedImages(prev => new Set(prev).add(index));
@@ -159,13 +130,40 @@ export function ProductImageGallery({ images, productName }: ProductImageGallery
             alt={`${productName} - Image ${selectedImage + 1}`}
             fill
             className="object-cover"
-            priority={selectedImage === 0}
+            priority={true}
             quality={85}
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 40vw"
             onLoad={() => handleImageLoad(selectedImage)}
-            onLoadingComplete={() => handleImageLoad(selectedImage)}
           />
         </div>
+
+        {/* Preload adjacent images - hidden but with priority */}
+        {images.length > 1 && (
+          <>
+            {/* Preload next image */}
+            <div className="hidden">
+              <Image
+                src={images[(selectedImage + 1) % images.length] || '/placeholder.svg'}
+                alt="preload-next"
+                width={1}
+                height={1}
+                priority={true}
+                quality={85}
+              />
+            </div>
+            {/* Preload previous image */}
+            <div className="hidden">
+              <Image
+                src={images[selectedImage === 0 ? images.length - 1 : selectedImage - 1] || '/placeholder.svg'}
+                alt="preload-prev"
+                width={1}
+                height={1}
+                priority={true}
+                quality={85}
+              />
+            </div>
+          </>
+        )}
 
         {/* Zoom indicator on hover */}
         <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
@@ -222,7 +220,7 @@ export function ProductImageGallery({ images, productName }: ProductImageGallery
                 )}
               >
                 {/* Thumbnail Loading Skeleton */}
-                {!preloadedImages.has(index) && (
+                {!loadedImages.has(index) && (
                   <div className="absolute inset-0 z-10">
                     <ImageSkeleton className="h-full w-full rounded-md" />
                   </div>
@@ -234,12 +232,13 @@ export function ProductImageGallery({ images, productName }: ProductImageGallery
                   fill
                   className={cn(
                     "object-cover transition-all duration-300",
-                    !preloadedImages.has(index) ? "opacity-0" : "opacity-100",
+                    !loadedImages.has(index) ? "opacity-0" : "opacity-100",
                     selectedImage === index && "brightness-110"
                   )}
                   sizes="(max-width: 768px) 25vw, 10vw"
                   quality={75}
                   onLoad={() => handleImageLoad(index)}
+                  loading="lazy"
                 />
 
                 {/* Selection Indicator Overlay */}

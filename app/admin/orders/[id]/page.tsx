@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
+import Image from 'next/image';
 import {
   ArrowLeft,
   Package,
@@ -65,12 +66,15 @@ export default async function AdminOrderDetailsPage({
                 {order.orderitems.map((item) => (
                   <div key={`${item.orderId}-${item.productId}`} className="flex items-start gap-4 pb-4 border-b last:border-0">
                     {item.image && (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
-                        src={item.image}
-                        alt={item.name || 'Product'}
-                        className="w-20 h-20 object-cover rounded-lg"
-                      />
+                      <div className="relative w-20 h-20 flex-shrink-0">
+                        <Image
+                          src={item.image}
+                          alt={item.name || 'Product'}
+                          fill
+                          className="object-cover rounded-lg"
+                          sizes="80px"
+                        />
+                      </div>
                     )}
                     <div className="flex-1">
                       <h4 className="font-medium">
