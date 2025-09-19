@@ -55,6 +55,38 @@ export function ProductImageGallery({ images, productName }: ProductImageGallery
     }
   }, [images]);
 
+  // Preload adjacent images using browser's native preloading
+  useEffect(() => {
+    if (!images || images.length <= 1) return;
+
+    const preloadImages = () => {
+      // Preload next image
+      const nextIndex = (selectedImage + 1) % images.length;
+      const nextImage = images[nextIndex];
+      if (nextImage && !loadedImages.has(nextIndex)) {
+        const link = document.createElement('link');
+        link.rel = 'prefetch';
+        link.as = 'image';
+        link.href = nextImage;
+        document.head.appendChild(link);
+      }
+
+      // Preload previous image
+      const prevIndex = selectedImage === 0 ? images.length - 1 : selectedImage - 1;
+      const prevImage = images[prevIndex];
+      if (prevImage && !loadedImages.has(prevIndex)) {
+        const link = document.createElement('link');
+        link.rel = 'prefetch';
+        link.as = 'image';
+        link.href = prevImage;
+        document.head.appendChild(link);
+      }
+    };
+
+    preloadImages();
+  }, [selectedImage, images, loadedImages]);
+
+  // Stable callback that doesn't depend on selectedImage
   const handleImageLoad = useCallback((index: number) => {
     setLoadedImages(prev => {
       // Only create a new Set if the index isn't already in it
@@ -65,10 +97,14 @@ export function ProductImageGallery({ images, productName }: ProductImageGallery
       }
       return prev;
     });
-    if (index === selectedImage) {
+  }, []);
+
+  // Update loading state when selectedImage changes or images load
+  useEffect(() => {
+    if (loadedImages.has(selectedImage)) {
       setIsLoading(false);
     }
-  }, [selectedImage]);
+  }, [selectedImage, loadedImages]);
 
   const handleImageChange = useCallback((newIndex: number) => {
     if (newIndex === selectedImage) return;
@@ -139,34 +175,6 @@ export function ProductImageGallery({ images, productName }: ProductImageGallery
             onLoad={() => handleImageLoad(selectedImage)}
           />
         </div>
-
-        {/* Preload adjacent images - hidden without priority */}
-        {images.length > 1 && (
-          <>
-            {/* Preload next image */}
-            <div className="hidden">
-              <Image
-                src={images[(selectedImage + 1) % images.length] || '/placeholder.svg'}
-                alt="preload-next"
-                width={1}
-                height={1}
-                loading="eager"
-                quality={85}
-              />
-            </div>
-            {/* Preload previous image */}
-            <div className="hidden">
-              <Image
-                src={images[selectedImage === 0 ? images.length - 1 : selectedImage - 1] || '/placeholder.svg'}
-                alt="preload-prev"
-                width={1}
-                height={1}
-                loading="eager"
-                quality={85}
-              />
-            </div>
-          </>
-        )}
 
         {/* Zoom indicator on hover */}
         <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
