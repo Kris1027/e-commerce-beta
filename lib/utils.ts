@@ -1,6 +1,7 @@
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 import qs from 'query-string';
+import { toast } from 'sonner';
 import { CART_CONSTANTS, LOCALE } from '@/lib/constants/cart';
 import { DEFAULT_AUTH_REDIRECT } from '@/lib/constants/auth';
 
@@ -373,15 +374,13 @@ export function buildAuthUrl(path: string, callbackUrl: string): string {
   return path;
 }
 
-// Copy text to clipboard
-export async function copyToClipboard(text: string): Promise<boolean> {
-  try {
-    await navigator.clipboard.writeText(text);
-    return true;
-  } catch (error) {
-    console.error('Failed to copy to clipboard:', error);
-    return false;
-  }
+// Copy text to clipboard with toast notification
+export function copyToClipboard(text: string, message = 'Copied to clipboard!') {
+  navigator.clipboard.writeText(text).then(() => {
+    toast.success(message);
+  }).catch(() => {
+    toast.error('Failed to copy');
+  });
 }
 
 // Safe price parsing with validation
@@ -394,4 +393,10 @@ export function safeParsePrice(price: unknown): number {
 export function escapeSqlLikePattern(pattern: string): string {
   // Escape SQL LIKE special characters: %, _, \
   return pattern.replace(/[%_\\]/g, '\\$&');
+}
+
+// Get payment method display text
+export function getPaymentMethodDisplay(method: string): string {
+  if (method === 'cashOnDelivery') return 'COD';
+  return method;
 }

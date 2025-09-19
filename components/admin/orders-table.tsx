@@ -14,7 +14,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { SearchInput } from '@/components/ui/search-input';
-import { cn, formatDateTime, formatCurrency, copyToClipboard } from '@/lib/utils';
+import { cn, formatDateTime, formatCurrency, copyToClipboard, getPaymentMethodDisplay } from '@/lib/utils';
 import { AdminOrdersResult, OrderSummary, updateAdminOrderStatus, deleteOrder } from '@/lib/actions/admin-order-actions';
 import { getStatusIcon, getStatusColor } from '@/lib/utils/order-status';
 import { PaginationWrapper } from '@/components/ui/pagination-wrapper';
@@ -162,15 +162,10 @@ export function OrdersTable({ data, summary }: OrdersTableProps) {
     }
   };
 
-  const handleCopyId = async (orderId: string) => {
-    const success = await copyToClipboard(orderId);
-    if (success) {
-      setCopiedId(orderId);
-      toast.success('Order ID copied to clipboard');
-      setTimeout(() => setCopiedId(null), 2000);
-    } else {
-      toast.error('Failed to copy ID');
-    }
+  const handleCopyId = (orderId: string) => {
+    copyToClipboard(orderId, 'Order ID copied to clipboard');
+    setCopiedId(orderId);
+    setTimeout(() => setCopiedId(null), 2000);
   };
 
   const handleDeleteOrder = async () => {
@@ -480,7 +475,7 @@ export function OrdersTable({ data, summary }: OrdersTableProps) {
                         </TableCell>
                         <TableCell className="text-center">
                           <span className="text-sm">
-                            {order.paymentMethod === 'cashOnDelivery' ? 'COD' : order.paymentMethod}
+                            {getPaymentMethodDisplay(order.paymentMethod)}
                           </span>
                         </TableCell>
                         <TableCell className="text-right">
