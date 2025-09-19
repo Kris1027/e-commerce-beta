@@ -119,15 +119,10 @@ export function CustomersTable({ data, statistics }: CustomersTableProps) {
     });
   };
 
-  const handleCopyId = async (userId: string) => {
-    const success = await copyToClipboard(userId);
-    if (success) {
-      setCopiedId(userId);
-      toast.success('User ID copied to clipboard');
-      setTimeout(() => setCopiedId(null), 2000);
-    } else {
-      toast.error('Failed to copy ID');
-    }
+  const handleCopyId = (userId: string) => {
+    copyToClipboard(userId, 'User ID copied to clipboard');
+    setCopiedId(userId);
+    setTimeout(() => setCopiedId(null), 2000);
   };
 
   const handleDeleteUser = async (userId: string) => {
