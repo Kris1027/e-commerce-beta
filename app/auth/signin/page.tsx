@@ -6,7 +6,7 @@ import { signInAction } from '@/lib/actions/auth-actions';
 import { mergeAnonymousCart, getCart } from '@/lib/actions/cart-actions';
 import Link from 'next/link';
 import { useEffect, useRef } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
@@ -34,6 +34,7 @@ function SubmitButton() {
 export default function SignInPage() {
   const [state, formAction] = useActionState(signInAction, null);
   const searchParams = useSearchParams();
+  const router = useRouter();
   const { update: updateSession } = useSession();
   const callbackUrl = searchParams.get('callbackUrl') || DEFAULT_AUTH_REDIRECT;
   const syncWithServer = useCartStore((state) => state.syncWithServer);
@@ -51,13 +52,14 @@ export default function SignInPage() {
         syncWithServer(updatedCart);
         // Update the session to reflect the authentication state immediately
         await updateSession();
-        // Use window.location for full page refresh to update server components
-        window.location.href = callbackUrl;
+        // Use Next.js router with refresh to update server components
+        router.push(callbackUrl);
+        router.refresh();
       })();
     } else if (state?.error && !processedRef.current) {
       toast.error(state.error);
     }
-  }, [state, callbackUrl, syncWithServer, updateSession]);
+  }, [state, callbackUrl, syncWithServer, updateSession, router]);
 
   return (
     <div className="w-full max-w-md mx-auto">
