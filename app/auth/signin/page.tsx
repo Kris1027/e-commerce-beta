@@ -34,8 +34,8 @@ function SubmitButton() {
 export default function SignInPage() {
   const [state, formAction] = useActionState(signInAction, null);
   const searchParams = useSearchParams();
-  const router = useRouter();
   const { update: updateSession } = useSession();
+  const router = useRouter();
   const callbackUrl = searchParams.get('callbackUrl') || DEFAULT_AUTH_REDIRECT;
   const syncWithServer = useCartStore((state) => state.syncWithServer);
   const processedRef = useRef(false);

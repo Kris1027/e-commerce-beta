@@ -34,8 +34,8 @@ export default function SignUpPage() {
   const [state, formAction] = useActionState(signUpAction, null);
   const searchParams = useSearchParams();
   const router = useRouter();
-  const callbackUrl = searchParams.get('callbackUrl') || DEFAULT_AUTH_REDIRECT;
   const syncWithServer = useCartStore((state) => state.syncWithServer);
+  const callbackUrl = searchParams.get('callbackUrl') || DEFAULT_AUTH_REDIRECT;
 
   useEffect(() => {
     if (state?.success) {
