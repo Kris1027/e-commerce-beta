@@ -171,12 +171,6 @@ deleteUploadThingFilesByUrls(urls) // Admin-only, extracts keys and deletes
   - Inventory status monitoring
   - Top products analysis
 
-### 🚧 Pending
-
-- Stripe/PayPal integration
-- Email notifications
-- Product reviews
-- Social login
 
 ## Database Models
 

@@ -731,7 +731,7 @@ const sampleData = {
     // Order 1 - Delivered
     {
       userEmail: 'user@example.com',
-      paymentMethod: 'Stripe',
+      paymentMethod: 'Cash on Delivery',
       shippingAddress: {
         fullName: 'Jane Doe',
         street: 'ul. Marszałkowska 10',
@@ -755,7 +755,7 @@ const sampleData = {
     // Order 2 - Pending
     {
       userEmail: 'robert.johnson@example.com',
-      paymentMethod: 'PayPal',
+      paymentMethod: 'Cash on Delivery',
       shippingAddress: {
         fullName: 'Robert Johnson',
         street: 'ul. Krakowskie Przedmieście 42',
@@ -776,7 +776,7 @@ const sampleData = {
     // Order 3 - Processing
     {
       userEmail: 'maria.garcia@example.com',
-      paymentMethod: 'Stripe',
+      paymentMethod: 'Cash on Delivery',
       shippingAddress: {
         fullName: 'Maria Garcia',
         street: 'ul. Piotrkowska 100',
@@ -799,7 +799,7 @@ const sampleData = {
     // Order 4 - Shipped
     {
       userEmail: 'david.smith@example.com',
-      paymentMethod: 'PayPal',
+      paymentMethod: 'Cash on Delivery',
       shippingAddress: {
         fullName: 'David Smith',
         street: 'ul. Długa 23',
@@ -843,7 +843,7 @@ const sampleData = {
     // Order 6 - Delivered
     {
       userEmail: 'michael.brown@example.com',
-      paymentMethod: 'Stripe',
+      paymentMethod: 'Cash on Delivery',
       shippingAddress: {
         fullName: 'Michael Brown',
         street: 'ul. Świętojańska 15',
@@ -867,7 +867,7 @@ const sampleData = {
     // Order 7 - Processing
     {
       userEmail: 'jennifer.davis@example.com',
-      paymentMethod: 'PayPal',
+      paymentMethod: 'Cash on Delivery',
       shippingAddress: {
         fullName: 'Jennifer Davis',
         street: 'ul. Zamkowa 8',
@@ -911,7 +911,7 @@ const sampleData = {
     // Order 9 - Shipped
     {
       userEmail: 'elizabeth.wilson@example.com',
-      paymentMethod: 'Stripe',
+      paymentMethod: 'Cash on Delivery',
       shippingAddress: {
         fullName: 'Elizabeth Wilson',
         street: 'ul. Mickiewicza 20',
@@ -934,7 +934,7 @@ const sampleData = {
     // Order 10 - Delivered
     {
       userEmail: 'james.moore@example.com',
-      paymentMethod: 'PayPal',
+      paymentMethod: 'Cash on Delivery',
       shippingAddress: {
         fullName: 'James Moore',
         street: 'ul. Portowa 7',
@@ -957,7 +957,7 @@ const sampleData = {
     // Order 11 - Processing
     {
       userEmail: 'patricia.taylor@example.com',
-      paymentMethod: 'Stripe',
+      paymentMethod: 'Cash on Delivery',
       shippingAddress: {
         fullName: 'Patricia Taylor',
         street: 'ul. Kościuszki 30',
@@ -1001,7 +1001,7 @@ const sampleData = {
     // Order 13 - Delivered
     {
       userEmail: 'linda.thomas@example.com',
-      paymentMethod: 'Stripe',
+      paymentMethod: 'Cash on Delivery',
       shippingAddress: {
         fullName: 'Linda Thomas',
         street: 'ul. Morska 12',
@@ -1025,7 +1025,7 @@ const sampleData = {
     // Order 14 - Pending
     {
       userEmail: 'matthew.jackson@example.com',
-      paymentMethod: 'PayPal',
+      paymentMethod: 'Cash on Delivery',
       shippingAddress: {
         fullName: 'Matthew Jackson',
         street: 'ul. Słoneczna 18',
@@ -1047,7 +1047,7 @@ const sampleData = {
     // Order 15 - Shipped
     {
       userEmail: 'barbara.white@example.com',
-      paymentMethod: 'Stripe',
+      paymentMethod: 'Cash on Delivery',
       shippingAddress: {
         fullName: 'Barbara White',
         street: 'ul. Piłsudskiego 22',
@@ -1069,7 +1069,7 @@ const sampleData = {
     // Order 16 - Processing
     {
       userEmail: 'daniel.harris@example.com',
-      paymentMethod: 'PayPal',
+      paymentMethod: 'Cash on Delivery',
       shippingAddress: {
         fullName: 'Daniel Harris',
         street: 'ul. Nadwiślańska 4',
@@ -1092,7 +1092,7 @@ const sampleData = {
     // Order 17 - Delivered
     {
       userEmail: 'susan.martin@example.com',
-      paymentMethod: 'Stripe',
+      paymentMethod: 'Cash on Delivery',
       shippingAddress: {
         fullName: 'Susan Martin',
         street: 'ul. Kręta 33',
@@ -1137,7 +1137,7 @@ const sampleData = {
     // Order 19 - Shipped
     {
       userEmail: 'nancy.martinez@example.com',
-      paymentMethod: 'Stripe',
+      paymentMethod: 'Cash on Delivery',
       shippingAddress: {
         fullName: 'Nancy Martinez',
         street: 'ul. Szeroka 9',
@@ -1160,7 +1160,7 @@ const sampleData = {
     // Order 20 - Processing
     {
       userEmail: 'charles.robinson@example.com',
-      paymentMethod: 'PayPal',
+      paymentMethod: 'Cash on Delivery',
       shippingAddress: {
         fullName: 'Charles Robinson',
         street: 'ul. Kwiatowa 14',
@@ -1182,7 +1182,7 @@ const sampleData = {
     // Order 21 - Delivered
     {
       userEmail: 'admin@example.com',
-      paymentMethod: 'Stripe',
+      paymentMethod: 'Cash on Delivery',
       shippingAddress: {
         fullName: 'John Admin',
         street: 'ul. Administracyjna 1',
@@ -1228,7 +1228,7 @@ const sampleData = {
     // Order 23 - Shipped
     {
       userEmail: 'thomas.rodriguez@example.com',
-      paymentMethod: 'Stripe',
+      paymentMethod: 'Cash on Delivery',
       shippingAddress: {
         fullName: 'Thomas Rodriguez',
         street: 'ul. Łąkowa 16',
@@ -1250,7 +1250,7 @@ const sampleData = {
     // Order 24 - Processing
     {
       userEmail: 'donna.lewis@example.com',
-      paymentMethod: 'PayPal',
+      paymentMethod: 'Cash on Delivery',
       shippingAddress: {
         fullName: 'Donna Lewis',
         street: 'ul. Rzeczna 5',
@@ -1273,7 +1273,7 @@ const sampleData = {
     // Order 25 - Delivered
     {
       userEmail: 'paul.walker@example.com',
-      paymentMethod: 'Stripe',
+      paymentMethod: 'Cash on Delivery',
       shippingAddress: {
         fullName: 'Paul Walker',
         street: 'ul. Górna 38',
@@ -1318,7 +1318,7 @@ const sampleData = {
     // Order 27 - Processing
     {
       userEmail: 'user@example.com',
-      paymentMethod: 'Stripe',
+      paymentMethod: 'Cash on Delivery',
       shippingAddress: {
         fullName: 'Jane User',
         street: 'ul. Testowa 99',
@@ -1342,7 +1342,7 @@ const sampleData = {
     // Order 28 - Shipped
     {
       userEmail: 'kenneth.green@example.com',
-      paymentMethod: 'PayPal',
+      paymentMethod: 'Cash on Delivery',
       shippingAddress: {
         fullName: 'Kenneth Green',
         street: 'ul. Boczna 41',
@@ -1386,7 +1386,7 @@ const sampleData = {
     // Order 30 - Delivered
     {
       userEmail: 'maria.garcia@example.com',
-      paymentMethod: 'Stripe',
+      paymentMethod: 'Cash on Delivery',
       shippingAddress: {
         fullName: 'Maria Garcia Lopez',
         street: 'ul. Stara 63',

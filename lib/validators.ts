@@ -219,11 +219,9 @@ export const shippingAddressSchema = z.object({
   phone: z.string().min(6, 'Phone number must be at least 6 characters').optional(),
 });
 
-// Payment Method Schema  
+// Payment Method Schema
 export const paymentMethodSchema = z.object({
   type: z.enum([
-    PAYMENT_METHODS.stripe,
-    PAYMENT_METHODS.paypal,
     PAYMENT_METHODS.cashOnDelivery,
   ]),
 });

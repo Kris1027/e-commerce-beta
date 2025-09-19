@@ -7,7 +7,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Truck, CreditCard, Wallet } from 'lucide-react';
+import { Truck } from 'lucide-react';
 import { savePaymentMethod } from '@/lib/actions/checkout-actions';
 
 interface PaymentMethodFormProps {
@@ -21,22 +21,6 @@ const paymentMethods = [
     description: 'Pay when you receive your order',
     icon: Truck,
     available: true,
-  },
-  {
-    id: 'stripe',
-    name: 'Credit/Debit Card',
-    description: 'Secure payment with Stripe',
-    icon: CreditCard,
-    available: false,
-    comingSoon: true,
-  },
-  {
-    id: 'paypal',
-    name: 'PayPal',
-    description: 'Fast and secure payment',
-    icon: Wallet,
-    available: false,
-    comingSoon: true,
   },
 ];
 
@@ -112,11 +96,6 @@ export default function PaymentMethodForm({ initialPaymentMethod }: PaymentMetho
                         <div className="flex-1">
                           <div className="flex items-center space-x-2">
                             <span className="font-medium">{method.name}</span>
-                            {method.comingSoon && (
-                              <span className="text-xs bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300 px-2 py-0.5 rounded-full">
-                                Coming Soon
-                              </span>
-                            )}
                           </div>
                           <p className="text-sm text-muted-foreground mt-1">
                             {method.description}
