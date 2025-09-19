@@ -50,14 +50,16 @@ export function ProductImageGallery({ images, productName }: ProductImageGallery
 
   // Initialize loading state for first image
   useEffect(() => {
-    if (images && images.length > 0) {
+    if (images?.length > 0) {
       setIsLoading(true);
     }
   }, [images]);
 
   // Preload adjacent images using browser's native preloading
   useEffect(() => {
-    if (!images || images.length <= 1) return;
+    if (images?.length <= 1) return;
+
+    const links: HTMLLinkElement[] = [];
 
     const preloadImages = () => {
       // Preload next image
@@ -68,7 +70,9 @@ export function ProductImageGallery({ images, productName }: ProductImageGallery
         link.rel = 'prefetch';
         link.as = 'image';
         link.href = nextImage;
+        link.dataset['prefetchedImage'] = 'true';
         document.head.appendChild(link);
+        links.push(link);
       }
 
       // Preload previous image
@@ -79,11 +83,22 @@ export function ProductImageGallery({ images, productName }: ProductImageGallery
         link.rel = 'prefetch';
         link.as = 'image';
         link.href = prevImage;
+        link.dataset['prefetchedImage'] = 'true';
         document.head.appendChild(link);
+        links.push(link);
       }
     };
 
     preloadImages();
+
+    // Cleanup function to remove prefetch links
+    return () => {
+      links.forEach(link => {
+        if (link.parentNode) {
+          link.parentNode.removeChild(link);
+        }
+      });
+    };
   }, [selectedImage, images, loadedImages]);
 
   // Stable callback that doesn't depend on selectedImage
@@ -143,7 +158,7 @@ export function ProductImageGallery({ images, productName }: ProductImageGallery
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [handlePrevious, handleNext]);
 
-  if (!images || images.length === 0) {
+  if (!images?.length) {
     return (
       <div className="aspect-square w-full bg-muted rounded-lg flex items-center justify-center">
         <p className="text-muted-foreground">No image available</p>
