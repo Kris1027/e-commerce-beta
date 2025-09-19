@@ -214,6 +214,19 @@ pnpm db:seed    # Seed sample data
 
 ## Recent Updates (2025-09-20)
 
+- **Enhanced Product Image Gallery UX** - Improved loading experience and performance
+  - Implemented skeleton loading states for images to prevent layout shifts
+  - Added intelligent image preloading for adjacent images (current, next, previous)
+  - Implemented smooth fade transitions between image changes
+  - Added blur-up effect during image loading for better perceived performance
+  - Added keyboard navigation support (arrow keys to navigate images)
+  - Improved navigation controls with better visibility on hover
+  - Added image counter indicator showing current position
+  - Enhanced thumbnails with loading skeletons and selection indicators
+  - Added mobile-optimized dot navigation for smaller screens
+  - Implemented zoom indicator on hover for better user feedback
+  - Disabled controls during transitions to prevent race conditions
+  - All images now preload in background for instant switching
 - **Implemented shadcn/ui Breadcrumb Component** - Replaced custom breadcrumb implementations with shadcn/ui component
   - Replaced custom breadcrumb in product detail page (`/products/[slug]`)
   - Added breadcrumb navigation to products listing page (`/products`)
