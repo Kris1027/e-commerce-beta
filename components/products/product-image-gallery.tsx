@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { cn } from '@/lib/utils';
 import { ChevronLeft, ChevronRight, ZoomIn, ImageIcon } from 'lucide-react';
 
+
 interface ProductImageGalleryProps {
   images: string[];
   productName: string;
@@ -46,7 +47,6 @@ export function ProductImageGallery({ images, productName }: ProductImageGallery
   const [selectedImage, setSelectedImage] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [loadedImages, setLoadedImages] = useState<Set<number>>(new Set());
-  const [isTransitioning, setIsTransitioning] = useState(false);
 
   // Initialize loading state for first image
   useEffect(() => {
@@ -65,8 +65,6 @@ export function ProductImageGallery({ images, productName }: ProductImageGallery
   const handleImageChange = useCallback((newIndex: number) => {
     if (newIndex === selectedImage) return;
 
-    setIsTransitioning(true);
-
     // Set loading state for the new image if it hasn't been loaded yet
     if (!loadedImages.has(newIndex)) {
       setIsLoading(true);
@@ -74,10 +72,7 @@ export function ProductImageGallery({ images, productName }: ProductImageGallery
       setIsLoading(false);
     }
 
-    setTimeout(() => {
-      setSelectedImage(newIndex);
-      setIsTransitioning(false);
-    }, 50);
+    setSelectedImage(newIndex);
   }, [selectedImage, loadedImages]);
 
   const handlePrevious = useCallback(() => {
@@ -122,7 +117,7 @@ export function ProductImageGallery({ images, productName }: ProductImageGallery
         {/* Main Image - only visible when loaded */}
         <div className={cn(
           "absolute inset-0 bg-background transition-opacity duration-500",
-          isLoading || isTransitioning ? "opacity-0" : "opacity-100"
+          isLoading ? "opacity-0" : "opacity-100"
         )}>
           <Image
             key={`main-${selectedImage}`}
@@ -177,17 +172,15 @@ export function ProductImageGallery({ images, productName }: ProductImageGallery
           <>
             <button
               onClick={handlePrevious}
-              className="absolute left-4 top-1/2 -translate-y-1/2 bg-background/90 backdrop-blur-sm rounded-full p-2 hover:bg-background transition-all hover:scale-110 shadow-lg opacity-0 group-hover:opacity-100 disabled:opacity-50"
+              className="absolute left-4 top-1/2 -translate-y-1/2 bg-background/90 backdrop-blur-sm rounded-full p-2 hover:bg-background transition-all hover:scale-110 shadow-lg opacity-0 group-hover:opacity-100"
               aria-label="Previous image"
-              disabled={isTransitioning}
             >
               <ChevronLeft className="h-5 w-5" />
             </button>
             <button
               onClick={handleNext}
-              className="absolute right-4 top-1/2 -translate-y-1/2 bg-background/90 backdrop-blur-sm rounded-full p-2 hover:bg-background transition-all hover:scale-110 shadow-lg opacity-0 group-hover:opacity-100 disabled:opacity-50"
+              className="absolute right-4 top-1/2 -translate-y-1/2 bg-background/90 backdrop-blur-sm rounded-full p-2 hover:bg-background transition-all hover:scale-110 shadow-lg opacity-0 group-hover:opacity-100"
               aria-label="Next image"
-              disabled={isTransitioning}
             >
               <ChevronRight className="h-5 w-5" />
             </button>
@@ -210,13 +203,11 @@ export function ProductImageGallery({ images, productName }: ProductImageGallery
               <button
                 key={`thumb-${index}`}
                 onClick={() => handleImageChange(index)}
-                disabled={isTransitioning}
                 className={cn(
                   'relative aspect-square overflow-hidden rounded-md bg-muted border-2 transition-all cursor-pointer group',
                   selectedImage === index
                     ? 'border-primary ring-2 ring-primary/20 scale-105'
-                    : 'border-transparent hover:border-muted-foreground/50 hover:scale-105',
-                  isTransitioning && 'pointer-events-none'
+                    : 'border-transparent hover:border-muted-foreground/50 hover:scale-105'
                 )}
               >
                 {/* Thumbnail Loading Skeleton */}
