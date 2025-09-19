@@ -156,34 +156,34 @@ export default function AdminNav() {
         </nav>
 
         <div className="p-4 border-t">
-          {isCollapsed ? (
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <SignOutButton
-                  variant="ghost"
-                  className={cn(
-                    'w-full justify-start gap-3 text-muted-foreground hover:text-accent-foreground',
-                    isCollapsed && 'justify-center px-0'
-                  )}
-                  showText={!isCollapsed}
-                  iconClassName="h-5 w-5"
-                />
-              </TooltipTrigger>
-              <TooltipContent side="right">
-                <p>Sign out</p>
-              </TooltipContent>
-            </Tooltip>
-          ) : (
-            <SignOutButton
-              variant="ghost"
-              className={cn(
-                'w-full justify-start gap-3 text-muted-foreground hover:text-accent-foreground',
-                isCollapsed && 'justify-center px-0'
-              )}
-              showText={!isCollapsed}
-              iconClassName="h-5 w-5"
-            />
-          )}
+          {(() => {
+            const signOutButton = (
+              <SignOutButton
+                variant="ghost"
+                className={cn(
+                  'w-full justify-start gap-3 text-muted-foreground hover:text-accent-foreground',
+                  isCollapsed && 'justify-center px-0'
+                )}
+                showText={!isCollapsed}
+                iconClassName="h-5 w-5"
+              />
+            );
+
+            if (isCollapsed) {
+              return (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    {signOutButton}
+                  </TooltipTrigger>
+                  <TooltipContent side="right">
+                    <p>Sign out</p>
+                  </TooltipContent>
+                </Tooltip>
+              );
+            }
+
+            return signOutButton;
+          })()}
         </div>
       </aside>
     </TooltipProvider>
