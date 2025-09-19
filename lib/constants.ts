@@ -38,8 +38,6 @@ export const SEO_CONFIG = {
 
 // Payment Methods
 export const PAYMENT_METHODS = {
-  stripe: 'Stripe',
-  paypal: 'PayPal',
   cashOnDelivery: 'Cash on Delivery',
 } as const
 

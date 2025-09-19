@@ -3,9 +3,8 @@ import { auth } from '@/auth';
 import * as userActions from '@/lib/actions/user-actions';
 import { getWishlistCount } from '@/lib/actions/wishlist-actions';
 import ProfileForm from '@/components/profile/profile-form';
-import { Package, Truck, CheckCircle, Clock, Ban, CreditCard, Heart } from 'lucide-react';
+import { Package, Truck, CheckCircle, Clock, Ban, Heart } from 'lucide-react';
 import Link from 'next/link';
-import { formatCurrency } from '@/lib/utils';
 import { LOCALE } from '@/lib/constants/cart';
 
 export default async function ProfilePage() {
@@ -125,20 +124,6 @@ export default async function ProfilePage() {
                 >
                   View all →
                 </Link>
-              </div>
-            </div>
-            
-            {/* Total Spent Card */}
-            <div className="rounded-lg border bg-card p-6">
-              <h3 className="text-lg font-semibold mb-4">Total Spent</h3>
-              <div className="flex items-center gap-3">
-                <div className="p-3 bg-primary/10 rounded-lg">
-                  <CreditCard className="h-6 w-6 text-primary" />
-                </div>
-                <div>
-                  <p className="text-2xl font-bold">{formatCurrency(stats.totalSpent)}</p>
-                  <p className="text-sm text-muted-foreground">Lifetime purchases</p>
-                </div>
               </div>
             </div>
             

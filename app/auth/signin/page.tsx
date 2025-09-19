@@ -5,8 +5,9 @@ import { useFormStatus } from 'react-dom';
 import { signInAction } from '@/lib/actions/auth-actions';
 import { mergeAnonymousCart, getCart } from '@/lib/actions/cart-actions';
 import Link from 'next/link';
-import { useEffect } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useEffect, useRef } from 'react';
+import { useSearchParams, useRouter } from 'next/navigation';
+import { useSession } from 'next-auth/react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -32,13 +33,16 @@ function SubmitButton() {
 
 export default function SignInPage() {
   const [state, formAction] = useActionState(signInAction, null);
-  const router = useRouter();
   const searchParams = useSearchParams();
+  const { update: updateSession } = useSession();
+  const router = useRouter();
   const callbackUrl = searchParams.get('callbackUrl') || DEFAULT_AUTH_REDIRECT;
   const syncWithServer = useCartStore((state) => state.syncWithServer);
+  const processedRef = useRef(false);
 
   useEffect(() => {
-    if (state?.success) {
+    if (state?.success && !processedRef.current) {
+      processedRef.current = true;
       toast.success('Signed in successfully!');
 
       // Merge the anonymous cart and then get the updated cart
@@ -46,12 +50,16 @@ export default function SignInPage() {
         await mergeAnonymousCart();
         const updatedCart = await getCart();
         syncWithServer(updatedCart);
-        router.replace(callbackUrl);
+        // Update the session to reflect the authentication state immediately
+        await updateSession();
+        // Use Next.js router with refresh to update server components
+        router.push(callbackUrl);
+        router.refresh();
       })();
-    } else if (state?.error) {
+    } else if (state?.error && !processedRef.current) {
       toast.error(state.error);
     }
-  }, [state, router, callbackUrl, syncWithServer]);
+  }, [state, callbackUrl, syncWithServer, updateSession, router]);
 
   return (
     <div className="w-full max-w-md mx-auto">

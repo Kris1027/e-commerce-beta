@@ -171,12 +171,6 @@ deleteUploadThingFilesByUrls(urls) // Admin-only, extracts keys and deletes
   - Inventory status monitoring
   - Top products analysis
 
-### 🚧 Pending
-
-- Stripe/PayPal integration
-- Email notifications
-- Product reviews
-- Social login
 
 ## Database Models
 
@@ -211,6 +205,32 @@ pnpm db:seed    # Seed sample data
 - **Admin**: admin@example.com / Zaq12wsx
 - **User**: user@example.com / Zaq12wsx
 - Plus 31 additional test users
+
+## Recent Updates (2025-09-20)
+
+- **Enhanced Product Image Gallery UX** - Improved loading experience and performance
+  - Implemented skeleton loading states for images to prevent layout shifts
+  - Added intelligent image preloading for adjacent images (current, next, previous)
+  - Implemented smooth fade transitions between image changes
+  - Added blur-up effect during image loading for better perceived performance
+  - Added keyboard navigation support (arrow keys to navigate images)
+  - Improved navigation controls with better visibility on hover
+  - Added image counter indicator showing current position
+  - Enhanced thumbnails with loading skeletons and selection indicators
+  - Added mobile-optimized dot navigation for smaller screens
+  - Implemented zoom indicator on hover for better user feedback
+  - Disabled controls during transitions to prevent race conditions
+  - All images now preload in background for instant switching
+- **Implemented shadcn/ui Breadcrumb Component** - Replaced custom breadcrumb implementations with shadcn/ui component
+  - Replaced custom breadcrumb in product detail page (`/products/[slug]`)
+  - Added breadcrumb navigation to products listing page (`/products`)
+  - Added breadcrumb navigation to categories listing page (`/categories`)
+  - All breadcrumbs now use consistent shadcn/ui component with proper semantic HTML and ARIA attributes
+  - Improved accessibility with proper navigation landmarks
+- **Fixed Next.js 16 Image Quality Warnings** - Configured image quality settings
+  - Added `qualities: [85, 75, 60, 45]` to Next.js config
+  - Resolved warnings about unconfigured image qualities for Next.js 16 compatibility
+  - Maintains existing image quality (85) used in product banners
 
 ## Recent Updates (2025-09-19)
 

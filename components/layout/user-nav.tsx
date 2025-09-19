@@ -5,11 +5,14 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { User, Shield } from 'lucide-react';
 import { SignOutButton } from '@/components/auth/sign-out-button';
-import { useRole } from '@/hooks/use-role';
+import { useSession } from 'next-auth/react';
+import { ROLES } from '@/lib/constants/roles';
 
 export function UserNav() {
   const [isOpen, setIsOpen] = useState(false);
-  const { user, isAdmin } = useRole();
+  const { data: session } = useSession();
+  const user = session?.user;
+  const isAdmin = user?.role === ROLES.ADMIN;
 
   return (
     <div className="relative">

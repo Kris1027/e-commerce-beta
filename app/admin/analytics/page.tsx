@@ -16,6 +16,8 @@ import { OrderStatusChart } from '@/components/admin/analytics/order-status-char
 import { ProductPerformanceChart } from '@/components/admin/analytics/product-performance-chart';
 import { CustomerFrequencyChart } from '@/components/admin/analytics/customer-frequency-chart';
 
+export const dynamic = 'force-dynamic';
+
 export default async function AdminAnalyticsPage() {
   const [
     overview,
